@@ -27,6 +27,7 @@
     <viewer:states>
         <s:State name="addrInput"/>
         <s:State name="coordInput"/>
+        <s:State name="plssInput"/>
         <s:State name="resultsList"/>
     </viewer:states>
 
@@ -38,6 +39,7 @@
 
     <fx:Script>
         <![CDATA[
+            import com.esri.ags.FeatureSet;
             import com.esri.ags.Graphic;
             import com.esri.ags.Map;
             import com.esri.ags.geometry.MapPoint;
@@ -80,6 +82,8 @@
             [Bindable]
             private var coordinatesTitle:String;
             [Bindable]
+            private var plssLabel:String;
+            [Bindable]
             private var noResultLabel:String;
 
             [Bindable]
@@ -104,11 +108,32 @@
             private var yLabel:String;
             [Bindable]
             private var yExampleValue:String;
+            [Bindable]
+            private var plssTitle:String;
+            [Bindable]
+            private var rangeLabel:String;
+            [Bindable]
+            private var rangeExampleValue:Number;
+            [Bindable]
+            private var rangeDirLabel:String;
+            [Bindable]
+            private var rangeDirExampleValueIndex:Number;
+            [Bindable]
+            private var sectionLabel:String;
+            [Bindable]
+            private var sectionExampleValue:Number;
+            [Bindable]
+            private var townshipLabel:String;
+            [Bindable]
+            private var townshipExampleValue:Number;
+            [Bindable]
+            private var plssLayerURL:String;
 
             private var locatorService:GenericJSONTask;
             private var addrObjects:Array = [];
             private var excludeFields:Array;
             private var graphicsLayer:GraphicsLayer;
+            private var featureGraphicsLayer:GraphicsLayer;
             private var resultSymbol:Symbol;
             private var hasCustomAddressFields:Boolean;
             private var customAddressFields:Dictionary;
@@ -117,6 +142,7 @@
             private var useBingLocator:Boolean;
             private var useSingleLine:Boolean = true;
             private var zoomScale:Number = 10000;
+            private var plssZoomScale:Number = 250000;
             private var serviceWKID:Number;
 
             private var popUpRenderer:PopUpRenderer = new PopUpRenderer();
@@ -125,6 +151,7 @@
             {
                 if (configXML)
                 {
+                    plssLayerURL = configXML.plssLayerURL || getDefaultString("plssLayerURL");
                     assignLabels();
                     prepareResultSymbol();
 
@@ -143,6 +170,11 @@
                         zoomScale = Number(configXML.zoomscale);
                     }
 
+                    if (Number(configXML.plsszoomscale) > 0)
+                    {
+                        plssZoomScale = Number(configXML.plsszoomscale);
+                    }
+
                     minscore = Number(configXML.minscore) || 40;
 
                     configureLocator();
@@ -150,9 +182,10 @@
 
                 wTemplate.addTitlebarButton(ICON_URL + "i_mailbox.png", addressLabel, showStateAddress);
                 wTemplate.addTitlebarButton(ICON_URL + "i_pushpin.png", coordinatesLabel, showStateCoordinates);
+                wTemplate.addTitlebarButton(ICON_URL + "i_float.png", plssLabel, showStatePLSS);
                 wTemplate.addTitlebarButton(ICON_URL + "i_table.png", resultsLabel, showStateResults);
                 setInitialView(configXML.initialview[0]);
-                fade.targets = [ addrInput, coordInput, resultsList ];
+                fade.targets = [ addrInput, coordInput, plssInput, resultsList ];
                 wTemplate.visible = true;
             }
 
@@ -163,10 +196,12 @@
                 //labels for the three widget states
                 addressLabel = configXML.labels.addresslabel || getDefaultString("addressLabel");
                 coordinatesLabel = configXML.labels.coordinateslabel || getDefaultString("coordinatesLabel");
+                plssLabel = configXML.labels.plsslabel || getDefaultString("plssLabel");
                 resultsLabel = configXML.labels.resultslabel || getDefaultString("resultsLabel");
                 //titles for the three widget states
                 addressTitle = configXML.labels.addresstitle || getDefaultString("addressTitle");
                 coordinatesTitle = configXML.labels.coordinatestitle || getDefaultString("coordinatesTitle");
+                plssTitle = configXML.labels.plsstitle || getDefaultString("plssTitle");
                 // noresult label
                 noResultLabel = configXML.labels.noresultlabel || getDefaultString("noFeatures");
 
@@ -176,6 +211,15 @@
                 xExampleValue = configXML.labels.xexamplevalue || getDefaultString("locateExampleValueX");
                 yExampleValue = configXML.labels.yexamplevalue || getDefaultString("locateExampleValueY");
 
+                // Labels for the "plss" tab
+                rangeLabel = configXML.labels.rangeLabel || getDefaultString("rangeLabel");
+                rangeDirLabel = configXML.labels.rangeDirLabel || getDefaultString("rangeDirLabel");
+                townshipLabel = configXML.labels.townshipLabel || getDefaultString("townshipLabel");
+                sectionLabel = configXML.labels.sectionLabel || getDefaultString("sectionLabel");
+                rangeExampleValue = parseInt(configXML.labels.rangeexamplevalue.to || getDefaultString("rangeExampleValue"));
+                rangeDirExampleValueIndex = parseInt(configXML.labels.rangedirexamplevalueindex || getDefaultString("rangeDirExampleValueIndex"));
+                townshipExampleValue = parseInt(configXML.labels.townshipexamplevalue || getDefaultString("townshipExampleValue"));
+                sectionExampleValue = parseInt(configXML.labels.sectionexamplevalue || getDefaultString("sectionExampleValue"));
                 //labels for the "results" tab
                 loadingLabel = configXML.labels.loadinglabel || getDefaultString("loadingLabel");
                 locationsLabel = configXML.labels.locationslabel || getDefaultString("locationsLabel");
@@ -199,6 +243,12 @@
                 graphicsLayer.symbol = resultSymbol;
                 graphicsLayer.addEventListener(FlexEvent.HIDE, graphicsLayer_hideHandler);
                 map.addLayer(graphicsLayer);
+
+                featureGraphicsLayer = new GraphicsLayer();
+                featureGraphicsLayer.name = "Locate Polygon Results";
+                featureGraphicsLayer.symbol = plssFill;
+                featureGraphicsLayer.addEventListener(FlexEvent.HIDE, graphicsLayer_hideHandler);
+                map.addLayer(featureGraphicsLayer);
             }
 
             private function assignCustomFields():void
@@ -306,6 +356,10 @@
                 {
                     showStateAddress();
                 }
+                else if (view == "plss")
+                {
+                    showStatePLSS();
+                }
             }
 
             private function graphicsLayer_hideHandler(event:FlexEvent):void
@@ -329,10 +383,17 @@
                 wTemplate.selectedTitlebarButtonIndex = 1;
             }
 
+            private function showStatePLSS():void
+            {
+                this.currentState = "plssInput";
+                plssRequiredFieldsLabel.visible = false;
+                plssRequiredFieldsLabel.includeInLayout = false;
+                wTemplate.selectedTitlebarButtonIndex = 2;
+            }
+
             private function showStateResults():void
             {
-                this.currentState = "resultsList";
-                wTemplate.selectedTitlebarButtonIndex = 2;
+                wTemplate.selectedTitlebarButtonIndex = 3;
             }
 
             private function locatorService_resultHandler(addressFieldData:Object, token:Object = null):void
@@ -550,6 +611,7 @@
                 // refresh before each request
                 hideInfoWindow();
                 graphicsLayer.clear();
+                featureGraphicsLayer.clear();
 
                 if (locateResultAC)
                 {
@@ -607,6 +669,7 @@
             {
                 hideInfoWindow();
                 graphicsLayer.clear();
+                featureGraphicsLayer.clear();
                 if (locateResultAC)
                 {
                     locateResultAC.removeAll();
@@ -627,7 +690,14 @@
                     locateResultAC.getItemAt(0).selected = true;
                     if (locateResultAC.length > 0)
                     {
-                        showLocation(locateResultAC.getItemAt(0));
+                        if (locateResultAC.getItemAt(0).point != null)
+                        {
+                            showLocation(locateResultAC.getItemAt(0));
+                        }
+                        else
+                        {
+                            showFeatureLocation(locateResultAC.getItemAt(0));
+                        }
                     }
                 }
                 else
@@ -705,6 +775,7 @@
                 // refresh before each request
                 hideInfoWindow();
                 graphicsLayer.clear();
+                featureGraphicsLayer.clear();
                 if (locateResultAC)
                 {
                     locateResultAC.removeAll();
@@ -759,10 +830,93 @@
                 }
             }
 
+            private function locatePLSS():void
+            {
+                originatingLocateState = currentState;
+                hideInfoWindow();
+                graphicsLayer.clear();
+                featureGraphicsLayer.clear();
+
+                if (locateResultAC)
+                {
+                    locateResultAC.removeAll();
+                }
+
+                try
+                {
+                    var pRange:String = range.value.toString();
+                    var pRangeDir:String = rangeDir.selectedItem;
+                    var pTownship:String = township.value.toString();
+                    var pSection:String = section.value.toString();
+                    if (pRange && pRangeDir && pTownship)
+                    {
+                        plssQuery.where= "RANGE = " + pRange + 
+                            " AND RANGE_DIR = '" + pRangeDir + "'" +
+                            " AND TOWNSHIP = " + pTownship +
+                            " AND SECTION = " + pSection;
+
+                        // Not too hard here to allow filtering down to +1 results (e.g. leave section blank -> ~ 36 results)
+                        showStateResults();
+                        plssQueryTask.execute(plssQuery, new ItemResponder(locatePLSSResult, locateError));
+
+                        function locatePLSSResult(featureSet:FeatureSet, token:Object = null):void
+                        {
+                            if (featureSet.features.length > 0)
+                            {
+                                locateResultAC = new ArrayCollection();
+
+                                var mapWKID:Number = map.spatialReference ? map.spatialReference.wkid : NaN;
+                                var mapIsWebMercator:Boolean = mapWKID == 102100 || mapWKID == 3857 || mapWKID == 102113;
+
+                                for each (var graphic:Graphic in featureSet.features)
+                                {
+                                    //  Add results to the result list
+                                    var locateResult:LocateResult = new LocateResult();
+                                    locateResult.symbol = resultSymbol;
+                                    locateResult.title = plssLabel;
+                                    locateResult.content = graphic.attributes.LEGAL; // TODO (Patrick) Put something better here.
+                                    locateResult.graphic = graphic;
+                                    locateResult.link = "";
+                                    locateResult.selected = false;
+
+                                    locateResultAC.addItem(locateResult);
+                                }
+
+                                // Trigger the pop-up
+                                showFeatureLocation(locateResultAC.getItemAt(0));
+
+                                // Display the results list
+                                addSharedData(widgetTitle, locateResultAC);
+
+                                // Tell ther user how many results were found
+                                showMessage(locationsLabel + " " + locateResultAC.length, false);
+                                locateResultAC.getItemAt(0).selected = true;
+
+                            }
+                            else
+                            {
+                                showMessage(noResultLabel, false);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        plssRequiredFieldsLabel.visible = true;
+                        plssRequiredFieldsLabel.includeInLayout = true;
+                        plssRequiredFieldsLabel.text = "Please fill out all fields.";
+                    }
+                }
+                catch (error:Error)
+                {
+                    showMessage(error.message + "and Query was: " + plssQuery.where, false);
+                }
+            }
+
             private function showLocation(data:Object):void
             {
                 hideInfoWindow();
                 graphicsLayer.clear();
+                featureGraphicsLayer.clear();
 
                 var ptGraphic:Graphic = new Graphic();
                 ptGraphic.geometry = data.point;
@@ -788,6 +942,36 @@
                 infoWindowShow();
             }
 
+            private function showFeatureLocation(data:Object):void
+            {
+                hideInfoWindow();
+                graphicsLayer.clear();
+                featureGraphicsLayer.clear();
+
+                // Highlight the PLSS section polygon
+                featureGraphicsLayer.add(data.graphic);
+
+                var popUpInfo : PopUpInfo = new PopUpInfo();
+                popUpInfo.title = data.title;
+                popUpInfo.description = data.content;
+
+                var infoWindowRenderer:ClassFactory = new ClassFactory(PopUpRenderer);
+                infoWindowRenderer.properties = { popUpInfo: popUpInfo };
+                featureGraphicsLayer.infoWindowRenderer = infoWindowRenderer;
+
+                popUpRenderer.popUpInfo = popUpInfo;
+                popUpRenderer.graphic = data.graphic;
+
+                if (map.scale > plssZoomScale)
+                {
+                    map.scale = plssZoomScale;
+                }
+                map.centerAt(data.graphic.geometry.extent.center);
+
+                // show infowindow
+                featureInfoWindowShow();
+            }
+
             private function locateResultDG_locationSelectHandler(event:Event):void
             {
                 deselectLocateResults();
@@ -795,7 +979,14 @@
                 var selectedLocateResult:LocateResult = ItemRenderer(event.target).data as LocateResult;
                 selectedLocateResult.selected = true;
 
-                showLocation(selectedLocateResult);
+                if (selectedLocateResult.point != null)
+                {
+                    showLocation(selectedLocateResult);
+                }
+                else
+                {
+                    showFeatureLocation(selectedLocateResult);
+                }
             }
 
             private function deselectLocateResults():void
@@ -821,6 +1012,7 @@
 
                 clearMessage();
                 graphicsLayer.clear();
+                featureGraphicsLayer.clear();
                 if (locateResultAC)
                 {
                     locateResultAC.removeAll();
@@ -859,6 +1051,13 @@
                 map.infoWindow.content = popUpRenderer;
                 map.infoWindow.contentOwner = popUpRenderer.graphic;
                 map.infoWindow.show(popUpRenderer.graphic.geometry as MapPoint);
+            }
+
+            private function featureInfoWindowShow():void
+            {
+                map.infoWindow.content = popUpRenderer;
+                map.infoWindow.contentOwner = popUpRenderer.graphic;
+                map.infoWindow.show(popUpRenderer.graphic.geometry.extent.center);
             }
 
             private function showMessage(msg:String, swfVisible:Boolean):void
@@ -904,6 +1103,7 @@
                             clearMessage();
                             hideInfoWindow();
                             graphicsLayer.clear();
+                            featureGraphicsLayer.clear();
                         }
                         else
                         {
@@ -940,6 +1140,10 @@
                 else if (originatingLocateState == "coordInput")
                 {
                     showStateCoordinates();
+                }
+                else if (originatingLocateState == "plssInput")
+                {
+                     showStatePLSS();
                 }
             }
 
@@ -1083,6 +1287,14 @@
                 }
             }
 
+            private function frmLocatePLSS_formKeyDownHandler(event:KeyboardEvent):void
+            {
+                if (event.keyCode == Keyboard.ENTER)
+                {
+                    locatePLSS();
+                }
+            }
+
             private function hideInfoWindow():void
             {
                 if (map.infoWindow.contentOwner &&
@@ -1091,10 +1303,43 @@
                     map.infoWindow.hide();
                 }
             }
+
+            private function valueFormatFunction(value:Number):String
+            {
+                if (value != 0)
+                {
+                    return value.toString();
+                }
+                else {
+                    return '---';
+                }
+            }
+
+            private function valueParseFunction(value:String):Number
+            {
+                if (value != '---')
+                {
+                    return parseInt(value);
+                }
+                else
+                {
+                    return 0;
+                }
+            }
         ]]>
     </fx:Script>
 
     <fx:Declarations>
+        <esri:SimpleFillSymbol id="plssFill"
+                               alpha="0.7"
+                               color="0x2288FF"/>
+        <esri:QueryTask id="plssQueryTask"
+                        url="{plssLayerURL}"
+                        useAMF="false"/>
+        <esri:Query id="plssQuery"
+                    outFields="[LEGAL,]"
+                    outSpatialReference="{map.spatialReference}"
+                    returnGeometry="true"/>
         <esri:Locator id="locator"
                       outSpatialReference="{map.spatialReference}"
                       url="http://tasks.arcgisonline.com/ArcGIS/rest/services/Locators/TA_Streets_US_10/GeocodeServer"/>
@@ -1185,6 +1430,71 @@
                     <s:Button click="clearInputFieldsAndResults()" label="{clearLabel}"/>
                 </s:HGroup>
                 <s:Label id="coordinatesRequiredFieldsLabel"
+                         color="0xff0000"
+                         includeInLayout="false"
+                         visible="false"/>
+            </mx:Form>
+        </s:Group>
+        <s:Group id="plssInput"
+                 width="100%" height="100%"
+                 visible="false"
+                 visible.plssInput="true">
+            <s:layout>
+                <s:VerticalLayout gap="1"/>
+            </s:layout>
+            <s:Label id="plssText" text="{plssTitle}"/>
+            <mx:Form id="frmLocatePLSS"
+                     width="100%" height="100%"
+                     keyDown="frmLocatePLSS_formKeyDownHandler(event)"
+                     paddingBottom="0"
+                     verticalScrollPolicy="off">
+                <mx:FormItem width="100%"
+                             label="{rangeLabel}"
+                             required="true">
+                    <s:NumericStepper id="range"
+                                      width="100%"
+                                      maximum="43"
+                                      minimum="1"
+                                      value="{rangeExampleValue}"/>
+                </mx:FormItem>
+                <mx:FormItem width="100%"
+                             label="{rangeDirLabel}"
+                             required="true">
+                    <s:DropDownList id="rangeDir"
+                                    width="100%"
+                                    selectedIndex="{rangeDirExampleValueIndex}">
+                        <s:dataProvider>
+                            <s:ArrayList source="[E,W]" />
+                        </s:dataProvider>
+                    </s:DropDownList>
+                </mx:FormItem>
+                <mx:FormItem width="100%"
+                             label="{townshipLabel}"
+                             required="true">
+                    <s:NumericStepper id="township"
+                                      width="100%"
+                                      maximum="35"
+                                      minimum="1"
+                                      value="{townshipExampleValue}"/>
+                </mx:FormItem>
+                <mx:FormItem width="100%"
+                             label="{sectionLabel}"
+                             required="true">
+                    <s:NumericStepper id="section"
+                                      width="100%"
+                                      maximum="36"
+                                      minimum="1"
+                                      valueFormatFunction="{valueFormatFunction}"
+                                      valueParseFunction="{valueParseFunction}"
+                                      value="{sectionExampleValue}"/>
+                </mx:FormItem>
+                <s:HGroup width="100%"
+                          horizontalAlign="center"
+                          paddingTop="5">
+                    <s:Button click="locatePLSS()" label="{submitLabel}"/>
+                    <s:Button click="clearInputFieldsAndResults()" label="{clearLabel}"/>
+                </s:HGroup>
+                <s:Label id="plssRequiredFieldsLabel"
                          color="0xff0000"
                          includeInLayout="false"
                          visible="false"/>

@@ -155,7 +155,8 @@
                 }
                 catch (error:Error)
                 {
-                    AppEvent.showError("Some error occurred. ExternalInterface doesn't work in Standalone player.", VIEWER_CONTAINER);
+                    // Commented out to prevent this error from showing incorrectly when hosting the viewer at a non-standard URL
+                    //AppEvent.showError("Some error occurred. ExternalInterface doesn't work in Standalone player.", VIEWER_CONTAINER);
                 }
             }
 

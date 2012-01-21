@@ -42,12 +42,35 @@
             private var hideTimer:Timer = new Timer(300, 1); // TODO - redo with transition
 
             private var hideSuspended:Boolean = false;
+            import com.esri.viewer.components.TitlebarButton;
+
+            import flash.events.Event;
+            import flash.events.MouseEvent;
+
+            import mx.controls.Image;
+            import mx.core.FlexGlobals;
+            import mx.core.UIComponent;
+            import mx.events.FlexEvent;
+            import mx.managers.CursorManager;
+            import mx.managers.DragManager;
+
+            import spark.components.Application;
+            import spark.components.Group;
+            import spark.components.SkinnableContainer;
+
+            private var _cursorID:int = 0;
 
             [Bindable]
             private var basemapList:ArrayList;
 
             [Bindable]
             private var opLayerListButtonLabel:String;
+
+            [Embed(source = "/assets/images/w_resizecursor.png")]
+            public var resizeCursor:Class;
+
+            [Embed(source = "/assets/images/w_resizecursor_rtl.png")]
+            public var resizeCursor_rtl:Class;
 
             private function widgetConfigLoadedHandler():void
             {
@@ -153,6 +176,12 @@
                     {
                         excludeLayers.addItem(layers[j].toString());
                     }
+
+                    // also exclude layers specified in the main config xml
+                    for each (var label:String in configData.excludeLayers)
+                    {
+                        excludeLayers.addItem(label);
+                    }
                 }
 
                 return excludeLayers;
@@ -193,10 +222,9 @@
                 hideTimer.start();
             }
 
-            private function opLayerListButton_rollOverHandler(event:MouseEvent):void
+            private function opLayerListButton_clickHandler(event:MouseEvent):void
             {
-                opLayersContainer.visible = true;
-                hideTimer.reset();
+                opLayersContainer.visible = !opLayersContainer.visible;
                 updateOpLayersContainerPosition();
             }
 
@@ -240,13 +268,136 @@
 
             protected function opLayersContainer_creationCompleteHandler(event:FlexEvent):void
             {
+                var startHeight:Number = FlexGlobals.topLevelApplication.height - opLayersContainer.parent.y - opLayersContainer.y - 40;
+                if (startHeight > 600)
+                {
+                    startHeight = 600;
+                }
+                opLayersContainer.height = startHeight;
+
                 opLayersContainer.setStyle("backgroundColor", getStyle("contentBackgroundColor"));
                 opLayersContainer.setStyle("skinClass", FlexGlobals.topLevelApplication.getStyle("skinClass"));
+
+                resizeButton.addEventListener(MouseEvent.MOUSE_OVER, resize_overHandler);
+                resizeButton.addEventListener(MouseEvent.MOUSE_OUT, resize_outHandler);
+                resizeButton.addEventListener(MouseEvent.MOUSE_DOWN, resize_downHandler);
             }
 
             protected function opLayersContainer_clickHandler(event:MouseEvent):void
             {
                 AppEvent.dispatch(AppEvent.TOC_HIDDEN); // always hide the toc layer menu
+            }
+
+            private function resize_overHandler(event:MouseEvent):void
+            {
+                if (isRtl())
+                {
+                    _cursorID = CursorManager.setCursor(resizeCursor_rtl, 2, -10, -10);
+                }
+                else
+                {
+                    _cursorID = CursorManager.setCursor(resizeCursor, 2, -10, -10);
+                }
+            }
+
+            private function resize_outHandler(event:MouseEvent):void
+            {
+                CursorManager.removeCursor(_cursorID);
+            }
+
+            private function resize_downHandler(event:MouseEvent):void
+            {
+                stage.addEventListener(MouseEvent.MOUSE_MOVE, resize_moveHandler);
+                stage.addEventListener(MouseEvent.MOUSE_UP, resize_upHandler);
+            }
+
+            public function isRtl():Boolean
+            {
+                var result:Boolean = false;
+                try
+                {
+                    result = (FlexGlobals.topLevelApplication as Application).layoutDirection == "rtl";
+                }
+                catch (error:Error)
+                {
+                    result = false;
+                }
+                return result;
+            }
+
+            private function resize_moveHandler(event:MouseEvent):void
+            {
+                if (isRtl())
+                {
+                    resize_moveHandler_rtl();
+                }
+                else
+                {
+                    resize_moveHandler_normal();
+                }
+            }
+
+            private function resize_moveHandler_normal():void
+            {
+                // if there is minWidth and minHeight specified on the container, use them while resizing
+                const minimumResizeWidth:Number = opLayersContainer.minWidth ? opLayersContainer.minWidth : 200;
+                const minimumResizeHeight:Number = opLayersContainer.minHeight ? opLayersContainer.minHeight : 100;
+
+                if ((stage.mouseX < stage.width - 20) && (stage.mouseY < stage.height - 20))
+                {
+                    if ((stage.mouseX - opLayersContainer.parent.x) > minimumResizeWidth)
+                    {
+                        opLayersContainer.width = (stage.mouseX - opLayersContainer.parent.x - opLayersContainer.x);
+                    }
+                    if ((stage.mouseY - opLayersContainer.parent.y) > minimumResizeHeight)
+                    {
+                        opLayersContainer.height = (stage.mouseY - opLayersContainer.parent.y - opLayersContainer.y);
+                    }
+                }
+            }
+
+            private function resize_moveHandler_rtl():void
+            {
+                // if there is minWidth and minHeight specified on the container, use them while resizing
+                const minimumResizeWidth:Number = minWidth ? minWidth : 200;
+                const minimumResizeHeight:Number = minHeight ? minHeight : 100;
+
+                var nextWidth:Number = stage.stageWidth - (stage.mouseX + opLayersContainer.x);
+                var nextHeight:Number = (stage.mouseY - opLayersContainer.y);
+
+                if (stage.mouseX > 20 && (stage.mouseY < stage.height - 20))
+                {
+                    if (nextWidth > minimumResizeWidth)
+                    {
+                        opLayersContainer.width = nextWidth;
+                    }
+                    if (nextHeight > minimumResizeHeight)
+                    {
+                        opLayersContainer.height = nextHeight;
+                    }
+                }
+            }
+
+            private function resize_upHandler(event:MouseEvent):void
+            {
+
+                stage.removeEventListener(MouseEvent.MOUSE_MOVE, resize_moveHandler);
+                stage.removeEventListener(MouseEvent.MOUSE_UP, resize_upHandler);
+
+                var p:UIComponent = parent as UIComponent;
+                p.stopDrag();
+            }
+
+            protected function resizeButton_preinitializeHandler(event:FlexEvent):void
+            {
+                if (isRtl())
+                {
+                    resizeButton.source = "assets/images/w_resize_rtl.png";
+                }
+                else
+                {
+                    resizeButton.source = "assets/images/w_resize.png";
+                }
             }
         ]]>
     </fx:Script>
@@ -254,8 +405,7 @@
     <s:HGroup id="mapLayersContainer" gap="9">
         <s:Button id="opLayerListButton"
                   label="{opLayerListButtonLabel}"
-                  rollOut="startHideTimer()"
-                  rollOver="opLayerListButton_rollOverHandler(event)"
+                  click="opLayerListButton_clickHandler(event)"
                   visible="false"/>
         <s:ButtonBar id="basemapButtonBar"
                      change="basemapButtonBar_changeHandler(event)"
@@ -269,11 +419,13 @@
                        click="opLayersContainer_clickHandler(event)"
                        creationComplete="opLayersContainer_creationCompleteHandler(event)"
                        includeInLayout="false"
-                       rollOut="startHideTimer()"
-                       rollOver="hideTimer.reset()"
                        visible="false">
         <toc:TOC id="toc"
                  left="2" right="2" top="3" bottom="3"/>
+		<mx:Image id="resizeButton"
+				  right="0" bottom="0"
+				  preinitialize="resizeButton_preinitializeHandler(event)"
+				  source="assets/images/w_resize.png"/>
     </s:BorderContainer>
 
 </viewer:BaseWidget>

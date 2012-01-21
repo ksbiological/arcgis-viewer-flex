@@ -65,10 +65,7 @@
             {
                 if (configData)
                 {
-                    // if an explicit font size is specified, auto shrinking will not happen
-                    bannerTitle.autoShrinking = configData.titleFont.size == 0
-                    bannerSubtitle.autoShrinking = configData.subTitleFont.size == 0;
-
+                    header_background.source = configData.headerBackgroundImage || "assets/images/header_background.png";
                     widgetItemArrCol = getWidgetItems(configData.widgets);
                     var uiList:Array = configData.viewerUI;
 
@@ -79,11 +76,6 @@
                             bannerTitle.text = uiList[i].value;
                         } // default is no title at all
 
-                        if (uiList[i].id == "subtitle")
-                        {
-                            bannerSubtitle.text = uiList[i].value;
-                        } // default is no subtitle at all
-
                         if (uiList[i].id == "logo")
                         {
                             logoIcon.source = uiList[i].value;
@@ -92,6 +84,8 @@
                     AppEvent.addListener(AppEvent.SET_LOGO, setLogoHandler);
                     AppEvent.addListener(AppEvent.SET_TITLES, setTitlesHandler);
                     AppEvent.addListener(AppEvent.WIDGET_STATE_CHANGED, widgetStateChangedHandler);
+
+                    headerLinks.htmlText = configData.headerLinkContent || "";
                 }
             }
 
@@ -103,15 +97,6 @@
             private function setTitlesHandler(event:AppEvent):void
             {
                 bannerTitle.text = event.data.title;
-                bannerSubtitle.text = event.data.subtitle;
-            }
-
-            private function onSubTitleUpdateComplete(event:FlexEvent):void
-            {
-                bannerSubtitle.visible = bannerSubtitle.text != "";
-                bannerSubtitle.includeInLayout = bannerSubtitle.text != "";
-                titleGroup.invalidateDisplayList();
-                titleGroup.validateNow();
             }
 
             private function widgetConfigLoadedHandler():void
@@ -301,7 +286,7 @@
     </fx:Script>
 
     <s:Group id="headerGroup"
-             width="100%" height="85">
+             width="100%" height="147">
         <!-- basic structure is an hbox with
              logoIcon: a logo (if specified)
              titleGroup: the title on top of the subtitle
@@ -317,31 +302,41 @@
                     <s:SolidColor color="{getStyle('contentBackgroundColor')}"/>
                 </s:fill>
             </s:Rect>
+            <s:BitmapImage id="header_background"
+                           fillMode="clip"
+                           horizontalAlign="left"
+                           verticalAlign="top"
+                           height="100%" width="100%"/>
+            <s:BitmapImage id="logoIcon"
+                           fillMode="clip"
+                           maxHeight="{headerContent.height - 9}"
+                           maxWidth="{100% - this.x}"
+                           x="245" y="9"/>
+            <s:Label id="bannerTitle"
+                     fontSize="22"
+                     x="6" y="75"
+                     width="100%"
+                     styleName="BannerTitle"/>
+            <s:HGroup id="linkBox"
+                      horizontalAlign="right"
+                      verticalAlign="middle"
+                      verticalCenter="-5"
+                      left="{logoIcon.x + logoIcon.width + 6}"
+                      right="5"
+                      height="{headerContent.height - widgetItemDG.height}">
+                <mx:Text id="headerLinks"
+                         condenseWhite="true"
+                         width="100%"
+                         textAlign="right">
+                </mx:Text>
+            </s:HGroup>
             <s:HGroup width="100%" height="100%"
                       gap="2"
-                      paddingLeft="2"
-                      verticalAlign="middle">
-                <mx:Image id="logoIcon"
-                          horizontalAlign="left"
-                          maxHeight="{headerContent.height}"
-                          maxWidth="80"
-                          verticalAlign="middle"/>
-                <s:VGroup id="titleGroup"
-                          height="{headerContent.height}"
-                          gap="0"
-                          verticalAlign="middle">
-                    <components:AutoFontLabel id="bannerTitle"
-                                              maxWidth="300"
-                                              styleName="BannerTitle"/>
-                    <components:AutoFontLabel id="bannerSubtitle"
-                                              maxWidth="300"
-                                              styleName="BannerSubtitle"
-                                              updateComplete="onSubTitleUpdateComplete(event)"/>
-                </s:VGroup>
-
+                      paddingLeft="10"
+                      verticalAlign="bottom">
                 <s:HGroup id="widgetBox"
                           width="100%"
-                          horizontalAlign="center">
+                          horizontalAlign="right">
                     <HeaderController:WidgetItemDataGroup id="widgetItemDG"
                                                           dataProvider="{widgetItemArrCol}"
                                                           widgetItemClick="widgetItemDG_widgetItemClickHandler(event)"
@@ -355,19 +350,7 @@
                     </HeaderController:WidgetItemDataGroup>
                 </s:HGroup>
 
-                <mx:Spacer width="5"/>
-                <s:HGroup id="linkBox"
-                          horizontalAlign="right"
-                          paddingRight="5"
-                          verticalAlign="middle">
-                    <s:Label buttonMode="true"
-                             click="showAbout()"
-                             styleName="BannerSubtitle"
-                             text="{labelText}"
-                             useHandCursor="true"
-                             verticalAlign="middle"
-                             visible="{labelVisible == 'true'}"/>
-                </s:HGroup>
+                <mx:Spacer width="70"/>
             </s:HGroup>
         </s:Group>
         <s:VGroup id="menuToolTip"

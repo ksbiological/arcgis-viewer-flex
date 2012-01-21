@@ -34,8 +34,8 @@
             {
                 if (configXML)
                 {
-                    content = configXML.content || "...";
-                    btnLabel = configXML.btnlabel || getDefaultString("okLabel");
+                    content = configData.splashcontent || configXML.content || "...";
+                    btnLabel = configData.splashbtnlabel || configXML.btnlabel || getDefaultString("okLabel");
                     txtareaWidth = configXML.width || 500;
                     txtareaHeight = configXML.height || 500;
 

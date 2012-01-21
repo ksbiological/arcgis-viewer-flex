@@ -16,6 +16,7 @@
 package widgets.Locate
 {
 
+import com.esri.ags.Graphic;
 import com.esri.ags.geometry.MapPoint;
 import com.esri.ags.symbols.Symbol;
 
@@ -30,6 +31,8 @@ public class LocateResult extends EventDispatcher
     public var symbol:Symbol;
 
     public var content:String;
+
+    public var graphic:Graphic;
 
     public var point:MapPoint;
 

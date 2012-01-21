@@ -42,6 +42,23 @@ public class ConfigData
     public var proxyUrl:String;
     public var layoutDirection:String;
     public var webMapLayers:ArrayCollection;
+    
+    // Header links and logos
+    public var headerLinkContent:String;
+    public var headerBackgroundImage:String;
+    // 'About' widget fields
+    public var mapDescription:String;
+    public var copyrightText:String;
+    public var disclaimerText:String;
+    // Data extraction service
+    public var dataextractionservice:String;
+    // Splash content and button label
+    public var splashcontent:String;
+    public var splashbtnlabel:String;
+    // Common URLs
+    public var geometryservice:String;
+    // Layers to exclude from TOC
+    public var excludeLayers:ArrayCollection;
 
     public function ConfigData()
     {
@@ -56,6 +73,7 @@ public class ConfigData
         styleAlpha = 0.8;
         styleColors = [];
         geometryService = {}; // { url: "foo", token: "123", useproxy: false }
+        excludeLayers = new ArrayCollection();
     }
 }
 

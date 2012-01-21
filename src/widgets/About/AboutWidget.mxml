@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:esri="http://www.esri.com/2008/ags"
+				   xmlns:viewer="com.esri.viewer.*"
+				   creationComplete="init()">
+	
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.conversion.TextConverter;
+			import flashx.textLayout.elements.IConfiguration;
+			
+			import mx.events.FlexEvent;
+
+			[Bindable]
+			private var copyrightText:String;
+			[Bindable]
+			private var disclaimerText:String;
+			[Bindable]
+			private var mapDescriptionText:String;
+			//[Bindable]
+			//private var tfConfig:IConfiguration = Configuration(TextFlow.
+			
+			private function init():void
+			{
+				copyrightText = configData.copyrightText;
+				disclaimerText = configData.disclaimerText;
+				mapDescriptionText = configData.mapDescription;
+				
+				
+			}
+		]]>
+	</fx:Script>
+	<viewer:WidgetTemplate id="aboutMap"
+						   width="600" height="450">
+		<s:Scroller left="1" right="1" top="1" bottom="1">
+			<s:VGroup id="aboutMapContents" 
+					  width="100%">		
+				<s:RichEditableText id="mapDescription"
+									editable="false"
+									textFlow="{TextConverter.importToFlow(mapDescriptionText, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+									width="100%"/>
+				<s:Label text="Copyright information" 
+						 fontSize="14" 
+						 fontWeight="bold"/>
+				<s:RichEditableText id="copyright"
+									editable="false"
+									textFlow="{TextConverter.importToFlow(copyrightText, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+									width="100%"/>
+				<s:Label text="Disclaimer"
+						 fontSize="14"
+						 fontWeight="bold"/>
+				<s:RichEditableText id="disclaimer"
+									editable="false"
+									textFlow="{TextConverter.importToFlow(disclaimerText, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+									width="100%"/>
+			</s:VGroup>
+		</s:Scroller>
+		
+	</viewer:WidgetTemplate>
+</viewer:BaseWidget>

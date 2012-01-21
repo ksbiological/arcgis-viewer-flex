@@ -1027,6 +1027,22 @@ public class ConfigManager extends EventDispatcher
             }
             configData.widgetContainers = configWContainers;
 
+            // KBS custom properties
+            configData.mapDescription = configXML.mapDescription || "Description not found";
+            configData.copyrightText = configXML.copyrightDescription;
+            configData.disclaimerText = configXML.disclaimerDescription;
+            configData.dataextractionservice = configXML.dataextractionservice;
+            configData.headerLinkContent = configXML.headerLinkContent;
+            configData.headerBackgroundImage = configXML.headerBackgroundImage;
+            configData.splashcontent = configXML.splashcontent;
+            configData.splashbtnlabel = configXML.splashbtnlabel;
+            configData.geometryservice = configXML.geometryservice || getDefaultString('geometryservice');
+            var excludeLayerList:XMLList = configXML.excludelayer;
+            for each (var layer:Object in excludeLayerList)
+            {
+                configData.excludeLayers.addItem(layer.toString()); 
+            }
+
             if (!arcGISWebMapItemID)
             {
                 //================================================

@@ -313,7 +313,18 @@ public class TocMapLayerItem extends TocItem
             var rootLayers:Array = findRootLayers(layerInfos);
             for each (var layerInfo1:LayerInfo in rootLayers)
             {
-                addChild(createTocLayer(this, layerInfo1, layerInfos, layerInfo1.defaultVisibility));
+                var exclude:Boolean = false;
+                var excludeLayers:ArrayCollection = ViewerContainer.getInstance().configData.excludeLayers;
+                for each (var layer:String in excludeLayers) {
+                    if (layerInfo1.name == layer)
+                    {
+                        exclude = true;
+                    }
+                }
+                if (!exclude)
+                {
+                    addChild(createTocLayer(this, layerInfo1, layerInfos, layerInfo1.defaultVisibility));
+                }
             }
         }
     }
