@@ -21,10 +21,10 @@
 <a href="http://www.kdwpt.state.ks.us/" target="_blank">KDWPT - Home Page</a> | 
 <a href="ftp://wiley.kars.ku.edu/windresource/NRP_Guide.pdf" target="_blank">User Guide</a> | 
 <a href="ftp://wiley.kars.ku.edu/windresource/NRP_Metadata.pdf" target="_blank">Metadata</a> | 
-<a href="http://www.kars.ku.edu/natural-resource-planner/nrp-additional-resources/" target="_blank">Additional resources</a> | 
-<a href="http://www.kars.ku.edu/natural-resource-planner/view-arcmap/" target="_blank">View in ArcMap</a> | 
+<a href="http://kars.ku.edu/natural-resource-planner/nrp-additional-resources/" target="_blank">Additional resources</a> | 
+<a href="http://kars.ku.edu/natural-resource-planner/view-arcmap/" target="_blank">View in ArcMap</a> | 
 <a href="http://kars.ku.edu/geonetwork/srv/en/main.home" target="_blank">Download Geodata</a> | 
-<a href="http://www.kars.ku.edu/ArcGIS/rest/services/NaturalResourcePlanner/MapServer" target="_blank">Web Service Contents</a> | 
+<a href="http://kars.ku.edu/ArcGIS/rest/services/NaturalResourcePlanner/MapServer" target="_blank">Web Service Contents</a> | 
 
             <a href="http://kbs.ku.edu/" target="_blank">Kansas Biological Survey</a> | 
             <a href="http://kars.ku.edu/" target="_blank">Kansas Applied Remote Sensing (KARS)</a>
@@ -54,9 +54,9 @@
         <operationallayers>
 			
 <layer label="Natural Resource Planner" type="dynamic" visible="true" alpha="1" imageformat="png32"
-       url="http://www.kars.ku.edu/ArcGIS/rest/services/NaturalResourcePlanner/MapServer"/>
+       url="http://kars.ku.edu/ArcGIS/rest/services/NaturalResourcePlanner/MapServer"/>
 <layer label="Kansas County Boundaries" type="dynamic" visible="true" alpha="1"
-       url="http://www.kars.ku.edu/ArcGIS/rest/services/SingleLayers/KansasCountiesBoundaries/MapServer"/>
+       url="http://kars.ku.edu/ArcGIS/rest/services/SingleLayers/KansasCountiesBoundaries/MapServer"/>
 
         </operationallayers>
     </map>

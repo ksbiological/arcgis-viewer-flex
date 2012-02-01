@@ -73,7 +73,7 @@
 			[Bindable]
 			private var resultsAC:ArrayCollection = new ArrayCollection();
 			[Bindable]
-			private var reportURL:URLRequest = new URLRequest('http://www.kars.ku.edu/reports/sgpchat/');
+			private var reportURL:URLRequest = new URLRequest('http://kars.ku.edu/reports/sgpchat/');
 
 			private function activateDrawTool(event:MouseEvent):void
 			{
@@ -420,7 +420,7 @@
 
     <fx:Declarations>
 		<esri:ArcGISDynamicMapServiceLayer id="service"
-										   url="http://www.kars.ku.edu/ArcGIS/rest/services/SingleLayers/LEPCCrucialHabitatIndex/MapServer" />
+										   url="http://kars.ku.edu/ArcGIS/rest/services/SingleLayers/LEPCCrucialHabitatIndex/MapServer" />
 		<esri:GeometryService id="geometryService"
 							  fault="onFault(event)"/>
 		<esri:Query id="query"
