@@ -31,7 +31,7 @@
 		<!--<proxymapservice label="Imagery" />
 		<proxymapservice label="Streets" />-->
 	</useproxy>
-	<layers onlythese="true">
+	<layers onlythese="false">
 		<layer>
 			<name>Sanitary Manhole</name>
 			<fields all="true" />

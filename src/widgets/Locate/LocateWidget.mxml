@@ -153,7 +153,7 @@
             {
                 if (configXML)
                 {
-                    plssLayerURL = configXML.plssLayerURL || getDefaultString("plssLayerURL");
+                    plssLayerURL = configXML.plssLayerURL;
                     assignLabels();
                     prepareResultSymbol();
 
@@ -219,7 +219,7 @@
                 rangeDirLabel = configXML.labels.rangeDirLabel || getDefaultString("rangeDirLabel");
                 townshipLabel = configXML.labels.townshipLabel || getDefaultString("townshipLabel");
                 sectionLabel = configXML.labels.sectionLabel || getDefaultString("sectionLabel");
-                rangeExampleValue = parseInt(configXML.labels.rangeexamplevalue.to || getDefaultString("rangeExampleValue"));
+                rangeExampleValue = parseInt(configXML.labels.rangeexamplevalue || getDefaultString("rangeExampleValue"));
                 rangeDirExampleValueIndex = parseInt(configXML.labels.rangedirexamplevalueindex || getDefaultString("rangeDirExampleValueIndex"));
                 townshipExampleValue = parseInt(configXML.labels.townshipexamplevalue || getDefaultString("townshipExampleValue"));
                 sectionExampleValue = parseInt(configXML.labels.sectionexamplevalue || getDefaultString("sectionExampleValue"));

@@ -3,6 +3,19 @@
     <locator>http://tasks.arcgisonline.com/ArcGIS/rest/services/Locators/TA_Streets_US_10/GeocodeServer</locator>
     <minscore>40</minscore>
     <zoomscale>10000</zoomscale>
+    <plssLayerURL>http://kars.ku.edu/ArcGIS/rest/services/NaturalResourcePlanner/MapServer/0</plssLayerURL>
+    <labels>
+        <plsslabel>PLSS</plsslabel>
+        <plsstitle>PLSS</plsstitle>
+        <rangeLabel>Range</rangeLabel>
+        <rangeDirLabel>Range direction</rangeDirLabel>
+        <townshipLabel>Township</townshipLabel>
+        <sectionLabel>Section</sectionLabel>
+        <rangeexamplevalue>1</rangeexamplevalue>
+        <rangedirexamplevalueindex>0</rangedirexamplevalueindex>
+        <townshipexamplevalue>2</townshipexamplevalue>
+        <sectionexamplevalue>3</sectionexamplevalue>
+    </labels>
 </configuration>
 
 <!--
