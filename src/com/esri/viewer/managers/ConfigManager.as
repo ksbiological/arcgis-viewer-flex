@@ -1036,7 +1036,6 @@ public class ConfigManager extends EventDispatcher
             configData.headerBackgroundImage = configXML.headerBackgroundImage;
             configData.splashcontent = configXML.splashcontent;
             configData.splashbtnlabel = configXML.splashbtnlabel;
-            configData.geometryservice = configXML.geometryservice || getDefaultString('geometryservice');
             var excludeLayerList:XMLList = configXML.excludelayer;
             for each (var layer:Object in excludeLayerList)
             {
