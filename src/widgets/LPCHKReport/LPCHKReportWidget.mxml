@@ -34,6 +34,7 @@
 			import com.esri.ags.layers.GraphicsLayer;
 			import com.esri.ags.layers.supportClasses.AllDetails;
 			import com.esri.ags.symbols.Symbol;
+			import com.esri.ags.tasks.GeometryServiceSingleton;  
 			import com.esri.ags.tasks.supportClasses.Query;
 			import com.esri.ags.tools.DrawTool;
 			import com.esri.ags.tools.NavigationTool;
@@ -244,8 +245,6 @@
 				// Configure selected result graphics layer
 				selectedResultGraphicsLayer.symbol = selectedResultSymbol;
 				map.addLayer(selectedResultGraphicsLayer);
-				
-				geometryService.url = configData.geometryservice;
 			}
 
 			private function map_drawEndHandler(event:DrawEvent):void
@@ -286,7 +285,7 @@
 				// Query for intersections
 				if (needToSimplifyPolygon(graphic.geometry))
 				{
-					geometryService.simplify([graphic.geometry], new AsyncResponder(onResult, onFault));
+					GeometryServiceSingleton.instance.simplify([graphic.geometry], new AsyncResponder(onResult, onFault));
 					
 					function onResult(result:Array, token:Object = null):void {
 						findIntersectingParcels(graphic.geometry);
@@ -421,8 +420,6 @@
     <fx:Declarations>
 		<esri:ArcGISDynamicMapServiceLayer id="service"
 										   url="http://kars.ku.edu/ArcGIS/rest/services/SingleLayers/LEPCCrucialHabitatIndex/MapServer" />
-		<esri:GeometryService id="geometryService"
-							  fault="onFault(event)"/>
 		<esri:Query id="query"
 					outFields="{resultsDG.columns.toArray().map(function(column:spark.components.gridClasses.GridColumn, index:int, arr:Array):String {return column.dataField;})}"
 					outSpatialReference="{map.spatialReference}"

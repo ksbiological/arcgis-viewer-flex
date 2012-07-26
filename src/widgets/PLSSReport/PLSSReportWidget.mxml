@@ -44,6 +44,7 @@
 			import com.esri.ags.symbols.SimpleMarkerSymbol;
 			import com.esri.ags.symbols.Symbol;
 			import com.esri.ags.symbols.TextSymbol;
+			import com.esri.ags.tasks.GeometryServiceSingleton;  
 			import com.esri.ags.tasks.QueryTask;
 			import com.esri.ags.tasks.supportClasses.AreasAndLengthsParameters;
 			import com.esri.ags.tasks.supportClasses.LengthsParameters;
@@ -204,6 +205,12 @@
 				map.addLayer(graphicsLayer);
 				if (configXML)
 				{
+					if (GeometryServiceSingleton.instance.url) {
+						geometryService.url = GeometryServiceSingleton.instance.url;
+						geometryService.token = GeometryServiceSingleton.instance.token;
+						geometryService.proxyURL = GeometryServiceSingleton.instance.proxyURL;
+					}
+					
 					lbl.text = configXML.instructions;
 					
 					// drawing labels
@@ -805,7 +812,7 @@
 				try
 				{
 					var query:Query = new Query();
-					query.outFields = ["LEGAL",];
+					query.outFields = ["FID",];
 					query.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;
 					query.geometry = geom;
 					query.returnGeometry = true;
@@ -823,7 +830,7 @@
 							var featureIDs:Array = [];
 							for each (var section:Object in featureSet.attributes)
 							{
-								featureIDs.push((section.LEGAL as String).split(" ").join(""));
+								featureIDs.push(section.FID);
 							}
 							reportURL.data = 'features=' + featureIDs.join(',');
 							resultsLoaded = true;
