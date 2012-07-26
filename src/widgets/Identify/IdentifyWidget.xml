@@ -1,97 +1,398 @@
 ﻿<?xml version="1.0" ?>
-<!--
-	////////////////////////////////////////////////////////////////////////////////
-	//
-    // Version 2.2.1 - Dec. 30, 2010
-    //
-    ///////////////////////////////////////////////////////////////////////////////
-    
-    The fields specified must use the EXACT alias of the field name as shown in the REST
-    service directory.
-    
-    iconField, inconprefix, and iconsuffix tags are for replacing the standard black 
-    circle with the orange arrow inside it. Be sure to use a small image.
--->
 <configuration>
+	<betareturngeometryfix>false</betareturngeometryfix>
 	<identifylayeroption>visible</identifylayeroption>
 	<identifytolerance>5</identifytolerance>
 	<defaultzoomscale>5000</defaultzoomscale>
 	<keepidentifyactive>true</keepidentifyactive>
+	<returngeometryforzoom>true</returngeometryforzoom>
+	<enablelineselect>true</enablelineselect>
+	<enableextentselect>true</enableextentselect>
+	<enablepolyselect>true</enablepolyselect>
+	<enablemouseovergraphicsinfo>true</enablemouseovergraphicsinfo>
+	<enablemouseoverrecordinfo>true</enablemouseoverrecordinfo>
+	<usemaptime>false</usemaptime>
+	<infoautoclosemilliseconds>2000</infoautoclosemilliseconds><!-- 2 seconds -->
+	<autoactivatedtool>mappoint</autoactivatedtool><!-- possible values are extent or polygon or mappoint or polyline or nothing -->
+	<excludebasemaps>true</excludebasemaps>
 	<labels>
 		<zoom2message>Click to Zoom to Point</zoom2message>
 		<identifylabel>Identify</identifylabel>
 		<resultslabel>Results</resultslabel>
 		<descriptionlabel>Use the identify tool to identify features on the map:</descriptionlabel>
-		<pointlabel>Identify</pointlabel>
+		<pointlabel>Identify by Point</pointlabel>
+		<linelabel>Identify by Polyline</linelabel>
+		<rectlabel>Identify by Rectangle</rectlabel>
+		<polylabel>Identify by Polygon</polylabel>
 		<clearlabel>Clear</clearlabel>
 		<loadinglabel>Loading...</loadinglabel>
 	</labels>
-	<useproxy>
-		<proxylayer>
-			<!--name>Imagery</name-->
-		</proxylayer>
+	<useproxy><!-- Enter the label of the MapService from the main config.xml -->
+		<!--<proxymapservice label="Imagery" />
+		<proxymapservice label="Streets" />-->
 	</useproxy>
-	<layers onlythese="false">
+	<layers onlythese="true">
+		<layer>
+			<name>Sanitary Manhole</name>
+			<fields all="true" />
+			<links>
+				<link includeinresults="true" field="" alias="" tooltip="">
+					<linkprefix></linkprefix>
+					<linksuffix></linksuffix>
+					<iconfield></iconfield>
+					<iconprefix></iconprefix>
+					<iconsuffix></iconsuffix>
+				</link>
+			</links>
+			<zoomscale>15000</zoomscale>
+			<forcescale>true</forcescale>
+		</layer>
+		<layer>
+			<name>crimes</name>
+			<fields all="false">
+				<field name="General Crime Desc." />
+				<field name="Date Reported" dateformat="MM/DD/YYYY" useutc="true" />
+				<field name="Project Name" />
+				<field name="Icon Link" popuponly="true" />
+			</fields>
+			<links>
+				<link includeinresults="true" field="" alias="" tooltip="">
+					<linkprefix></linkprefix>
+					<linksuffix></linksuffix>
+					<iconfield></iconfield>
+					<iconprefix></iconprefix>
+					<iconsuffix></iconsuffix>
+				</link>
+			</links>
+			<zoomscale>15000</zoomscale>
+			<forcescale>true</forcescale>
+		</layer>
+		<layer>
+			<name>Services</name>
+			<fields all="true" />
+			<links>
+				<link includeinresults="true" field="" alias="" tooltip="">
+					<linkprefix></linkprefix>
+					<linksuffix></linksuffix>
+					<iconfield></iconfield>
+					<iconprefix></iconprefix>
+					<iconsuffix></iconsuffix>
+				</link>
+			</links>
+			<zoomscale>15000</zoomscale>
+			<forcescale>true</forcescale>
+		</layer>
+		<layer>
+			<name>Forcemains</name>
+			<fields all="true" />
+			<links>
+				<link includeinresults="true" field="" alias="" tooltip="">
+					<linkprefix></linkprefix>
+					<linksuffix></linksuffix>
+					<iconfield></iconfield>
+					<iconprefix></iconprefix>
+					<iconsuffix></iconsuffix>
+				</link>
+			</links>
+			<zoomscale>15000</zoomscale>
+			<forcescale>true</forcescale>
+		</layer>
+		<layer>
+			<name>SanitaryMains</name>
+			<fields all="true" />
+			<links>
+				<link includeinresults="true" field="" alias="" tooltip="">
+					<linkprefix></linkprefix>
+					<linksuffix></linksuffix>
+					<iconfield></iconfield>
+					<iconprefix></iconprefix>
+					<iconsuffix></iconsuffix>
+				</link>
+			</links>
+			<zoomscale>15000</zoomscale>
+			<forcescale>true</forcescale>
+		</layer>
+		<layer>
+			<name>LCPW Manholes</name>
+			<fields all="true" />
+			<links>
+				<link includeinresults="true" field="" alias="" tooltip="">
+					<linkprefix></linkprefix>
+					<linksuffix></linksuffix>
+					<iconfield></iconfield>
+					<iconprefix></iconprefix>
+					<iconsuffix></iconsuffix>
+				</link>
+			</links>
+			<zoomscale>15000</zoomscale>
+			<forcescale>true</forcescale>
+		</layer>
+		<layer>
+			<name>LCPW Interceptor</name>
+			<fields all="true" />
+			<links>
+				<link includeinresults="true" field="" alias="" tooltip="">
+					<linkprefix></linkprefix>
+					<linksuffix></linksuffix>
+					<iconfield></iconfield>
+					<iconprefix></iconprefix>
+					<iconsuffix></iconsuffix>
+				</link>
+			</links>
+			<zoomscale>15000</zoomscale>
+			<forcescale>true</forcescale>
+		</layer>
+		<layer>
+			<name>NSSD Manhole</name>
+			<fields all="true" />
+			<links>
+				<link includeinresults="true" field="" alias="" tooltip="">
+					<linkprefix></linkprefix>
+					<linksuffix></linksuffix>
+					<iconfield></iconfield>
+					<iconprefix></iconprefix>
+					<iconsuffix></iconsuffix>
+				</link>
+			</links>
+			<zoomscale>15000</zoomscale>
+			<forcescale>true</forcescale>
+		</layer>
+		<layer>
+			<name>NSSD Mains</name>
+			<fields all="true" />
+			<links>
+				<link includeinresults="true" field="" alias="" tooltip="">
+					<linkprefix></linkprefix>
+					<linksuffix></linksuffix>
+					<iconfield></iconfield>
+					<iconprefix></iconprefix>
+					<iconsuffix></iconsuffix>
+				</link>
+			</links>
+			<zoomscale>15000</zoomscale>
+			<forcescale>true</forcescale>
+		</layer>
 		<layer>
 			<name>Zoning</name>
-			<fields>ZONING_NAME, ZONING_TYPE</fields>
-			<linkfield></linkfield>
-			<linkprefix></linkprefix>
-			<linksuffix></linksuffix>
-			<iconfield></iconfield>
-			<iconprefix></iconprefix>
-			<iconsuffix></iconsuffix>
+			<fields>
+				<field name="ZONING_NAME" alias="Zoning Name" />
+				<field name="ZONING_TYPE" alias="Zoning Type" popuponly="true" />
+			</fields>
+			<links>
+				<link includeinresults="true" field="ZONING_TYPE" alias="" tooltip="">
+					<linkprefix></linkprefix>
+					<linksuffix></linksuffix>
+					<iconfield></iconfield>
+					<iconprefix></iconprefix>
+					<iconsuffix>assets/images/i_lego.png</iconsuffix>
+				</link>
+			</links>
 			<zoomscale>15000</zoomscale>
 			<forcescale>true</forcescale>
 		</layer>
 		<layer>
 			<name>LandUse</name>
-			<fields>LANDUSE_NAME</fields>
-			<linkfield></linkfield>
-			<linkprefix></linkprefix>
-			<linksuffix></linksuffix>
-			<iconfield></iconfield>
-			<iconprefix></iconprefix>
-			<iconsuffix></iconsuffix>
+			<fields>
+				<field name="LANDUSE_NAME" alias="Landuse Name" />
+			</fields>
+			<links>
+				<link includeinresults="false" field="" alias="" tooltip="">
+					<linkprefix></linkprefix>
+					<linksuffix></linksuffix>
+					<iconfield></iconfield>
+					<iconprefix></iconprefix>
+					<iconsuffix></iconsuffix>
+				</link>
+			</links>
 			<zoomscale>15000</zoomscale>
 			<forcescale>true</forcescale>
 		</layer>
 		<layer>
-			<name>Parcels</name>
-			<fields>PARCELID</fields>
-			<linkfield></linkfield>
-			<linkprefix></linkprefix>
-			<linksuffix></linksuffix>
-			<iconfield></iconfield>
-			<iconprefix></iconprefix>
-			<iconsuffix></iconsuffix>
+			<name>Owner Parcels</name>
+			<fields>
+				<field name="PPIN" />
+				<field name="Name" />
+				<field name="Street Address" popuponly="true" />
+				<field name="Use Code" popuponly="true" />
+				<field name="Arces" popuponly="true" /> 
+				<field name="Exemption Code 1" popuponly="true" />
+				<field name="Address Line 1" popuponly="true" />
+				<field name="Address Line 3" popuponly="true" />
+				<field name="Prior Year Tax" popuponly="true" currencyformat="$|2|,|."/>
+				<field name="Sale Date" popuponly="true" dateformat="MM/DD/YYYY" useutc="true"/>
+				<field name="Last Deed Book" popuponly="true" /> 
+				<field name="Last Deed Page" popuponly="true" />
+				<field name="Zipcode" popuponly="true"/>
+				<field name="Neighborhood" popuponly="true" />
+				<field name="Subdivision" popuponly="true" />
+				<field name="Sale Price" popuponly="true" currencyformat="$|2|,|."/>
+				<field name="Total True Value" popuponly="true" currencyformat="$|2|,|."/>
+				<field name="Land Price" popuponly="true" currencyformat="$|2|,|."/>
+				<field name="Improvement Price" popuponly="true" currencyformat="$|2|,|."/>
+				<field name="Adjustment Price" popuponly="true" currencyformat="$|2|,|."/>
+				<field name="Override Condition" popuponly="true" />
+				<field name="SHAPE_Length" popuponly="true" numberformat="2|,|."/>
+				<field name="SHAPE_Area" popuponly="true" numberformat="2|,|."/>
+			</fields>
+			<links>
+				<link includeinresults="false" field="" alias="" tooltip="">
+					<linkprefix></linkprefix>
+					<linksuffix></linksuffix>
+					<iconfield></iconfield>
+					<iconprefix></iconprefix>
+					<iconsuffix></iconsuffix>
+				</link>
+			</links>
+			<zoomscale>12000</zoomscale>
+			<forcescale>true</forcescale>
+		</layer>
+		<layer>
+			<name>Jacksonville City Limits</name>
+			<fields>
+				<field name="NAME" alias="Name" />
+			</fields>
+			<links>
+				<link includeinresults="false" field="" alias="" tooltip="">
+					<linkprefix></linkprefix>
+					<linksuffix></linksuffix>
+					<iconfield></iconfield>
+					<iconprefix></iconprefix>
+					<iconsuffix></iconsuffix>
+				</link>
+			</links>
+			<zoomscale>15000</zoomscale>
+			<forcescale>true</forcescale>
+		</layer>
+		<layer>
+			<name>FloatTest</name>
+			<fields>
+				<field name="Float" popuponly="true" numberformat="2|,|."/>
+				<field name="SHAPE_Length" popuponly="true" numberformat="2|,|."/>
+				<field name="SHAPE_Area" popuponly="true" numberformat="2|,|."/>
+			</fields>
+			<links>
+				<link includeinresults="false" field="" alias="" tooltip="">
+					<linkprefix></linkprefix>
+					<linksuffix></linksuffix>
+					<iconfield></iconfield>
+					<iconprefix></iconprefix>
+					<iconsuffix></iconsuffix>
+				</link>
+			</links>
 			<zoomscale>12000</zoomscale>
 			<forcescale>true</forcescale>
 		</layer>
 		<layer>
 			<name>TrafficCams</name>
-			<fields>ONLINE, DESCRIPTION, LAST_UPDATED, URL</fields>
-			<linkfield>URL</linkfield>
-			<linkprefix></linkprefix>
-			<linksuffix></linksuffix>
-			<iconfield></iconfield>
-			<iconprefix></iconprefix>
-			<iconsuffix></iconsuffix>
+			<fields>
+				<field name="ONLINE" alias="Camera Online" />
+				<field name="DESCRIPTION" alias="Description" popuponly="true" />
+				<field name="LAST_UPDATED" alias="Last Updated" popuponly="true" />
+				<field name="URL" alias="URL" popuponly="true" />
+			</fields>
+			<links>
+				<link includeinresults="false" field="URL" alias="" tooltip="View Traffic Image">
+					<linkprefix></linkprefix>
+					<linksuffix></linksuffix>
+					<iconfield></iconfield>
+					<iconprefix></iconprefix>
+					<iconsuffix>http://help.arcgis.com/en/webapps/flexviewer/live/assets/images/i_camera.png</iconsuffix>
+				</link>
+				<!-- <link includeinresults="true" field="ONLINE" alias="get me out of here" tooltip="">
+					<linkprefix></linkprefix>
+					<linksuffix></linksuffix>
+					<iconfield></iconfield>
+					<iconprefix></iconprefix>
+					<iconsuffix>http://help.arcgis.com/en/webapps/flexviewer/live/assets/images/i_globe.png</iconsuffix>
+				</link> -->
+			</links>
 			<zoomscale>2000</zoomscale>
 			<forcescale>true</forcescale>
 		</layer>
 		<layer>
 			<name>PoliceStations</name>
-			<fields>PD_NAME, ADDRESS</fields>
-			<linkfield></linkfield>
-			<linkprefix></linkprefix>
-			<linksuffix></linksuffix>
-			<iconfield></iconfield>
-			<iconprefix></iconprefix>
-			<iconsuffix></iconsuffix>
+			<fields>
+				<field name="NAME" alias="Name" />
+				<field name="ADDRESS" alias="Address" />
+			</fields>
+			<links>
+				<link includeinresults="false" field="" alias="" tooltip="">
+					<linkprefix></linkprefix>
+					<linksuffix></linksuffix>
+					<iconfield></iconfield>
+					<iconprefix></iconprefix>
+					<iconsuffix></iconsuffix>
+				</link>
+			</links>
 			<zoomscale>2000</zoomscale>
 			<forcescale>true</forcescale>
 		</layer>
+		<layer>
+			<name>EmergencySirens</name>
+			<fields>
+				<field name="LOCAL" alias="Local" />
+				<field name="ADDRESS" alias="Address" />
+			</fields>
+			<links>
+				<link includeinresults="false" field="" alias="" tooltip="">
+					<linkprefix></linkprefix>
+					<linksuffix></linksuffix>
+					<iconfield></iconfield>
+					<iconprefix></iconprefix>
+					<iconsuffix></iconsuffix>
+				</link>
+			</links>
+			<zoomscale>2000</zoomscale>
+			<forcescale>true</forcescale>
+		</layer>
+		<layer>
+			<name>FireStations</name>
+			<fields>
+				<field name="NAME" alias="Name" />
+				<field name="ADDRESS" alias="Address" />
+				<field name="LFD_DIST" alias="Louiseville Fire District" />
+			</fields>
+			<links>
+				<link includeinresults="false" field="" alias="" tooltip="">
+					<linkprefix></linkprefix>
+					<linksuffix></linksuffix>
+					<iconfield></iconfield>
+					<iconprefix></iconprefix>
+					<iconsuffix></iconsuffix>
+				</link>
+			</links>
+			<zoomscale>2000</zoomscale>
+			<forcescale>true</forcescale>
+		</layer>
+		<layer>
+			<name>Weather Observations</name>
+			<fields>
+				<field name="Icon_used" alias="Icon Used" />
+				<field name="URL" alias="Url" />
+				<field name="Type" alias="Type" />
+				<field name="OBJECTID" alias="Object Id" />
+			</fields>
+			<links>
+				<link includeinresults="false" field="URL"  alias="" tooltip="">
+					<linkprefix></linkprefix>
+					<linksuffix></linksuffix>
+					<iconfield>Icon_used</iconfield>
+					<iconprefix>http://gislap134/FlexViewer2.5/assets/images/</iconprefix>
+					<iconsuffix>.png</iconsuffix>
+				</link>
+			</links>
+			<zoomscale>15000</zoomscale>
+			<forcescale>true</forcescale>
+		</layer>
 	</layers>
-	<info>widgets/InfoTemplates/InfoPopupWidget.swf</info>
+	<symbols>
+    	<simplefillsymbol color="0x448ccb" alpha="0.4" style="solid">
+    		<outline color="0x448ccb" alpha="0.8" width="2"/>
+    	</simplefillsymbol>
+    	<simplemarkersymbol style="circle" size="12" color="0x448ccb" alpha="0.8" xoffset="0" yoffset="0" angle="0">
+    		<outline style="solid" color="0xffffff" alpha="0.8" width="1"/>
+    	</simplemarkersymbol>
+    	<picturemarkersymbol url="assets/images/i_info.png" height="30" width="30" xoffset="0" yoffset="0" />
+		<simplelinesymbol color="0x448ccb" alpha="0.8" width="2"/>
+    </symbols>
 </configuration>

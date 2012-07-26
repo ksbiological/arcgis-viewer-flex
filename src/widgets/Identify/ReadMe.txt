@@ -1,4 +1,131 @@
-This is my identify widget for FlexViewer 2.2.1
+This is my identify widget for FlexViewer 3.0
+
+* 3.0 - Recompiled for Flex Viewer 3.0
+
+* 2.5.8 - Fixed issue with cached/tiled layers not returning identify results.
+	- Fixed issue with greater than and less than symbols in identify results.
+	- Now uses the ProxyURL from the main config.xml and does not require you to add
+	  httpproxy to the IdentifyWidget.xml.
+	- Removed ability to copy from results (due to the negative effect on performance
+	  of item renderer and occasionally not drawing text). You can copy the results
+	  from the popup.
+
+* 2.5.7 - Changed the useproxy child tag name to make it easier to understand the setup.
+	  (see Identify Widget XML Configuration.pdf for details).
+	- Added ability to copy from results.
+
+* 2.5.6 - Fixed issue with duplicate identity results and getting results for some layers even
+          if they are not visible when using visible option.
+	- Fields can now have formatting such as currencyformat, dateformat and numberformat. 
+
+* 2.5.5 - Verified and tested with Adobe Flex SDK 4.6 (Required for Flex Viewer 3.0)
+	- Added infoautoclosemilliseconds to xml to delay closing the info window when moving from
+          the results to the infowindow the infowindow does not disappear before you get there.
+	- Added excludebasemaps as an option to the xml.
+	- Fields have been broken out to individual field elements like most other widgets. This allows
+	  for field aliases to be assigned to fields that will override the alias from the map service.
+	- You can now specify that a field is popuponly which means that it will not be displayed in the
+	  widgets results item renderer.
+	- The widget results item renderer has had a good overhaul and uses less space and other significant
+	  optimizations.
+	- The top identifylayeroption now performs as most people would expect it only returns the top 
+	  most result from the whole map and not each map service.
+
+* 2.5.4 - Scale dependency and group layers are now honored when using the Identify option of visible.
+	- Links can now have a tool tip specified.
+	- Layer definitions are now honored when set on a layer in Flex Viewer. 
+	- When you identify multiple results and hover over a result record in the widget's results
+          the graphic is highlighted on the screen if you are returning geometry.
+	- bug fixed for info popups not closing when you clear the identify results.
+	- If you choose not to return geometry than the geometry drawn when identifying features
+	  is used when hovering over a record in the widgets results list.
+
+* 2.5.3 - Made a simple enhancement where when you use the point tool to identify
+          the popup will always use where you click as it's anchor point instead
+          of the identified geometries centroid.
+
+* 2.5.2 - Fixed some issues with the new multi-links of v2.5.1
+        - Fixed issue when identifylayeroption is set to visible and nothing is visible
+          The loading icon does not go away.
+        - Enhanced the identify geometry button to act as toggle button that way you can turn off
+          identifying even when keepidentifyactive is set to true.
+        - fixed issue when returngeometryforzoom is false and you use a geometry such as a extent
+          and identify several features the extent you drew would be added as a graphic for each
+          feature identified (overlapping extent graphics).
+        - If you have more than one link specified and those links contain urls to images than
+          the popup will contain all the images in the media browser of the popup.
+
+* 2.5.1 - Added the ability to specify multiple links. You can specify that a link field
+        is still included in the results. Links can have an alias specified for display
+        in the Info Popup, and each link can have its own icon specified. 
+
+* 2.5 - Added the ability to disable the line, extent, and polygon selection buttons
+        in the IdentifyWidget.xml
+      - Added the ability to turn off map popups when hovering or map graphics and or
+        widget result records.
+
+* 2.4.0.1 - Fixed bug with polyline geometry an using the betareturngeometryfix option
+          - Remove code that was limiting panning when the widget was open.
+	  - Added the Flex API PopUpRenderSkin.mxml to the code base to resolve Bug that
+            is found in the 2.4 API.
+        
+
+* 2.4 - Recompiled for FlexViewer 2.4
+
+* 2.3.3.1 - Fixed bug when you have keepidentifyactive="true" and close the widget panning the 
+            map is disabled.
+
+* 2.3.3 - Added a autoactivatedtool option to the IdentifyWidget.xml this enables the identify widget
+          to activate on widget activation for those that want a simplified widget.
+	- Reverted the change map in 2.3.2.2 as a found a work around, 
+	  (which means DrawTool tips are gone again :) )
+
+* 2.3.2.2 - Reverted to using the Map Managers DrawTool (which means DrawTool tips are back :( ),
+	    as this was the only way to fix the issue with navigations tools working when drawing
+	    shapes on the map after selecting a nav tool.
+
+* 2.3.2.1 - Hopefully fixed results localization issue
+	- Fixed zooming issue when clicking on a record.
+	-Fixed Issue with < and > symbols in the PopUpInfo window.
+
+//*BETA*//////////////////////////////////////////////////////////////////////////////////////////////////////
+//	- There is a portion of this widget that is BETA and it is a fix for the returned geometry.         //
+//	  The API/REST has a bug that is documented and randomly returns geometry in its original           //
+//        spatial reference when layer ids are defined. I have a work around for this that is disabled      //
+//	  by default. If you want to test this new beta fix then set the betareturngeometryfix to true      //
+//	  in the IdentifyWidget.xml                                                                         //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+* 2.3.1 - Old default behavior of the identify widget becoming immediately active has been removed
+	- Widget has been updated to look and act more like standard esri widgets
+	- Widget now uses PopUpInfo new in 2.3 API
+	- Allow for the linkicon url for come from the iconsuffix only or iconprefix only or
+	  to be concatenated with iconprefix and an iconfield and the iconsuffix. What this means
+	  is you do not have to have an iconfield specified if you want to use a static icon
+	  just defined as a complete url in the iconprefix and/or iconsuffix
+
+//*BETA*//////////////////////////////////////////////////////////////////////////////////////////////////////
+//	- There is a portion of this widget that is BETA and it is a fix for the returned geometry.         //
+//	  The API/REST has a bug that is documented and randomly returns geometry in its original           //
+//        spatial reference when layer ids are defined. I have a work around for this that is disabled      //
+//	  by default. If you want to test this new beta fix then set the betareturngeometryfix to true      //
+//	  in the IdentifyWidget.xml                                                                         //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+* 2.2.3f - Fixed issue with keepidentifyactive being ignored.
+
+* 2.2.3 - Identify by point/line/extent/polygon are all now supported
+	- Info window will appear at the center of identified geometry now if returngeometryforzoom is set to true in xml file.
+	if returngeometryforzoom is true, when you mouse over a record the geometry for that particular record is drawn using the symbology defined in the xml
+	- The symbology used by the draw tools is now user defined in the xml
+	- Fixed an issues with link icon if prefix or suffix is supplied and a empty field.
+
+* 2.2.2f addresses an issue with the Flex Viewer 2.2 compiled version of this widget not functioning
+
+* 2.2.2 The zoom to now determines the returned geometry type and zooms to the
+        extent of the returned geometry.
+
+        Fixed an issues with link field and null values.
 
 * 2.2.1 Depreciated selectionlabel in the IdentifyWidget.xml
 	Added Identify Configuration.pdf that explains all the IdentifyWidget.xml options
@@ -14,7 +141,7 @@ This is my identify widget for FlexViewer 2.2.1
         because it closes when you move off of the results record. Now you will have to manually
         close the info popup yourself.
 
-* 2.1.5 - This version uses it's own drawtool and not the map managers so that drawtooltips
+* 2.1.5 - This version uses its own drawtool and not the map managers so that drawtooltips
 	can be turned off and I could properly deactivate the tool when the widget is closed.
 
 * 2.1.4 - Added option for only identifying the specified layers in the IdentifyWidget.xml. 

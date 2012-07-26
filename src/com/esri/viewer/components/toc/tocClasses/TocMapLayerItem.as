@@ -378,7 +378,6 @@ public class TocMapLayerItem extends TocItem
             var rootLayers:Array = findRootLayers(layerInfos);
             for each (var layerInfo1:LayerInfo in rootLayers)
             {
-<<<<<<< HEAD
                 var exclude:Boolean = false;
                 var excludeLayers:ArrayCollection = ViewerContainer.getInstance().configData.excludeLayers;
                 for each (var layer:String in excludeLayers) {
@@ -389,11 +388,8 @@ public class TocMapLayerItem extends TocItem
                 }
                 if (!exclude)
                 {
-                    addChild(createTocLayer(this, layerInfo1, layerInfos, layerInfo1.defaultVisibility));
+					addChild(createTocLayer(this, layerInfo1, layerInfos, layerInfo1.defaultVisibility, isTocLayerInfoItemInScale(layerInfo1)));
                 }
-=======
-                addChild(createTocLayer(this, layerInfo1, layerInfos, layerInfo1.defaultVisibility, isTocLayerInfoItemInScale(layerInfo1)));
->>>>>>> b22fb80a9e1426b5c7d50e890e2d076969c7ebd9
             }
         }
     }
