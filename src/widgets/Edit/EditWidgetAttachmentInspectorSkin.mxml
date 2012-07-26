@@ -39,7 +39,10 @@
     <fx:Script>
         <![CDATA[
             import com.esri.ags.components.supportClasses.AttachmentRemoveEvent;
+            import com.esri.ags.layers.FeatureLayer;
             import com.esri.ags.layers.supportClasses.AttachmentInfo;
+            import com.esri.ags.layers.supportClasses.FeatureLayerDetails;
+            import com.esri.ags.layers.supportClasses.FeatureTableDetails;
             import com.esri.ags.skins.supportClasses.AttachmentMouseEvent;
 
             import mx.binding.utils.ChangeWatcher;
@@ -50,8 +53,6 @@
             import spark.components.HScrollBar;
             import spark.events.IndexChangeEvent;
 
-            [Bindable]
-            public static var layerNotSupportingAttachmentsText:String;
             [Bindable]
             public static var noAttachmentsText:String;
             [Bindable]
@@ -154,12 +155,33 @@
             {
                 dispatchEvent(new Event("attributeGroupClicked", true, true));
             }
+
+            private function isAddingAttachmentAllowed(featureLayer:FeatureLayer):Boolean
+            {
+                var result:Boolean;
+
+                if (featureLayer.layerDetails is FeatureLayerDetails)
+                {
+                    result = (featureLayer.layerDetails as FeatureLayerDetails).isCreateAllowed;
+                }
+                else if (featureLayer.tableDetails is FeatureTableDetails)
+                {
+                    result = (featureLayer.layerDetails as FeatureTableDetails).isCreateAllowed;
+                }
+                if (!result)
+                {
+                    // check if update is allowed, as adding attachments is also considered an update
+                    result = featureLayer.isUpdateAllowed(hostComponent.feature);
+                }
+
+                return result;
+            }
         ]]>
     </fx:Script>
     <s:states>
         <s:State name="normal"/>
         <s:State name="disabled"/>
-        <s:State name="queryAttachmentInfos"/>
+        <s:State name="queryAttachmentInfos" stateGroups="queryAttachmentInfosGroup"/>
         <s:State name="queryAttachmentInfosWithList" stateGroups="queryAttachmentInfosGroup"/>
         <s:State name="attachmentLoaded" stateGroups="loadState"/>
         <s:State name="attachmentLoadedNoAttachmentsInList" stateGroups="noAttachmentsState,loadState"/>
@@ -168,10 +190,9 @@
     <s:layout>
         <s:VerticalLayout horizontalAlign="center"/>
     </s:layout>
-
-    <mx:Image includeIn="queryAttachmentInfos"
-              minHeight.queryAttachmentInfosWithList="140"
-              minWidth.queryAttachmentInfosWithList="200"
+    <!--- @private -->
+    <mx:Image horizontalAlign="center"
+              includeIn="queryAttachmentInfosGroup"
               source="assets/images/loader.swf"/>
     <s:Label id="numAttachments"
              excludeFrom="noAttachmentsState, disabled"
@@ -191,10 +212,11 @@
                                            caretChange="attachmentInfoList_caretChangeHandler(event)"
                                            click="attachmentInfoList_clickHandler(event)"
                                            dataProvider="{hostComponent.attachmentInfos}"
-                                           deleteEnabled="{hostComponent.deleteEnabled}"
+                                           deleteEnabled="{hostComponent.deleteEnabled &amp;&amp; hostComponent.featureLayer.isUpdateAllowed(hostComponent.feature)}"
                                            doubleClick="attachmentInfoList_clickHandler(event)"
                                            doubleClickEnabled="true"
                                            enabled.disabled="false"
+                                           excludeFrom="noAttachmentsState,queryAttachmentInfosGroup,disabled"
                                            isEditable="{hostComponent.featureLayer.isEditable}"
                                            itemRenderer="widgets.Edit.EditWidgetAttachmentRenderer"
                                            keyUp="attachmentInfoList_keyUpHandler(event)"
@@ -209,9 +231,6 @@
         </edit:EditWidgetAttachmentInfoList>
     </s:BorderContainer>
     <s:Label fontWeight="bold"
-             includeIn="disabled"
-             text="{layerNotSupportingAttachmentsText}"/>
-    <s:Label fontWeight="bold"
              includeIn="noAttachmentsInList"
              text="{noAttachmentsText}"/>
     <mx:Spacer/>
@@ -219,9 +238,9 @@
               enabled.disabled="false"
               enabled.queryAttachmentInfos="false"
               excludeFrom="loadState"
-              includeInLayout="{hostComponent.featureLayer.isEditable &amp;&amp; hostComponent.addEnabled}"
+              includeInLayout="{hostComponent.featureLayer.isEditable &amp;&amp; hostComponent.addEnabled &amp;&amp; isAddingAttachmentAllowed(hostComponent.featureLayer)}"
               label="{chooseFileText}"
-              visible="{hostComponent.featureLayer.isEditable &amp;&amp; hostComponent.addEnabled}"/>
+              visible="{hostComponent.featureLayer.isEditable &amp;&amp; hostComponent.addEnabled &amp;&amp; isAddingAttachmentAllowed(hostComponent.featureLayer)}"/>
     <s:HGroup includeIn="loadState" verticalAlign="middle">
         <s:Label text="{hostComponent.attachmentName}"/>
         <s:Label text="{numberFormatter.format(hostComponent.attachmentSize / 1024.0)+' '+resourceManager.getString('ESRIMessages', 'attachmentInspectorKiloBytes')}"/>

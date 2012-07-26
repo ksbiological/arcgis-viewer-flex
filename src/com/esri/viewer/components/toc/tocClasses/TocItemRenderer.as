@@ -145,14 +145,24 @@ public class TocItemRenderer extends TreeItemRenderer
                 _layerMenuImage.visible = true;
             }
 
-            // Apply a bold label style to root nodes
             if (item.isTopLevel())
             {
+                // Apply a bold label style to root nodes
                 setStyle("fontWeight", "bold");
             }
             else
             {
                 setStyle("fontWeight", "normal");
+            }
+            if (item.isInScaleRange)
+            {
+                alpha = 1;
+                setStyle("fontStyle", "normal");
+            }
+            else
+            {
+                alpha = 0.5;
+                setStyle("fontStyle", "italic");
             }
         }
     }
@@ -253,16 +263,16 @@ public class TocItemRenderer extends TreeItemRenderer
             {
                 originPoint.x -= _tocLayerMenu.width;
             }
-            var globalPoint:Point = localToGlobal(originPoint);            
+            var globalPoint:Point = localToGlobal(originPoint);
             _tocLayerMenu.popUpForItem(this.parent.parent, data, TOC(this.parent.parent).map, globalPoint.x, globalPoint.y + this.height);
 
             AppEvent.addListener(AppEvent.TOC_HIDDEN, onRemovalFromStage);
         }
     }
-    
+
     private function onLayerMenuImageDoubleClick(event:MouseEvent):void
     {
-        event.stopPropagation();       
+        event.stopPropagation();
     }
 
     /**

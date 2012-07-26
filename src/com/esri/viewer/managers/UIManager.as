@@ -56,7 +56,7 @@ public class UIManager extends EventDispatcher
         configData.styleColors[2] = event.data.rolloverColor;
         configData.styleColors[3] = event.data.selectionColor;
         configData.styleColors[4] = event.data.titleColor;
-        configData.styleColors[5] = event.data.textColor;
+        configData.styleColors[5] = event.data.applicationBackgroundColor;
         configData.styleAlpha = event.data.alpha;
         setViewerStyle();
     }
@@ -151,12 +151,12 @@ public class UIManager extends EventDispatcher
         var subTitleFontSize:int = (configData.subTitleFont.size != 0) ? configData.subTitleFont.size : 12;
         var fontName:String = (configData.font.name != "") ? configData.font.name : defaultFontName;
         var fontSize:int = (configData.font.size != 0) ? configData.font.size : defaultFontSize;
-        var layoutDirection:String = configData.layoutDirection && (configData.layoutDirection == "ltr" || configData.layoutDirection == "rtl") ? configData.layoutDirection : defaultLayoutDirection;  
-        
+        var layoutDirection:String = configData.layoutDirection && (configData.layoutDirection == "ltr" || configData.layoutDirection == "rtl") ? configData.layoutDirection : defaultLayoutDirection;
+
         // for RTL
         cssStyleDeclarationGlobal.setStyle("layoutDirection", layoutDirection);
-        cssStyleDeclarationGlobal.setStyle("direction", layoutDirection); 
-        
+        cssStyleDeclarationGlobal.setStyle("direction", layoutDirection);
+
         styleAlpha = configData.styleAlpha;
         if (numberOfStyleColors > 4)
         {
@@ -282,17 +282,26 @@ public class UIManager extends EventDispatcher
         }
         cssStyleDeclarationInfoSymbolWindow.setStyle("borderThickness", 1);
         cssStyleDeclarationInfoSymbolWindow.setStyle("backgroundAlpha", styleAlpha);
-        topLevelStyleManager.setStyleDeclaration("com.esri.ags.components.supportClasses.InfoSymbolWindow", cssStyleDeclarationInfoSymbolWindow, false);        
+        topLevelStyleManager.setStyleDeclaration("com.esri.ags.components.supportClasses.InfoSymbolWindow", cssStyleDeclarationInfoSymbolWindow, false);
 
 
         if (numberOfStyleColors > 4)
         {
-            var cssStyleDeclarationPopUpRendererLink:CSSStyleDeclaration = topLevelStyleManager.getStyleDeclaration("com.esri.ags.webmap.PopUpRenderer");
+            var cssStyleDeclarationPopUpRendererLink:CSSStyleDeclaration = topLevelStyleManager.getStyleDeclaration("com.esri.ags.portal.PopUpRenderer");
             cssStyleDeclarationPopUpRendererLink.setStyle("linkActiveColor", titleColor);
             cssStyleDeclarationPopUpRendererLink.setStyle("linkNormalColor", textColor);
             cssStyleDeclarationPopUpRendererLink.setStyle("linkHoverColor", titleColor);
-            topLevelStyleManager.setStyleDeclaration("com.esri.ags.webmap.PopUpRenderer", cssStyleDeclarationPopUpRendererLink, false);
+            topLevelStyleManager.setStyleDeclaration("com.esri.ags.portal.PopUpRenderer", cssStyleDeclarationPopUpRendererLink, false);
         }
+
+        var cssStyleDeclarationContentNavigator:CSSStyleDeclaration = topLevelStyleManager.getStyleDeclaration("com.esri.ags.components.ContentNavigator");
+        if (numberOfStyleColors > 4)
+        {
+            cssStyleDeclarationContentNavigator.setStyle("headerBackgroundColor", backgroundColor);
+            cssStyleDeclarationContentNavigator.setStyle("headerColor", textColor);
+        }
+        cssStyleDeclarationContentNavigator.setStyle("headerBackgroundAlpha", styleAlpha);
+        topLevelStyleManager.setStyleDeclaration("com.esri.ags.components.ContentNavigator", cssStyleDeclarationContentNavigator, false);
 
         //Style Banner title and WidgetTitle
         var cssStyleDeclarationWidgetTitle:CSSStyleDeclaration = new CSSStyleDeclaration(".WidgetTitle");
@@ -425,7 +434,7 @@ public class UIManager extends EventDispatcher
         cssStyleDeclarationModal.setStyle("modalTransparencyColor", 0x777777);
         cssStyleDeclarationModal.setStyle("modalTransparencyBlur", 1);
         cssStyleDeclarationModal.setStyle("modalTransparency", 0.5);
-        cssStyleDeclarationModal.setStyle("modalTransparencyDuration", 1000); //messes up tween!
+        cssStyleDeclarationModal.setStyle("modalTransparencyDuration", 300); //messes up tween!
         topLevelStyleManager.setStyleDeclaration("global", cssStyleDeclarationModal, true);
     }
 }

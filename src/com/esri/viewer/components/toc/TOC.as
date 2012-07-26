@@ -94,6 +94,8 @@ public class TOC extends Tree
 
     private var _layerFiltersChanged:Boolean = false;
 
+    private var _basemapLayers:ArrayCollection;
+
     // Label function for TocMapLayerItem
     private var _labelFunction:Function = null;
     private var _labelFunctionChanged:Boolean = false;
@@ -231,6 +233,26 @@ public class TOC extends Tree
         _excludeGraphicsLayers = value;
 
         onFilterChange();
+    }
+
+    //--------------------------------------------------------------------------
+    //  basemapLayers
+    //--------------------------------------------------------------------------
+
+    /**
+     * A list of basemap layer objects and/or layer IDs.
+     */
+    public function get basemapLayers():Object
+    {
+        return _basemapLayers;
+    }
+
+    /**
+     * @private
+     */
+    public function set basemapLayers(value:Object):void
+    {
+        _basemapLayers = normalizeLayerFilter(value);
     }
 
     //--------------------------------------------------------------------------
@@ -397,7 +419,7 @@ public class TOC extends Tree
         var layer:Layer = event.layer;
         var index:int = event.index;
 
-        if (isGraphicsLayer(layer) || isHiddenLayer(layer))
+        if (isGraphicsLayer(layer) || isHiddenLayer(layer) || isLayerExcluded(layer))
         {
             return;
         }
@@ -487,7 +509,7 @@ public class TOC extends Tree
         for (var i:int = 0; i < layerIds.length; i++)
         {
             var layer:Layer = mapLayers.getItemAt(i) as Layer
-            if (isHiddenLayer(layer) || isGraphicsLayer(layer))
+            if (isHiddenLayer(layer) || isGraphicsLayer(layer) || islayerExcludedAndNotBaseMap(layer))
             {
                 continue;
             }
@@ -504,6 +526,45 @@ public class TOC extends Tree
     private function isHiddenLayer(layer:Layer):Boolean
     {
         return layer.name.indexOf("hiddenLayer_") > -1;
+    }
+
+    private function isLayerExcluded(layer:Layer):Boolean
+    {
+        var exclude:Boolean;
+        for each (var item:* in excludeLayers)
+        {
+            if ((item === layer || item == layer.name) || (item == layer.id))
+            {
+                exclude = true;
+                break;
+            }
+        }
+        return exclude;
+    }
+
+    private function islayerExcludedAndNotBaseMap(layer:Layer):Boolean
+    {
+        var exclude:Boolean;
+        for each (var item:* in excludeLayers)
+        {
+            if ((item === layer || item == layer.name) || (item == layer.id))
+            {
+                exclude = true;
+                for each (var item1:* in basemapLayers)
+                {
+                    if (item1 === item)
+                    {
+                        exclude = false;
+                        break;
+                    }
+                }
+                if (!exclude)
+                {
+                    break;
+                }
+            }
+        }
+        return exclude;
     }
 
     private function unregisterAllMapLayers():void
@@ -552,9 +613,23 @@ public class TOC extends Tree
             setLayerFadeEffect(layer);
         }
 
-        // Add a new top-level TOC item at the beginning of the list (reverse rendering order)
         var tocItem:TocMapLayerItem = new TocMapLayerItem(layer, _labelFunction, _isMapServiceOnly);
-        _tocRoots.addItemAt(tocItem, 0);
+        // need to get the true index of this layer in the map, removing any graphics layers from the equation if necessary as well as any exclude layers
+        var trueMapLayerIndex:Number = 0;
+        for each (var mapLayer:Layer in this.map.layers)
+        {
+            if (mapLayer == layer)
+            {
+                break;
+            }
+
+            if (!filterOutLayer(mapLayer)) // only increase the index if this layer is in the TOC
+            {
+                trueMapLayerIndex++;
+            }
+        }
+        // now add at the correct index 
+        _tocRoots.addItemAt(tocItem, _tocRoots.length - trueMapLayerIndex);
     }
 
     private function setLayerFadeEffect(layer:Layer):void
@@ -627,7 +702,7 @@ public class TOC extends Tree
         }
     }
 
-    private function filterOutLayer(layer:Layer):Boolean
+    public function filterOutLayer(layer:Layer):Boolean
     {
         var exclude:Boolean = false;
         if (excludeGraphicsLayers && isGraphicsLayer(layer))
@@ -640,20 +715,12 @@ public class TOC extends Tree
         }
         if (!exclude && excludeLayers)
         {
-            exclude = false;
-            for each (var item:* in excludeLayers)
-            {
-                if ((item === layer || item == layer.name) || (item == layer.id))
-                {
-                    exclude = true;
-                    break;
-                }
-            }
+            exclude = isLayerExcluded(layer);
         }
         if (includeLayers)
         {
             exclude = true;
-            for each (item in includeLayers)
+            for each (var item:* in includeLayers)
             {
                 if (item === layer || item == layer.id)
                 {
