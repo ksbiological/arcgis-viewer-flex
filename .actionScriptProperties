@@ -32,8 +32,6 @@
     <module application="src/index.mxml" destPath="widgets/About/AboutWidget.swf" optimize="true" sourcePath="src/widgets/About/AboutWidget.mxml"/>
     <module application="src/index.mxml" destPath="widgets/Identify/IdentifyWidget.swf" optimize="true" sourcePath="src/widgets/Identify/IdentifyWidget.mxml"/>
     <module application="src/index.mxml" destPath="widgets/MapProgressBar/MapProgressBarWidget.swf" optimize="true" sourcePath="src/widgets/MapProgressBar/MapProgressBarWidget.mxml"/>
-    <module application="src/index.mxml" destPath="widgets/LPCHKReport/LPCHKReportWidget.swf" optimize="true" sourcePath="src/widgets/LPCHKReport/LPCHKReportWidget.mxml"/>
-    <module application="src/index.mxml" destPath="widgets/PLSSReport/PLSSReportWidget.swf" optimize="true" sourcePath="src/widgets/PLSSReport/PLSSReportWidget.mxml"/>
     <module application="src/index.mxml" destPath="widgets/WidgetContainer/WidgetContainerWidget.swf" optimize="true" sourcePath="src/widgets/WidgetContainer/WidgetContainerWidget.mxml"/>
     <module application="src/index.mxml" destPath="widgets/CustomReport/CustomReportWidget.swf" optimize="true" sourcePath="src/widgets/CustomReport/CustomReportWidget.mxml"/>
   </modules>

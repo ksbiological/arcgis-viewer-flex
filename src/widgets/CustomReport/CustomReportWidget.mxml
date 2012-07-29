@@ -188,6 +188,7 @@ subject to the following notice.
 			[Bindable]
 			private var resultGraphicsLayer:GraphicsLayer;
 			
+			private var initialPolygonToolClick:MouseEvent;
 			private var resultExtentFactor:Number = 2;
 			
 			[Bindable]
@@ -209,6 +210,9 @@ subject to the following notice.
 				map.addLayer(graphicsLayer);
 				map.addLayer(selectedResultGraphicsLayer);
 				map.addLayer(resultGraphicsLayer);
+				
+				// start out the tool with polygon drawing tool selected
+				polygonTool.dispatchEvent(new MouseEvent(MouseEvent.CLICK, true, false));
 				
 				if (configXML)
 				{
@@ -569,6 +573,8 @@ subject to the following notice.
 			private function wTemplate_closeHandler(event:Event):void
 			{
 				graphicsLayer.visible = false;
+				resultGraphicsLayer.visible = false;
+				selectedResultGraphicsLayer.visible = false;
 				
 				setMapAction(null, null, null, null); // deactivate drawTool
 				
@@ -584,6 +590,8 @@ subject to the following notice.
 				if (graphicsLayer)
 				{
 					graphicsLayer.visible = true;
+					resultGraphicsLayer.visible = true;
+					selectedResultGraphicsLayer.visible = true;
 				}
 			}
 			
@@ -789,6 +797,7 @@ subject to the following notice.
 							  toolTip="{drawEllipseLabel}"
 							  useHandCursor="true"/>
 					<mx:Image name="{DrawTool.POLYGON}"
+							  id="polygonTool"
 							  width="40" height="40"
 							  buttonMode="true"
 							  click="activateDrawTool(event)"
