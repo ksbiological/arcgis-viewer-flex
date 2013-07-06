@@ -34,6 +34,7 @@
     <module application="src/index.mxml" destPath="widgets/MapProgressBar/MapProgressBarWidget.swf" optimize="true" sourcePath="src/widgets/MapProgressBar/MapProgressBarWidget.mxml"/>
     <module application="src/index.mxml" destPath="widgets/WidgetContainer/WidgetContainerWidget.swf" optimize="true" sourcePath="src/widgets/WidgetContainer/WidgetContainerWidget.mxml"/>
     <module application="src/index.mxml" destPath="widgets/CustomReport/CustomReportWidget.swf" optimize="true" sourcePath="src/widgets/CustomReport/CustomReportWidget.mxml"/>
+    <module application="src/index.mxml" destPath="widgets/Geoprocessing/GeoprocessingWidget.swf" optimize="true" sourcePath="src/widgets/Geoprocessing/GeoprocessingWidget.mxml"/>
   </modules>
   <buildCSSFiles/>
   <flashCatalyst validateFlashCatalystCompatibility="false"/>
