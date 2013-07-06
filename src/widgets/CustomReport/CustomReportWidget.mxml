@@ -195,6 +195,8 @@ subject to the following notice.
 			private var resultsAC:ArrayCollection = new ArrayCollection();
 			[Bindable]
 			private var reportURL:URLRequest;
+			[Bindable]
+			private var ID_FIELDNAME:String;
 			
 			private function init():void
 			{	
@@ -224,7 +226,7 @@ subject to the following notice.
 					
 					queryTask.url = configXML.queryurl;
 					query.outFields = configXML.outfields.split(',');
-					query.outFields.push('FID');
+					ID_FIELDNAME = configXML.idfield;
 					reportURL = new URLRequest(configXML.reporturl);
 					
 					// add columns
@@ -699,14 +701,14 @@ subject to the following notice.
 			
 			private function viewReport():void
 			{
-				function getFIDs(ac:ArrayCollection):Array {
+				function getIDs(ac:ArrayCollection):Array {
 					var result:Array = new Array();
 					for (var i:int = 0; i < ac.length; i++) {
-						result.push(ac.getItemAt(i).FID);
+						result.push(ac.getItemAt(i)[ID_FIELDNAME]);
 					}
 					return result;
 				}
-				reportURL.data = "features=" + getFIDs(resultsAC).join(",");
+				reportURL.data = "features=" + getIDs(resultsAC).join(",");
 				navigateToURL(reportURL);
 			}
 		]]>
