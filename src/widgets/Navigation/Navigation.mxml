@@ -25,7 +25,7 @@
         <![CDATA[
             import com.esri.ags.Map;
             import com.esri.viewer.AppEvent;
-            import com.esri.viewer.ViewerContainer;
+            import com.esri.viewer.utils.LocalizationUtil;
 
             import mx.events.FlexEvent;
 
@@ -128,7 +128,8 @@
                             blurX="10"
                             blurY="10"/>
     </s:filters>
-    <s:Group includeInLayout="{panwheelItem.toolVisible}"
+    <s:Group enabled="{map.loaded}"
+             includeInLayout="{panwheelItem.toolVisible}"
              layoutDirection="ltr"
              visible="{panwheelItem.toolVisible}">
         <s:Button id="nwButton"
@@ -175,7 +176,7 @@
                                toolTip="{zoomFullextItem.toolName}"
                                visible="{zoomFullextItem.toolVisible}"/>
     </s:Group>
-    <s:HGroup gap="0">
+    <s:HGroup enabled="{map.loaded}" gap="0">
         <s:Button id="prevExt"
                   x="0" y="19"
                   click="doNavAction('zoomprevious', prevextItem.toolName)"
@@ -194,7 +195,7 @@
     <esri:Navigation top="0"
                      map="{map}"
                      skinClass="widgets.Navigation.NavigationSkin"/>
-    <s:VGroup paddingTop="3">
+    <s:VGroup enabled="{map.loaded}" paddingTop="3">
         <s:ButtonBar id="btnBar"
                      change="buttonbar1_changeHandler(event)"
                      requireSelection="true"
@@ -208,14 +209,14 @@
                 <s:ArrayCollection>
                     <fx:Object action="pan"
                                imageIcon="assets/images/i_pan.png"
-                               label="Pan"/>
+                               label="{LocalizationUtil.getDefaultString('panLabel')}"/>
                     <fx:Object action="zoomin"
                                imageIcon="assets/images/i_zoomin.png"
-                               label="Zoom In"
+                               label="{LocalizationUtil.getDefaultString('zoomInLabel')}"
                                visible="false"/>
                     <fx:Object action="zoomout"
                                imageIcon="assets/images/i_zoomout.png"
-                               label="Zoom Out"/>
+                               label="{LocalizationUtil.getDefaultString('zoomOutLabel')}"/>
                 </s:ArrayCollection>
             </s:dataProvider>
         </s:ButtonBar>

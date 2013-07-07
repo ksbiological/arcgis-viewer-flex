@@ -18,6 +18,7 @@ package com.esri.viewer
 
 import com.esri.ags.Map;
 import com.esri.ags.symbols.Symbol;
+import com.esri.viewer.utils.LocalizationUtil;
 
 import flash.events.Event;
 import flash.events.IOErrorEvent;
@@ -33,7 +34,6 @@ import mx.utils.StringUtil;
 
 [Event(name="widgetConfigLoaded", type="flash.events.Event")]
 [Event(name="onChainRequest", type="com.esri.viewer.AppEvent")]
-[ResourceBundle("ViewerStrings")]
 
 /**
  * BaseWidget is the foundation of all widgets. All widgets need to be derived from this BaseWidget class.
@@ -50,7 +50,6 @@ public class BaseWidget extends Module implements IBaseWidget
     //
     //--------------------------------------------------------------------------
 
-    private static const VIEWER_STRINGS:String = "ViewerStrings";
     private static const WIDGET_CONFIG_LOADED:String = "widgetConfigLoaded";
 
     //--------------------------------------------------------------------------
@@ -59,6 +58,9 @@ public class BaseWidget extends Module implements IBaseWidget
     //
     //--------------------------------------------------------------------------
 
+    /**
+     * Creates a new BaseWidget component.
+     */
     public function BaseWidget()
     {
         this.autoLayout = true;
@@ -117,6 +119,8 @@ public class BaseWidget extends Module implements IBaseWidget
 
     private var _waitForCreationComplete:Boolean = true;
 
+    private var _isPartOfPanel:Boolean = false;
+
     //--------------------------------------------------------------------------
     //
     //  Properties
@@ -130,8 +134,9 @@ public class BaseWidget extends Module implements IBaseWidget
     private var _configXML:XML;
 
     /**
-     * The XML type of configuration data.
-     * @see configData
+     * The XML for the widget configuration.
+     *
+     * @see configData()
      */
     public function get configXML():XML
     {
@@ -307,6 +312,20 @@ public class BaseWidget extends Module implements IBaseWidget
         _widgetIcon = value;
     }
 
+    //----------------------------------
+    //  isPartOfPanel
+    //----------------------------------
+    [Bindable]
+    public function get isPartOfPanel():Boolean
+    {
+        return _isPartOfPanel;
+    }
+
+    public function set isPartOfPanel(value:Boolean):void
+    {
+        _isPartOfPanel = value;
+    }
+
     //--------------------------------------------------------------------------
     //
     //  Methods
@@ -447,7 +466,7 @@ public class BaseWidget extends Module implements IBaseWidget
         AppEvent.dispatch(AppEvent.SHOW_INFOWINDOW, infoData);
     }
 
-    public function setMapAction(action:String, status:String, symbol:Symbol, callback:Function, showDrawTips:Boolean = true, enableGraphicsLayerMouseEvents:Boolean = false):void
+    public function setMapAction(action:String, status:String, symbol:Symbol, callback:Function, callback2:Function = null, showDrawTips:Boolean = true, enableGraphicsLayerMouseEvents:Boolean = false):void
     {
         var data:Object =
             {
@@ -456,7 +475,8 @@ public class BaseWidget extends Module implements IBaseWidget
                 symbol: symbol,
                 handler: callback,
                 showDrawTips: showDrawTips,
-                enableGraphicsLayerMouseEvents: enableGraphicsLayerMouseEvents
+                enableGraphicsLayerMouseEvents: enableGraphicsLayerMouseEvents,
+                handler2: callback2
             };
         AppEvent.dispatch(AppEvent.SET_MAP_ACTION, data);
     }
@@ -592,11 +612,25 @@ public class BaseWidget extends Module implements IBaseWidget
         _initialHeight = value;
     }
 
+    /**
+     * Used by WidgetManager to place a widget at a specific location (as specified with x and y properties in the configuration file).
+     *
+     * @param x The x coordinate for the widget location.
+     * @param y The y coordinate for the widget location.
+     */
     public function setXYPosition(x:Number, y:Number):void
     {
         this.setLayoutBoundsPosition(x, y);
     }
 
+    /**
+     * Used by WidgetManager to place a widget at a specific location based on the left, right, top and bottom properties specified in the configuration file.
+     *
+     * @param left The left coordinate for the widget location.
+     * @param right The right coordinate for the widget location.
+     * @param top The top coordinate for the widget location.
+     * @param bottom The bottom coordinate for the widget location.
+     */
     public function setRelativePosition(left:String, right:String, top:String, bottom:String):void
     {
         if (left)
@@ -624,9 +658,19 @@ public class BaseWidget extends Module implements IBaseWidget
         isDraggable = true;
     }
 
-    public function getDefaultString(resourceName:String):String
+    /**
+     * Gets the localized String of a specified resource from the ViewerStrings resource bundle,
+     * after substituting specified values for placeholders.
+     *
+     * <p>If the specified resource is not found, this method returns null.</p>
+     *
+     * @param resourceName The name of a resource in the ViewerStrings resource bundle.
+     * @param params An Array of parameters that are substituted for the placeholders. Each parameter is converted to a String with the toString() method before being substituted.
+     */
+    public function getDefaultString(resourceName:String, ... params):String
     {
-        return resourceManager.getString(VIEWER_STRINGS, resourceName);
+        //use Function#apply to avoid passing rest argument as Array
+        return LocalizationUtil.getDefaultString.apply(null, [ resourceName ].concat(params));
     }
 }
 

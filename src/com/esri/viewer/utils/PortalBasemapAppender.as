@@ -1,17 +1,36 @@
+///////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2010-2011 Esri. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+///////////////////////////////////////////////////////////////////////////
 package com.esri.viewer.utils
 {
 
+import com.esri.ags.components.IdentityManager;
 import com.esri.ags.events.PortalEvent;
 import com.esri.ags.portal.Portal;
 import com.esri.ags.portal.supportClasses.PortalGroup;
 import com.esri.ags.portal.supportClasses.PortalItem;
 import com.esri.ags.portal.supportClasses.PortalQueryParameters;
 import com.esri.ags.portal.supportClasses.PortalQueryResult;
+import com.esri.ags.tasks.JSONTask;
 import com.esri.viewer.AppEvent;
 import com.esri.viewer.ConfigData;
 
 import flash.events.Event;
 import flash.events.EventDispatcher;
+import flash.net.URLVariables;
+import flash.utils.Dictionary;
 
 import mx.resources.ResourceManager;
 import mx.rpc.AsyncResponder;
@@ -26,13 +45,16 @@ public class PortalBasemapAppender extends EventDispatcher
     private var configData:ConfigData;
     private var portalURL:String;
 
-    private var itemTitleOrder:Array;
+    private var portalItemOrder:Array;
+    private var portalItemToLabel:Dictionary;
     private var processedArcGISBasemaps:Array;
     private var totalBasemaps:int;
     private var totalPossibleArcGISBasemaps:int;
 
     private var comparableDefaultBasemapObjects:Array;
     private var defaultBasemapTitle:String;
+
+    private var cultureCode:String;
 
     public function PortalBasemapAppender(portalURL:String, configData:ConfigData)
     {
@@ -42,17 +64,24 @@ public class PortalBasemapAppender extends EventDispatcher
 
     public function fetchAndAppendPortalBasemaps():void
     {
+        const idMgrEnabled:Boolean = IdentityManager.instance.enabled;
         var portal:Portal = new Portal();
-        portal.addEventListener(PortalEvent.LOAD, portal_loadedHandler);
+        // the Portal constructor enables the IdentityManager so restore it back to what it was
+        IdentityManager.instance.enabled = idMgrEnabled;
+
+        portal.addEventListener(PortalEvent.LOAD, portal_loadHandler);
         portal.addEventListener(FaultEvent.FAULT, portal_faultHandler);
 
-        var locale:String = ResourceManager.getInstance().localeChain[0];
-        portal.load(portalURL, toCultureCode(locale));
+        cultureCode = toCultureCode(ResourceManager.getInstance().localeChain[0]);
+        portal.load(portalURL, cultureCode);
     }
 
-    protected function portal_loadedHandler(event:PortalEvent):void
+    protected function portal_loadHandler(event:PortalEvent):void
     {
         var portal:Portal = event.target as Portal;
+        portal.removeEventListener(PortalEvent.LOAD, portal_loadHandler);
+        portal.removeEventListener(FaultEvent.FAULT, portal_faultHandler);
+
         comparableDefaultBasemapObjects = getComparableBasemapObjects(portal.info.defaultBasemap);
         var queryParams:PortalQueryParameters = PortalQueryParameters.forQuery(portal.info.basemapGalleryGroupQuery);
         portal.queryGroups(queryParams, new AsyncResponder(portal_queryGroupsResultHandler, portal_queryGroupsFaultHandler, portal));
@@ -74,25 +103,46 @@ public class PortalBasemapAppender extends EventDispatcher
 
     private function portal_queryItemsResultHandler(queryResult:PortalQueryResult, token:Object = null):void
     {
-        var resultItems:Array = queryResult.results;
+        const resultItems:Array = queryResult.results;
         totalPossibleArcGISBasemaps = resultItems.length;
-        itemTitleOrder = [];
+        portalItemOrder = [];
+        portalItemToLabel = new Dictionary(true);
         processedArcGISBasemaps = [];
         totalBasemaps = configData.basemaps.length;
-        var portalItem:PortalItem;
-        for (var i:uint = 0; i < totalPossibleArcGISBasemaps; i++)
+        for each (var item:PortalItem in resultItems)
         {
-            portalItem = resultItems[i];
-            itemTitleOrder.push(portalItem.title);
-            portalItem.getJSONData(new AsyncResponder(portalItem_getJSONDataResultHandler,
-                                                      portalItem_getJSONDataFaultHandler,
-                                                      portalItem));
+            processPortalItem(item);
         }
     }
 
-    private function portalItem_getJSONDataResultHandler(itemData:Object, item:PortalItem):void
+    private function processPortalItem(item:PortalItem):void
     {
-        createBasemapLayerObject(itemData, item);
+        if (item.type == PortalItem.TYPE_WEB_MAP)
+        {
+            portalItemOrder.push(item);
+            processWebMapPortalItem(item);
+        }
+        else if (item.type == PortalItem.TYPE_MAP_SERVICE)
+        {
+            portalItemOrder.push(item);
+            processMapServicePortalItem(item);
+        }
+        else
+        {
+            updateTotalArcGISBasemaps();
+        }
+    }
+
+    private function processWebMapPortalItem(item:PortalItem):void
+    {
+        item.getJSONData(new AsyncResponder(item_getJSONDataResultHandler,
+                                            item_getJSONDataFaultHandler,
+                                            item));
+    }
+
+    private function item_getJSONDataResultHandler(itemData:Object, item:PortalItem):void
+    {
+        createBasemapLayerObjectFromWebMapItemAndData(item, itemData);
         if (isDefaultBasemap(itemData.baseMap))
         {
             defaultBasemapTitle = itemData.baseMap.title;
@@ -100,7 +150,7 @@ public class PortalBasemapAppender extends EventDispatcher
         updateTotalArcGISBasemaps();
     }
 
-    private function createBasemapLayerObject(itemData:Object, item:PortalItem):void
+    private function createBasemapLayerObjectFromWebMapItemAndData(item:PortalItem, itemData:Object):void
     {
         if (!itemData)
         {
@@ -123,6 +173,7 @@ public class PortalBasemapAppender extends EventDispatcher
             return;
         }
 
+        portalItemToLabel[item] = title;
         var basemapLayerObject:Object = basemapLayerObjects[0];
         addBasemapLayerObject(baseMapLayerObjectToLayerXML(title,
                                                            basemapLayerObject,
@@ -234,12 +285,12 @@ public class PortalBasemapAppender extends EventDispatcher
 
     private function setFirstBasemapVisible():void
     {
-        if (!itemTitleOrder)
+        if (!portalItemOrder || portalItemOrder.length == 0)
         {
             return;
         }
 
-        var firstBasemapLabel:String = itemTitleOrder[0];
+        var firstBasemapLabel:String = portalItemToLabel[portalItemOrder[0]];
         for each (var layerObject:Object in processedArcGISBasemaps)
         {
             if (layerObject.label == firstBasemapLabel)
@@ -251,11 +302,11 @@ public class PortalBasemapAppender extends EventDispatcher
 
     private function addBasemapsInOrder():void
     {
-        for each (var itemLabel:String in itemTitleOrder)
+        for each (var portalItem:PortalItem in portalItemOrder)
         {
             for each (var layerObject:Object in processedArcGISBasemaps)
             {
-                if (layerObject.label == itemLabel)
+                if (layerObject.label == portalItemToLabel[portalItem])
                 {
                     configData.basemaps.push(layerObject);
                 }
@@ -282,9 +333,9 @@ public class PortalBasemapAppender extends EventDispatcher
 
         if (url)
         {
-            layerXML = createTiledLayerXML(title, iconURL, url, basemapLayerObject, false);
+            layerXML = createLayerXML(title, "tiled", iconURL, url, basemapLayerObject.opacity, false);
         }
-        else if (isAllowedType(type))
+        else if (isNonEsriType(type))
         {
             layerXML = createNonEsriLayerXML(title, iconURL, basemapLayerObject, false, type);
         }
@@ -292,19 +343,17 @@ public class PortalBasemapAppender extends EventDispatcher
         return layerXML;
     }
 
-    private function createTiledLayerXML(title:String, iconURL:String, url:String, basemapLayerObject:Object, visible:Boolean):XML
+    private function createLayerXML(title:String, type:String, iconURL:String, url:String, alpha:Number, visible:Boolean):XML
     {
-        var layerXML:XML = <layer label={title}
-                type="tiled"
+        return <layer label={title}
+                type={type}
                 icon={iconURL}
                 url={url}
-                alpha={basemapLayerObject.opacity}
+                alpha={alpha}
                 visible={visible}/>;
-
-        return layerXML;
     }
 
-    private function isAllowedType(type:String):Boolean
+    private function isNonEsriType(type:String):Boolean
     {
         return type == "OpenStreetMap" ||
             (isBingBasemap(type) && hasBingKey());
@@ -321,6 +370,7 @@ public class PortalBasemapAppender extends EventDispatcher
         if (isBingBasemap(type))
         {
             layerXML.@style = mapBingStyleFromBasemapType(type);
+            layerXML.@culture = cultureCode;
         }
 
         return layerXML;
@@ -369,34 +419,127 @@ public class PortalBasemapAppender extends EventDispatcher
         }
     }
 
-    private function portalItem_getJSONDataFaultHandler(fault:Fault, token:Object = null):void
+    private function item_getJSONDataFaultHandler(fault:Fault, token:Object = null):void
     {
-        var errorMessage:String = 'Could not fetch basemap data\n' + fault.faultString;
-        AppEvent.dispatch(AppEvent.APP_ERROR, errorMessage);
+        AppEvent.dispatch(AppEvent.APP_ERROR,
+                          LocalizationUtil.getDefaultString("couldNotFetchBasemapData",
+                                                            fault.faultString));
+        updateTotalArcGISBasemaps();
+    }
+
+    private function processMapServicePortalItem(item:PortalItem):void
+    {
+        const urlVars:URLVariables = new URLVariables();
+        urlVars.f = "json";
+        var mapServiceMetadataRequest:JSONTask = new JSONTask(item.url);
+        mapServiceMetadataRequest.execute(
+            urlVars, new AsyncResponder(mapServiceRequest_resultHandler,
+                                        mapServiceRequest_faultHandler,
+                                        item));
+    }
+
+    private function mapServiceRequest_resultHandler(serviceMetadata:Object, item:PortalItem):void
+    {
+        createBasemapLayerObjectFromMapServiceItemAndData(item, serviceMetadata);
+        updateTotalArcGISBasemaps();
+    }
+
+    private function createBasemapLayerObjectFromMapServiceItemAndData(item:PortalItem, serviceMetadata:Object):void
+    {
+        if (!serviceMetadata)
+        {
+            return;
+        }
+
+        var layerType:String = getLayerType(serviceMetadata, item);
+        if (!layerType)
+        {
+            return;
+        }
+
+        var title:String = item.title;
+        var iconURL:String = item.thumbnailURL;
+        var existingBasemapLayerObject:Object = findBasemapLayerObjectById(title);
+        if (existingBasemapLayerObject)
+        {
+            existingBasemapLayerObject.icon = iconURL;
+            return;
+        }
+
+        portalItemToLabel[item] = title;
+        addBasemapLayerObject(mapServicePortalItemToLayerXML(item, layerType));
+    }
+
+    private function getLayerType(serviceMetadata:Object, item:PortalItem):String
+    {
+        var layerType:String;
+
+        if (serviceMetadata.singleFusedMapCache)
+        {
+            layerType = "tiled";
+        }
+        else if (serviceMetadata.bandCount)
+        {
+            layerType = "image";
+        }
+        else if (isNaN(Number(item.url.charAt(item.url.length - 1))))
+        {
+            layerType = "dynamic";
+        }
+        else
+        {
+            layerType = "feature";
+        }
+
+        return layerType;
+    }
+
+    private function mapServicePortalItemToLayerXML(item:PortalItem, type:String):XML
+    {
+        const title:String = item.title;
+        const iconURL:String = item.thumbnailURL;
+        const url:String = item.url;
+        return createLayerXML(title, type, iconURL, url, 1, false);
+    }
+
+    private function mapServiceRequest_faultHandler(fault:Fault, token:Object = null):void
+    {
+        if (fault.faultString != "Sign in aborted")
+        {
+            AppEvent.dispatch(AppEvent.APP_ERROR,
+                              LocalizationUtil.getDefaultString("couldNotFetchBasemapData",
+                                                                fault.faultString));
+        }
+
         updateTotalArcGISBasemaps();
     }
 
     private function portal_queryGroupsFaultHandler(fault:Fault, token:Object = null):void
     {
-        AppEvent.showError("Could not query portal.", PORTAL_BASEMAP_APPENDER);
+        AppEvent.showError(LocalizationUtil.getDefaultString("couldNotQueryPortal"), PORTAL_BASEMAP_APPENDER);
         dispatchComplete();
     }
 
     private function portal_queryItemsFaultHandler(fault:Fault, token:Object = null):void
     {
-        AppEvent.showError("Could not query portal items.", PORTAL_BASEMAP_APPENDER);
+        AppEvent.showError(LocalizationUtil.getDefaultString("couldNotQueryPortalItems"), PORTAL_BASEMAP_APPENDER);
         dispatchComplete();
     }
 
     private function portal_faultHandler(event:FaultEvent):void
     {
-        AppEvent.showError("Could not connect to Portal.", PORTAL_BASEMAP_APPENDER);
+        var portal:Portal = event.target as Portal;
+        portal.removeEventListener(PortalEvent.LOAD, portal_loadHandler);
+        portal.removeEventListener(FaultEvent.FAULT, portal_faultHandler);
+
+        AppEvent.showError(LocalizationUtil.getDefaultString("couldNotConnectToPortal"), PORTAL_BASEMAP_APPENDER);
         dispatchComplete();
     }
 
     private function toCultureCode(locale:String):String
     {
-        return locale.replace('_', '-');
+        return locale ? locale.replace('_', '-') : locale;
     }
 }
+
 }

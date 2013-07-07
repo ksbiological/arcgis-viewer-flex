@@ -39,6 +39,7 @@ Class used to configure the viewer map component (including layers) and handle m
             import com.esri.ags.events.LayerEvent;
             import com.esri.ags.events.MapEvent;
             import com.esri.ags.geometry.Extent;
+            import com.esri.ags.geometry.Geometry;
             import com.esri.ags.geometry.MapPoint;
             import com.esri.ags.layers.ArcGISDynamicMapServiceLayer;
             import com.esri.ags.layers.ArcGISTiledMapServiceLayer;
@@ -55,23 +56,33 @@ Class used to configure the viewer map component (including layers) and handle m
             import com.esri.ags.portal.supportClasses.PopUpFieldInfo;
             import com.esri.ags.portal.supportClasses.PopUpInfo;
             import com.esri.ags.portal.supportClasses.PopUpMediaInfo;
+            import com.esri.ags.skins.ScaleBarMetricSkin;
+            import com.esri.ags.skins.ScaleBarSkin;
+            import com.esri.ags.skins.ScaleBarUSSkin;
             import com.esri.ags.symbols.PictureMarkerSymbol;
             import com.esri.ags.symbols.SimpleFillSymbol;
             import com.esri.ags.symbols.SimpleLineSymbol;
             import com.esri.ags.symbols.SimpleMarkerSymbol;
             import com.esri.ags.symbols.Symbol;
             import com.esri.ags.symbols.TextSymbol;
+            import com.esri.ags.tasks.GeometryServiceSingleton;
+            import com.esri.ags.tasks.supportClasses.ProjectParameters;
             import com.esri.ags.tools.DrawTool;
             import com.esri.ags.tools.NavigationTool;
+            import com.esri.ags.utils.WebMercatorUtil;
             import com.esri.viewer.AppEvent;
             import com.esri.viewer.ConfigData;
             import com.esri.viewer.IBaseWidget;
             import com.esri.viewer.IInfowindowTemplate;
             import com.esri.viewer.ViewerContainer;
             import com.esri.viewer.components.InfoPopup;
+            import com.esri.viewer.components.toc.utils.MapUtil;
             import com.esri.viewer.utils.ErrorMessageUtil;
-            
+            import com.esri.viewer.utils.LocalizationUtil;
+            import com.esri.viewer.utils.MapServiceUtil;
+
             import mx.collections.ArrayCollection;
+            import mx.collections.ArrayList;
             import mx.containers.Canvas;
             import mx.controls.Alert;
             import mx.events.CloseEvent;
@@ -80,11 +91,12 @@ Class used to configure the viewer map component (including layers) and handle m
             import mx.rpc.AsyncResponder;
             import mx.rpc.AsyncToken;
             import mx.rpc.Fault;
+            import mx.rpc.IResponder;
+            import mx.rpc.Responder;
             import mx.rpc.events.FaultEvent;
             import mx.rpc.events.ResultEvent;
             import mx.rpc.http.HTTPService;
-            import mx.utils.StringUtil;
-            
+
             import spark.components.Group;
             import spark.globalization.SortingCollator;
 
@@ -128,15 +140,17 @@ Class used to configure the viewer map component (including layers) and handle m
 
             private var m_drawTool:DrawTool;
 
+            private var m_drawUpdateFunction:Function;
+
             private var m_drawEndFunction:Function;
+
+            private var m_initialExtent:Extent;
 
             private var m_fullExtent:Extent;
 
             private var m_mapManagerState:String = "resized";
 
             private var m_optLayerTable:Array = [];
-
-            private var m_osmCopyrightManager:OpenStreetMapCopyrightManager;
 
             private var m_basemapLayerIndex:int = 0;
 
@@ -153,8 +167,6 @@ Class used to configure the viewer map component (including layers) and handle m
                 // for ordering popup fields
                 m_sortingCollator = new SortingCollator;
                 m_sortingCollator.setStyle("locale", resourceManager.localeChain[0]);
-
-                m_osmCopyrightManager = new OpenStreetMapCopyrightManager(map);
 
                 AppEvent.addListener(AppEvent.CONFIG_LOADED, configLoadedHandler);
                 AppEvent.addListener(AppEvent.SET_MAP_NAVIGATION, setMapNavigationHandler);
@@ -179,8 +191,8 @@ Class used to configure the viewer map component (including layers) and handle m
 
             private function setViewerVersion():void
             {
-                var contextMenuText:String = getDefaultString("contextMenuText");
-                var aboutText:String = getDefaultString("aboutText");
+                var contextMenuText:String = LocalizationUtil.getDefaultString("contextMenuText");
+                var aboutText:String = LocalizationUtil.getDefaultString("aboutText");
                 var menuItem:ContextMenuItem = new ContextMenuItem(contextMenuText, true, true);
                 menuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, function(event:ContextMenuEvent):void
                 {
@@ -190,13 +202,13 @@ Class used to configure the viewer map component (including layers) and handle m
                     var noLabel:String = Alert.noLabel;
                     // change labels
                     Alert.buttonWidth = 100;
-                    Alert.yesLabel = getDefaultString("aboutLearnMoreBtn");
-                    Alert.noLabel = getDefaultString("aboutCloseBtn");
+                    Alert.yesLabel = LocalizationUtil.getDefaultString("aboutLearnMoreBtn");
+                    Alert.noLabel = LocalizationUtil.getDefaultString("aboutCloseBtn");
                     Alert.show(aboutText, contextMenuText, Alert.YES | Alert.NO, null, function(event:CloseEvent):void
                     {
                         if (event.detail == Alert.YES)
                         {
-                            navigateToURL(new URLRequest("http://resourcesbeta.arcgis.com/en/communities/flex-viewer/"));
+                            navigateToURL(new URLRequest("http://links.esri.com/flexviewer"));
                         }
                     }, StaticLayer_m_esriLogo, Alert.NO);
                     // restore labels to normal
@@ -252,20 +264,16 @@ Class used to configure the viewer map component (including layers) and handle m
                 m_drawTool = new DrawTool();
                 m_drawTool.map = map;
                 m_drawTool.addEventListener(DrawEvent.DRAW_END, drawEndHandler);
+                m_drawTool.addEventListener(DrawEvent.DRAW_UPDATE, drawUpdateHandler);
 
                 configMapAttributes();
-
                 configBasemaps();
-                configOperationalLayers();
-                configReferenceBasemaps();
-
                 setViewerVersion();
             }
 
             private function configMapAttributes():void
             {
-                var spatialReference:SpatialReference;
-                var initialExtent:Extent;
+                var mapSpatialReference:SpatialReference;
 
                 for (var i:int = 0; i < m_configData.mapAttrs.length; i++)
                 {
@@ -273,16 +281,14 @@ Class used to configure the viewer map component (including layers) and handle m
 
                     if (id == "full")
                     {
-                        var ext:String = m_configData.mapAttrs[i].extent;
-                        var extArray:Array = ext.split(" ");
-                        var extent:Extent = new Extent(Number(extArray[0]), Number(extArray[1]), Number(extArray[2]), Number(extArray[3]));
-                        m_fullExtent = extent;
+                        var fullExtentTextCoordinates:String = m_configData.mapAttrs[i].extent;
+                        m_fullExtent = MapUtil.createExtent(fullExtentTextCoordinates.split(" "));
                     }
                     else if (id == "initial")
                     {
-                        var iext:String = m_configData.mapAttrs[i].extent;
-                        var iextArray:Array = iext.split(" ");
-                        initialExtent = new Extent(Number(iextArray[0]), Number(iextArray[1]), Number(iextArray[2]), Number(iextArray[3]));
+                        var initExtentTextCoordinates:String = m_configData.mapAttrs[i].extent;
+                        m_initialExtent = MapUtil.createExtent(initExtentTextCoordinates.split(" "));
+                        map.addEventListener(MapEvent.LOAD, map_loadHandler);
                     }
                     else if (id == "center")
                     {
@@ -326,10 +332,10 @@ Class used to configure the viewer map component (including layers) and handle m
 
                         if (wkid || wkt)
                         {
-                            spatialReference = new SpatialReference(wkid, wkt);
+                            mapSpatialReference = new SpatialReference(wkid, wkt);
                         }
 
-                        m_configData.mapAttrs[i].refObj = spatialReference;
+                        m_configData.mapAttrs[i].refObj = mapSpatialReference;
                     }
                     else if (id == "zoomSlider")
                     {
@@ -338,10 +344,21 @@ Class used to configure the viewer map component (including layers) and handle m
                     else if (id == "scaleBar")
                     {
                         map.scaleBarVisible = m_configData.mapAttrs[i].scaleBarVisible;
+
+                        var scaleBarStyleName:String = m_configData.mapAttrs[i].scaleBarStyleName;
+                        if (scaleBarStyleName)
+                        {
+                            var scaleBarStyleDeclaration:CSSStyleDeclaration = styleManager.getStyleDeclaration('com.esri.ags.components.ScaleBar');
+                            scaleBarStyleDeclaration.setStyle("skinClass", toScaleBarSkinClass(scaleBarStyleName));
+                        }
                     }
                     else if (id == "esriLogo")
                     {
                         map.logoVisible = m_configData.mapAttrs[i].esriLogoVisible;
+                    }
+                    else if (id == "attributionVisible")
+                    {
+                        map.attributionVisible = m_configData.mapAttrs[i].attributionVisible;
                     }
                     else if (id == "openHandCursor")
                     {
@@ -359,6 +376,10 @@ Class used to configure the viewer map component (including layers) and handle m
                     {
                         map.lods = m_configData.mapAttrs[i].lods;
                     }
+                    else if (id == "mapRotation")
+                    {
+                        map.mapRotation = m_configData.mapAttrs[i].mapRotation;
+                    }
                 }
 
                 // set size now so that only one extentChange event will be fired
@@ -367,20 +388,92 @@ Class used to configure the viewer map component (including layers) and handle m
 
                 if (m_fullExtent)
                 {
-                    m_fullExtent.spatialReference = spatialReference;
+                    m_fullExtent.spatialReference = mapSpatialReference;
                 }
-                if (initialExtent)
+                if (m_initialExtent)
                 {
-                    initialExtent.spatialReference = spatialReference;
-                    map.extent = initialExtent;
+                    //ensure map's SR, extent may be updated later if projection is needed
+                    map.extent = new Extent(m_initialExtent.xmin,
+                                            m_initialExtent.ymin,
+                                            m_initialExtent.xmax,
+                                            m_initialExtent.ymax,
+                                            mapSpatialReference);
                 }
             }
 
             private function map_loadHandler(event:MapEvent):void
             {
+                map.removeEventListener(MapEvent.LOAD, map_loadHandler);
+
+                if (m_initialExtent)
+                {
+                    project(m_initialExtent, new mx.rpc.Responder(project_resultHandler,
+                                                                  project_faultHandler));
+                }
+                else
+                {
+                    applyCenter();
+                }
+
+                function project_resultHandler(extent:Extent):void
+                {
+                    map.extent = extent;
+                    applyCenter();
+                }
+
+                function project_faultHandler(fault:Fault):void
+                {
+                    applyCenter();
+                }
+            }
+
+            private function project(geometry:Geometry, responder:IResponder):void
+            {
+                var canApplyDirectlyToMap:Boolean = !geometry.spatialReference
+                    || map.spatialReference.equals(geometry.spatialReference)
+                    || (map.spatialReference.isWebMercator() && geometry.spatialReference.isWebMercator());
+
+                if (canApplyDirectlyToMap)
+                {
+                    responder.result(geometry);
+                }
+                else if (map.spatialReference.isWebMercator()
+                    && geometry.spatialReference.wkid == 4326)
+                {
+                    responder.result(WebMercatorUtil.geographicToWebMercator(geometry));
+                }
+                else if (map.spatialReference.wkid == 4326
+                    && geometry.spatialReference.isWebMercator())
+                {
+                    responder.result(WebMercatorUtil.webMercatorToGeographic(geometry));
+                }
+                else
+                {
+                    var projectParams:ProjectParameters = new ProjectParameters();
+                    projectParams.geometries = [ geometry ];
+                    projectParams.outSpatialReference = map.spatialReference;
+                    GeometryServiceSingleton.instance.project(
+                        projectParams, new mx.rpc.Responder(projectionSuccessHandler,
+                                                            projectionFailureHandler));
+
+                    function projectionSuccessHandler(geometries:Array):void
+                    {
+                        responder.result(geometries[0]);
+                    }
+
+                    function projectionFailureHandler(fault:Fault):void
+                    {
+                        responder.fault(fault);
+                    }
+                }
+            }
+
+            private function applyCenter():void
+            {
                 var center:String;
                 var level:Number;
                 var scale:Number;
+
                 for (var i:int = 0; i < m_configData.mapAttrs.length; i++)
                 {
                     var id:String = m_configData.mapAttrs[i].id;
@@ -398,23 +491,63 @@ Class used to configure the viewer map component (including layers) and handle m
                         scale = parseFloat(m_configData.mapAttrs[i].scale);
                     }
                 }
-                if (center)
+
+                if (!center)
                 {
-                    var centerXY:Array = center.split(" ");
-                    if (centerXY.length == 2)
+                    return;
+                }
+
+                var centerPoint:MapPoint = createMapPoint(center.split(" "));
+                if (!centerPoint)
+                {
+                    return;
+                }
+
+                project(centerPoint,
+                        new mx.rpc.Responder(project_resultHandler,
+                                             project_faultHandler));
+
+                function project_resultHandler(center:MapPoint):void
+                {
+                    map.centerAt(center);
+                    if (scale > 0)
                     {
-                        var centerPt:MapPoint = new MapPoint(centerXY[0], centerXY[1]);
-                        map.centerAt(centerPt);
-                        if (scale > 0)
+                        map.scale = scale;
+                    }
+                    else if (level >= 0)
+                    {
+                        map.level = level;
+                    }
+                }
+
+                function project_faultHandler(fault:Fault):void {}
+            }
+
+            private function createMapPoint(textualMapPointAttributes:Array):MapPoint
+            {
+                var point:MapPoint;
+
+                if (textualMapPointAttributes.length >= 2)
+                {
+                    var pointX:Number = parseFloat(textualMapPointAttributes[0]);
+                    var pointY:Number = parseFloat(textualMapPointAttributes[1]);
+
+                    if (textualMapPointAttributes.length == 3)
+                    {
+                        var wkid:Number = parseFloat(textualMapPointAttributes[2]);
+                    }
+
+                    if (!isNaN(pointX) && !isNaN(pointY))
+                    {
+                        point = new MapPoint(pointX, pointY);
+                        if (!isNaN(wkid))
                         {
-                            map.scale = scale;
-                        }
-                        else if (level >= 0)
-                        {
-                            map.level = level;
+                            point.spatialReference = new SpatialReference(wkid);
                         }
                     }
                 }
+
+                return point;
             }
 
             private function configBasemaps():void
@@ -434,6 +567,10 @@ Class used to configure the viewer map component (including layers) and handle m
                 {
                     loadNextBasemapLayer();
                 }
+                else
+                {
+                    configOperationalLayers();
+                }
 
                 if (layers.length > 0)
                 {
@@ -444,19 +581,24 @@ Class used to configure the viewer map component (including layers) and handle m
             private function loadNextBasemapLayer():void
             {
                 var basemapLayerObject:Object = m_basemapLayers[m_basemapLayerIndex];
+                var layer:Layer = basemapLayerObject.layer ? basemapLayerObject.layer : LayerCreator.createLayerFromLayerObject(basemapLayerObject);
+                basemapLayerObject.layer = layer;
 
-                addLayerToMap(basemapLayerObject);
+                // configure popups, if any
                 configureLayerRenderer(basemapLayerObject, false);
             }
 
             private function configReferenceBasemaps():void
             {
                 var layers:Array = m_configData.basemaps;
+                var layerObject:Object;
                 for (var i:uint = 0; i < layers.length; i++)
                 {
-                    if (layers[i].reference)
+                    layerObject = layers[i];
+                    if (layerObject.reference)
                     {
-                        addLayerToMap(layers[i]);
+                        layerObject.layer = layerObject.layer ? layerObject.layer : LayerCreator.createLayerFromLayerObject(layerObject);
+                        addLayerToMap(layerObject);
                     }
                 }
             }
@@ -476,22 +618,27 @@ Class used to configure the viewer map component (including layers) and handle m
 
                 if (m_operationalLayers.length > 0)
                 {
-                    loadNextOpertionalLayer();
+                    loadNextOperationalLayer();
+                }
+                else
+                {
+                    configReferenceBasemaps();
                 }
             }
 
-            private function loadNextOpertionalLayer():void
+            private function loadNextOperationalLayer():void
             {
                 var optLayerObject:Object = m_operationalLayers[m_operationalLayerIndex];
+                var layer:Layer = optLayerObject.layer ? optLayerObject.layer : LayerCreator.createLayerFromLayerObject(optLayerObject);
+                optLayerObject.layer = layer;
 
-                // add layer to map and configure popups if any
-                addLayerToMap(optLayerObject);
+                // configure pop-ups, if any
                 configureLayerRenderer(optLayerObject, true);
             }
 
             private function addLayerToMap(layerObject:Object):void
             {
-                var layer:Layer = layerObject.layer ? layerObject.layer : LayerCreator.createLayerFromLayerObject(layerObject);
+                var layer:Layer = layerObject.layer;
                 if (layer)
                 {
                     layer.addEventListener(LayerEvent.LOAD_ERROR, layer_loadErrorEvent);
@@ -504,13 +651,11 @@ Class used to configure the viewer map component (including layers) and handle m
                     {
                         layer.addEventListener(FlexEvent.HIDE, kmlLayer_hideHandler);
                     }
-
-                    layerObject.layer = layer;
                     map.addLayer(layer);
                 }
                 else
                 {
-                    var errorMessage:String = StringUtil.substitute(getDefaultString('incorrectLayerTypeText'), "'" + layerObject.type + "'");
+                    var errorMessage:String = LocalizationUtil.getDefaultString('incorrectLayerTypeText', "'" + layerObject.type + "'");
                     AppEvent.showError(errorMessage, MAP_MANAGER);
                 }
             }
@@ -519,11 +664,14 @@ Class used to configure the viewer map component (including layers) and handle m
             {
                 event.layer.removeEventListener(LayerEvent.LOAD_ERROR, layer_loadErrorEvent);
                 event.layer.removeEventListener(LayerEvent.LOAD, layer_loadEvent);
-    
+
                 if (event.fault.faultString != "Sign in aborted")
                 {
-                    var errorMessage:String = event.layer.name + " layer failed to load: " + ErrorMessageUtil.makeHTMLSafe(buildFaultMessage(event.fault));
-                    AppEvent.showError(errorMessage, MAP_MANAGER);                   
+                    var errorMessage:String = LocalizationUtil.getDefaultString("layerFailedToLoad",
+                                                                                event.layer.name,
+                                                                                ErrorMessageUtil.makeHTMLSafe(ErrorMessageUtil.buildFaultMessage(event.fault)));
+
+                    AppEvent.showError(errorMessage, MAP_MANAGER);
                 }
                 // remove layer from map and map switcher
                 removeLayerFromLayerObject(event.layer);
@@ -569,14 +717,17 @@ Class used to configure the viewer map component (including layers) and handle m
             {
                 event.layer.removeEventListener(LayerEvent.LOAD_ERROR, layer_loadErrorEvent);
                 event.layer.removeEventListener(LayerEvent.LOAD, layer_loadEvent);
-            }
 
-            private function buildFaultMessage(fault:Fault):String
-            {
-                var faultMessage:String = StringUtil.substitute(getDefaultString('faultCode'), fault.faultCode) + "\n\n";
-                faultMessage += StringUtil.substitute(getDefaultString('faultInfo'), fault.faultString) + "\n\n";
-                faultMessage += StringUtil.substitute(getDefaultString('faultDetail'), fault.faultDetail);
-                return faultMessage;
+                // update visible layers on dynamic map service
+                if (event.layer is ArcGISDynamicMapServiceLayer)
+                {
+                    var arcgisDynamicMapServiceLayer:ArcGISDynamicMapServiceLayer = event.layer as ArcGISDynamicMapServiceLayer;
+                    var visibleLayers:Array = arcgisDynamicMapServiceLayer.visibleLayers ? arcgisDynamicMapServiceLayer.visibleLayers.toArray() : null;
+                    var layerInfos:Array = arcgisDynamicMapServiceLayer.dynamicLayerInfos || arcgisDynamicMapServiceLayer.layerInfos;
+                    var actualVisibleLayers:Array = MapServiceUtil.getVisibleSubLayers(layerInfos, visibleLayers);
+
+                    arcgisDynamicMapServiceLayer.visibleLayers = new ArrayList(actualVisibleLayers);
+                }
             }
 
             private function featureLayer_hideHandler(event:FlexEvent):void
@@ -765,7 +916,7 @@ Class used to configure the viewer map component (including layers) and handle m
                         }
                         catch (error:Error)
                         {
-                            AppEvent.showError(StringUtil.substitute(getDefaultString("parseConfigErrorText"), token.popUpConfigURL + "\n" + error.message), MAP_MANAGER);
+                            AppEvent.showError(LocalizationUtil.getDefaultString("parseConfigErrorText", token.popUpConfigURL + "\n" + error.message), MAP_MANAGER);
                         }
                     }
 
@@ -781,7 +932,7 @@ Class used to configure the viewer map component (including layers) and handle m
                             var ioe:IOErrorEvent = event.fault.rootCause as IOErrorEvent;
                             if (ioe.text.indexOf("2032: Stream Error. URL:") > -1)
                             {
-                                sInfo += StringUtil.substitute(getDefaultString('missingConfigFileText'), ioe.text.substring(32)) + "\n\n";
+                                sInfo += LocalizationUtil.getDefaultString('missingConfigFileText', ioe.text.substring(32)) + "\n\n";
                             }
                             else
                             {
@@ -796,11 +947,11 @@ Class used to configure the viewer map component (including layers) and handle m
                             var sec:SecurityErrorEvent = event.fault.rootCause as SecurityErrorEvent;
                             if (sec.text.indexOf("Error #2048: ") > -1) // debug player
                             {
-                                sInfo += StringUtil.substitute(getDefaultString('configFileCrossDomain'), "\n", sec.text) + "\n\n";
+                                sInfo += LocalizationUtil.getDefaultString('configFileCrossDomain', "\n", sec.text) + "\n\n";
                             }
                             else if (sec.text.indexOf("Error #2048") > -1) // non-debug player
                             {
-                                sInfo += StringUtil.substitute(getDefaultString('configFileCrossDomain'), "\n", sec.toString()) + "\n\n";
+                                sInfo += LocalizationUtil.getDefaultString('configFileCrossDomain', "\n", sec.toString()) + "\n\n";
                             }
                             else
                             {
@@ -811,10 +962,10 @@ Class used to configure the viewer map component (including layers) and handle m
 
                         if (event.statusCode) // e.g. 404 - Not Found - http://en.wikipedia.org/wiki/List_of_HTTP_status_codes
                         {
-                            sInfo += StringUtil.substitute(getDefaultString('httpResponseStatus'), event.statusCode) + "\n\n";
+                            sInfo += LocalizationUtil.getDefaultString('httpResponseStatus', event.statusCode) + "\n\n";
                         }
 
-                        sInfo += buildFaultMessage(event.fault);
+                        sInfo += ErrorMessageUtil.buildFaultMessage(event.fault);
 
                         AppEvent.showError(sInfo, MAP_MANAGER);
 
@@ -1041,6 +1192,14 @@ Class used to configure the viewer map component (including layers) and handle m
                             {
                                 popUpInfo.showAttachments = popUpConfigXML.showattachments == "true";
                             }
+                            if (popUpConfigXML.showrelatedrecords[0])
+                            {
+                                popUpInfo.showRelatedRecords = popUpConfigXML.showrelatedrecords == "true";
+                            }
+                            if (popUpConfigXML.showzoomtobutton[0])
+                            {
+                                popUpInfo.showZoomToButton = popUpConfigXML.showzoomtobutton == "true";
+                            }
                         }
 
                         function setPopUpRendererOnLayer():void
@@ -1062,7 +1221,10 @@ Class used to configure the viewer map component (including layers) and handle m
                             }
                         }
                     }
-                    loadNextOperationalOrBasemapLayer(isOptLayer);
+                    else
+                    {
+                        loadNextOperationalOrBasemapLayer(isOptLayer);
+                    }
                 }
             }
 
@@ -1145,19 +1307,35 @@ Class used to configure the viewer map component (including layers) and handle m
             {
                 if (isOperationalLayer)
                 {
-                    m_optLayerTable.push(m_operationalLayers[m_operationalLayerIndex]);
+                    // add layer to map after popups have been configured, if any
+                    var optLayerObject:Object = m_operationalLayers[m_operationalLayerIndex];
+                    addLayerToMap(optLayerObject);
+
+                    m_optLayerTable.push(optLayerObject);
                     m_operationalLayerIndex++;
                     if (m_operationalLayerIndex < m_operationalLayers.length)
                     {
-                        loadNextOpertionalLayer();
+                        loadNextOperationalLayer();
+                    }
+                    else
+                    {
+                        configReferenceBasemaps(); // operational layers added, move on to reference layers, if any
                     }
                 }
                 else
                 {
+                    // add layer to map after popups have been configured, if any
+                    var basemapLayerObject:Object = m_basemapLayers[m_basemapLayerIndex];
+                    addLayerToMap(basemapLayerObject);
+
                     m_basemapLayerIndex++;
                     if (m_basemapLayerIndex < m_basemapLayers.length)
                     {
                         loadNextBasemapLayer();
+                    }
+                    else
+                    {
+                        configOperationalLayers(); // basemap layers added, move on to operational layers, if any
                     }
                 }
             }
@@ -1300,6 +1478,7 @@ Class used to configure the viewer map component (including layers) and handle m
                     map.removeEventListener(MouseEvent.ROLL_OUT, map_rollOutHandler);
 
                     m_drawEndFunction = data.handler;
+                    m_drawUpdateFunction = data.handler2;
                     m_navTool.deactivate();
                     m_drawTool.activate(tool, enableGraphicsLayerMouseEvents);
                     // showDrawTips
@@ -1331,6 +1510,14 @@ Class used to configure the viewer map component (including layers) and handle m
                 {
                     m_drawTool.deactivate();
                     restoreNavigation();
+                }
+            }
+
+            private function drawUpdateHandler(event:DrawEvent):void
+            {
+                if (m_drawUpdateFunction != null)
+                {
+                    m_drawUpdateFunction(event);
                 }
             }
 
@@ -1423,14 +1610,34 @@ Class used to configure the viewer map component (including layers) and handle m
                 invalidateSkinState();
             }
 
-            private function getDefaultString(token:String):String
-            {
-                return resourceManager.getString("ViewerStrings", token);
-            }
-
             private function removeLayer(layerObject:Object, index:int, source:Array):void
             {
                 map.removeLayer(layerObject.layer);
+            }
+
+            private function toScaleBarSkinClass(scaleBarStyleName:String = "default"):Class
+            {
+                var scaleBarClass:Class;
+
+                switch (scaleBarStyleName)
+                {
+                    case "metric":
+                    {
+                        scaleBarClass = ScaleBarMetricSkin;
+                        break;
+                    }
+                    case "us":
+                    {
+                        scaleBarClass = ScaleBarUSSkin;
+                        break;
+                    }
+                    default:
+                    {
+                        scaleBarClass = ScaleBarSkin;
+                    }
+                }
+
+                return scaleBarClass;
             }
         ]]>
     </fx:Script>

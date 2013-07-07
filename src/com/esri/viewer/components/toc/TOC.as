@@ -69,7 +69,6 @@ public class TOC extends Tree
 
         // Set default styles
         setStyle("borderStyle", "none");
-
     }
 
     //--------------------------------------------------------------------------
@@ -106,14 +105,51 @@ public class TOC extends Tree
     private var _useLayerFadeEffect:Boolean = false;
     private var _useLayerFadeEffectChanged:Boolean = false;
 
-    // show layer menu
-    private var _showLayerMenu:Boolean = true;
+    // include legend items
+    private var _includeLegendItems:Boolean;
+
+    private var _expandLayerItemsPending:Boolean;
+    private var _pendingItemsToExpand:Array = [];
 
     //--------------------------------------------------------------------------
     //
     //  Properties
     //
     //--------------------------------------------------------------------------
+
+    //--------------------------------------------------------------------------
+    //  expandLayerItems
+    //--------------------------------------------------------------------------
+
+    [Bindable("expandLayerItemsChanged")]
+    private var _expandLayerItems:Boolean;
+
+    public function get expandLayerItems():Boolean
+    {
+        return _expandLayerItems;
+    }
+
+    public function set expandLayerItems(value:Boolean):void
+    {
+        if (value != _expandLayerItems)
+        {
+            _expandLayerItems = value;
+            _expandLayerItemsPending = true;
+
+            if (_expandLayerItems)
+            {
+                //need to expand all current TOC items
+                _pendingItemsToExpand = _pendingItemsToExpand.concat(_tocRoots.source);
+            }
+            else
+            {
+                _pendingItemsToExpand.length = 0;
+            }
+
+            invalidateProperties();
+            dispatchEvent(new Event("expandLayerItemsChanged"));
+        }
+    }
 
     //--------------------------------------------------------------------------
     //  map
@@ -312,8 +348,32 @@ public class TOC extends Tree
     }
 
     //--------------------------------------------------------------------------
+    //  includeLegendItems
+    //--------------------------------------------------------------------------
+
+    [Bindable("includeLegendItemsChanged")]
+    /**
+     * Whether to include legend items.
+     */
+    public function get includeLegendItems():Boolean
+    {
+        return _includeLegendItems;
+    }
+
+    /**
+     * @private
+     */
+    public function set includeLegendItems(value:Boolean):void
+    {
+        _includeLegendItems = value;
+
+        onFilterChange();
+        dispatchEvent(new Event("includeLegendItemsChanged"));
+    }
+
+    //--------------------------------------------------------------------------
     //
-    //  Overriden Methods
+    //  Overridden Methods
     //
     //--------------------------------------------------------------------------
 
@@ -343,6 +403,15 @@ public class TOC extends Tree
                 setLayerFadeEffect(layer);
             });
         }
+
+        if (_expandLayerItemsPending)
+        {
+            _expandLayerItemsPending = false;
+            if (expandLayerItems)
+            {
+                expandPendingItems();
+            }
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -351,21 +420,15 @@ public class TOC extends Tree
     //
     //--------------------------------------------------------------------------
 
-    public function expandLayerItems():void
+    private function expandPendingItems():void
     {
-        validateNow();
-        expandTocItems(_tocRoots);
-    }
-
-    private function expandTocItems(tocItems:ArrayCollection):void
-    {
-        for each (var tocItem:TocItem in tocItems)
+        if (_pendingItemsToExpand.length > 0)
         {
-            if (tocItem.isGroupLayer())
+            for each (var tocItem:TocItem in _pendingItemsToExpand)
             {
-                expandTocItems(tocItem.children);
-                expandItem(tocItem, true);
+                expandChildrenOf(tocItem, true);
             }
+            _pendingItemsToExpand.length = 0;
         }
     }
 
@@ -427,7 +490,7 @@ public class TOC extends Tree
         var i:int;
         var currentTOCIndex:int;
         var currentItem:Object;
-        // remove hidden layes, to get the correct layerIds count
+        // remove hidden layers, to get the correct layerIds count
         var newLayerIds:Array = getNewLayerIds(map.layerIds);
         if (index <= (newLayerIds.length - _tocRoots.length)) // move this item to the bottom of toc
         {
@@ -448,7 +511,7 @@ public class TOC extends Tree
                 }
             }
         }
-        else if ((newLayerIds.length - _tocRoots.length) < index < newLayerIds.length)
+        else if ((newLayerIds.length - _tocRoots.length < index) && (index < newLayerIds.length))
         {
             // index of item to move
             currentTOCIndex = getCurrentTOCIndex();
@@ -579,7 +642,8 @@ public class TOC extends Tree
             var item:Object = _tocRoots[i];
             if (item is TocMapLayerItem && TocMapLayerItem(item).layer === layer)
             {
-                _tocRoots.removeItemAt(i);
+                var tocItem:TocItem = _tocRoots.removeItemAt(i) as TocItem;
+                tocItem.removeEventListener(Event.CHANGE, tocItem_childAddedHandler);
                 break;
             }
         }
@@ -613,7 +677,8 @@ public class TOC extends Tree
             setLayerFadeEffect(layer);
         }
 
-        var tocItem:TocMapLayerItem = new TocMapLayerItem(layer, _labelFunction, _isMapServiceOnly);
+        var tocItem:TocMapLayerItem = new TocMapLayerItem(layer, _labelFunction, _isMapServiceOnly, _includeLegendItems);
+        tocItem.addEventListener(Event.CHANGE, tocItem_childAddedHandler, false, 0, true);
         // need to get the true index of this layer in the map, removing any graphics layers from the equation if necessary as well as any exclude layers
         var trueMapLayerIndex:Number = 0;
         for each (var mapLayer:Layer in this.map.layers)
@@ -628,8 +693,18 @@ public class TOC extends Tree
                 trueMapLayerIndex++;
             }
         }
-        // now add at the correct index 
+        // now add at the correct index
         _tocRoots.addItemAt(tocItem, _tocRoots.length - trueMapLayerIndex);
+    }
+
+    private function tocItem_childAddedHandler(event:Event):void
+    {
+        if (expandLayerItems)
+        {
+            _expandLayerItemsPending = true;
+            _pendingItemsToExpand.push(event.currentTarget as TocItem);
+            invalidateProperties();
+        }
     }
 
     private function setLayerFadeEffect(layer:Layer):void

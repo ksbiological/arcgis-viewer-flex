@@ -18,6 +18,8 @@ package com.esri.viewer.utils
 
 import com.esri.ags.clusterers.ESRIClusterer;
 import com.esri.ags.layers.Layer;
+import com.esri.ags.renderers.IRenderer;
+import com.esri.ags.symbols.Symbol;
 
 public class LayerObjectUtil
 {
@@ -102,15 +104,6 @@ public class LayerObjectUtil
             }
         }
 
-        var noData:Number;
-        if (obj.@nodata[0])
-        {
-            if (!isNaN(parseFloat(obj.@nodata)))
-            {
-                noData = parseFloat(obj.@nodata);
-            }
-        }
-
         var autoRefresh:Number = 0;
         if (obj.@autorefresh[0])
         {
@@ -120,8 +113,11 @@ public class LayerObjectUtil
             }
         }
 
+        var copyright:String = obj.@copyright[0];
         var clustererParser:ClustererParser = new ClustererParser();
         var clusterer:ESRIClusterer = clustererParser.parseClusterer(obj.clustering[0]);
+        var rendererParser:RendererParser = new RendererParser();
+        var renderer:IRenderer = rendererParser.parseRenderer(obj);
         var useProxy:Boolean = obj.@useproxy[0] && obj.@useproxy == "true"; // default false
         var useMapTime:Boolean = obj.@usemaptime[0] ? obj.@usemaptime == "true" : true; // default true
         var useAMF:String = obj.@useamf[0] ? obj.@useamf : "";
@@ -130,6 +126,7 @@ public class LayerObjectUtil
         var icon:String = isSupportedImageType(obj.@icon[0]) ? obj.@icon : 'assets/images/defaultBasemapIcon.png';
         var layerId:String = obj.@layerid[0];
         var imageFormat:String = obj.@imageformat;
+        var noData:String = obj.@nodata[0];
         var visibleLayers:String = obj.@visiblelayers;
         var displayLevels:String = obj.@displaylevels;
         var bandIds:String = obj.@bandids;
@@ -138,10 +135,12 @@ public class LayerObjectUtil
         var url:String = obj.@url;
         var serviceURL:String = obj.@serviceurl[0];
         var serviceMode:String = obj.@servicemode[0];
+        var tileMatrixSetId:String = obj.@tilematrixsetid[0];
         var username:String = obj.@username;
         var password:String = obj.@password;
+        var disableClientCaching:Boolean = obj.@disableclientcaching[0] && obj.@disableclientcaching == "true"; // default false
 
-        // ve tiled layer
+        // ve tiled layer or wmts layer
         var style:String = obj.@style[0] ? obj.@style : "";
         var key:String;
         if (bingKey)
@@ -154,6 +153,10 @@ public class LayerObjectUtil
         }
         var culture:String = obj.@culture[0] ? obj.@culture : "";
 
+        var showInLegend:Boolean = obj.@showinlegend[0] != "false";
+
+        var showInLegendHiddenLayers:String = obj.@showinlegendhiddenlayers;
+
         // arcims layer
         var serviceHost:String = obj.@servicehost[0] ? obj.@servicehost : "";
         var serviceName:String = obj.@servicename[0] ? obj.@servicename : "";
@@ -161,6 +164,12 @@ public class LayerObjectUtil
         // definitionExpression for featurelayer
         var definitionExpression:String = obj.@definitionexpression[0] ? obj.@definitionexpression : "";
         var gdbVersion:String = obj.@gdbversion[0];
+        // isEditable for feature layer
+        var isEditable:Boolean = true;
+        if (obj.@iseditable[0])
+        {
+            isEditable = obj.iseditable == "true";
+        }
 
         //sublayers
         var subLayers:Array = [];
@@ -173,22 +182,64 @@ public class LayerObjectUtil
             }
         }
 
+        //csv layer
+        var latitudeFieldName:String = obj.@latitudefieldname;
+        var longitudeFieldName:String = obj.@longitudefieldname;
+        var sourceFields:String = obj.@sourcefields;
+        var columnDelimiter:String = obj.@columndelimiter;
+
+        //web tiled layer
+        var subDomains:String = obj.@subdomains[0];
+
+        var symbolParser:SymbolParser = new SymbolParser();
+
+        var markerSymbol:Symbol;
+        if (obj.simplemarkersymbol[0])
+        {
+            markerSymbol = symbolParser.parseSimpleMarkerSymbol(obj.simplemarkersymbol[0]);
+        }
+        else if (obj.picturemarkersymbol[0])
+        {
+            markerSymbol = symbolParser.parsePictureMarkerSymbol(obj.picturemarkersymbol[0]);
+        }
+
+        var lineSymbol:Symbol;
+        if (obj.simplelinesymbol[0])
+        {
+            lineSymbol = symbolParser.parseSimpleLineSymbol(obj.simplelinesymbol[0]);
+        }
+
+        var fillSymbol:Symbol;
+        if (obj.simplefillsymbol[0])
+        {
+            fillSymbol = symbolParser.parseSimpleFillSymbol(obj.simplefillsymbol[0]);
+        }
+
         var resultObject:Object =
             {
                 id: String(num),
                 alpha: alpha,
                 bandIds: bandIds,
                 autoRefresh: autoRefresh,
+                columnDelimiter: columnDelimiter,
+                copyright: copyright,
                 culture: culture,
                 clusterer: clusterer,
                 definitionExpression: definitionExpression,
+                disableClientCaching: disableClientCaching,
                 displayLevels: displayLevels,
+                fillSymbol: fillSymbol,
                 gdbVersion: gdbVersion,
                 icon: icon,
                 imageFormat: imageFormat,
+                isEditable: isEditable,
                 key: key,
                 label: label,
                 layerId: layerId,
+                latitudeFieldName: latitudeFieldName,
+                lineSymbol: lineSymbol,
+                longitudeFieldName: longitudeFieldName,
+                markerSymbol: markerSymbol,
                 maxAllowableOffset: maxAllowableOffset,
                 maxImageHeight: maxImageHeight,
                 maxImageWidth: maxImageWidth,
@@ -198,13 +249,19 @@ public class LayerObjectUtil
                 noData: noData,
                 password: password,
                 proxyUrl: proxyUrl,
+                renderer: renderer,
                 serviceHost: serviceHost,
                 serviceName: serviceName,
                 serviceMode: serviceMode,
                 serviceURL: serviceURL,
+                showInLegend: showInLegend,
+                showInLegendHiddenLayers: showInLegendHiddenLayers,
                 skipGetCapabilities: skipGetCapabilities,
+                sourceFields: sourceFields,
                 style: style,
+                subDomains: subDomains,
                 subLayers: subLayers,
+                tileMatrixSetId: tileMatrixSetId,
                 token: token,
                 type: type,
                 url: url,

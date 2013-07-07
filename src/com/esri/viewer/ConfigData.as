@@ -41,7 +41,7 @@ public class ConfigData
     public var bingKey:String;
     public var proxyUrl:String;
     public var layoutDirection:String;
-    public var webMapLayers:ArrayCollection;
+    public var webMapData:Object;
     
     // Header links and logos
     public var headerLinkContent:String;

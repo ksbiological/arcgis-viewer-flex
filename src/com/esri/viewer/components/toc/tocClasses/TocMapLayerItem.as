@@ -22,17 +22,26 @@ import com.esri.ags.events.LayerEvent;
 import com.esri.ags.layers.ArcGISDynamicMapServiceLayer;
 import com.esri.ags.layers.ArcGISTiledMapServiceLayer;
 import com.esri.ags.layers.ArcIMSMapServiceLayer;
+import com.esri.ags.layers.ILegendSupport;
 import com.esri.ags.layers.KMLLayer;
 import com.esri.ags.layers.Layer;
 import com.esri.ags.layers.supportClasses.KMLFeatureInfo;
 import com.esri.ags.layers.supportClasses.KMLFolder;
 import com.esri.ags.layers.supportClasses.LayerInfo;
+import com.esri.ags.layers.supportClasses.LayerLegendInfo;
+import com.esri.ags.layers.supportClasses.LegendItemInfo;
 import com.esri.viewer.ViewerContainer;
 import com.esri.viewer.components.toc.utils.MapUtil;
+import com.esri.viewer.utils.MapServiceUtil;
 
+import flash.events.Event;
+
+import mx.binding.utils.ChangeWatcher;
 import mx.collections.ArrayCollection;
 import mx.events.CollectionEvent;
 import mx.events.FlexEvent;
+import mx.rpc.AsyncResponder;
+import mx.rpc.Fault;
 
 /**
  * A TOC item representing a map service or graphics layer.
@@ -45,12 +54,16 @@ public class TocMapLayerItem extends TocItem
     //
     //  Variables
     //
-    //--------------------------------------------------------------------------    
+    //--------------------------------------------------------------------------
 
     private var _isMSOnly:Boolean = false;
     private var _isVisibleLayersSet:Boolean = false;
     private var _layer:Layer;
+    private var _includeLegendItems:Boolean = false;
+    private var _layerLegendInfos:Array;
     private var _labelFunction:Function;
+    private var _visibleLayersChangeWatcher:ChangeWatcher;
+    private var _dynamicMapServiceLayerInfos:Array;
 
     //--------------------------------------------------------------------------
     //
@@ -61,12 +74,13 @@ public class TocMapLayerItem extends TocItem
     /**
      * Creates a new TocMapLayerItem
      */
-    public function TocMapLayerItem(layer:Layer, labelFunction:Function = null, isMapServiceOnly:Boolean = false)
+    public function TocMapLayerItem(layer:Layer, labelFunction:Function = null, isMapServiceOnly:Boolean = false, includeLegendItems:Boolean = false)
     {
         super();
 
         _layer = layer;
         _isMSOnly = isMapServiceOnly;
+        _includeLegendItems = includeLegendItems;
         // Set the initial visibility without causing a layer refresh
         setVisible(layer.visible, false);
         // Indicate whether the item is in scale range without causing a layer refresh
@@ -100,8 +114,15 @@ public class TocMapLayerItem extends TocItem
             if (layer.loaded)
             {
                 // Process the layer info immediately
-                createChildren();
                 layer.map.addEventListener(ExtentEvent.EXTENT_CHANGE, onExtentChange, false, 0, true);
+                if (layer is ILegendSupport && _includeLegendItems)
+                {
+                    ILegendSupport(layer).getLegendInfos(new AsyncResponder(getLegendResult, getLegendFault));
+                }
+                else
+                {
+                    createChildren();
+                }
             }
         }
 
@@ -134,9 +155,9 @@ public class TocMapLayerItem extends TocItem
 
     //--------------------------------------------------------------------------
     //
-    //  Overriden Methods
+    //  Overridden Methods
     //
-    //--------------------------------------------------------------------------    
+    //--------------------------------------------------------------------------
 
     /**
      * @private
@@ -170,8 +191,11 @@ public class TocMapLayerItem extends TocItem
 
         if (layer is ArcGISDynamicMapServiceLayer)
         {
+            if (ArcGISDynamicMapServiceLayer(layer).visibleLayers)
+            {
+                ArcGISDynamicMapServiceLayer(layer).visibleLayers.removeEventListener(CollectionEvent.COLLECTION_CHANGE, visibleLayersChangeHandler);
+            }
             ArcGISDynamicMapServiceLayer(layer).visibleLayers = new ArrayCollection(visLayers);
-            ArcGISDynamicMapServiceLayer(layer).visibleLayers.removeEventListener(CollectionEvent.COLLECTION_CHANGE, visibleLayersChangeHandler);
             ArcGISDynamicMapServiceLayer(layer).visibleLayers.addEventListener(CollectionEvent.COLLECTION_CHANGE, visibleLayersChangeHandler);
         }
         else if (layer is ArcIMSMapServiceLayer)
@@ -186,18 +210,31 @@ public class TocMapLayerItem extends TocItem
     //
     //--------------------------------------------------------------------------
 
+    private function visibleLayersChange(event:Event = null):void
+    {
+        var dynamicMapServiceLayer:ArcGISDynamicMapServiceLayer = ArcGISDynamicMapServiceLayer(event.target);
+        var actualVisibleLayers:Array;
+        if (dynamicMapServiceLayer.visibleLayers)
+        {
+            dynamicMapServiceLayer.visibleLayers.addEventListener(CollectionEvent.COLLECTION_CHANGE, visibleLayersChangeHandler);
+            actualVisibleLayers = getActualVisibleLayers(dynamicMapServiceLayer.visibleLayers.toArray(), _dynamicMapServiceLayerInfos);
+        }
+        else
+        {
+            actualVisibleLayers = getActualVisibleLayers(MapServiceUtil.getVisibleSubLayers(_dynamicMapServiceLayerInfos), _dynamicMapServiceLayerInfos);
+        }
+        for each (var child:TocLayerInfoItem in children)
+        {
+            updateTOCItemVisibility(child, actualVisibleLayers);
+        }
+    }
+
     private function visibleLayersChangeHandler(event:CollectionEvent):void
     {
-        if (layer.visible)
+        var actualVisibleLayers:Array = getActualVisibleLayers(ArcGISDynamicMapServiceLayer(layer).visibleLayers.toArray(), _dynamicMapServiceLayerInfos);
+        for each (var child:TocLayerInfoItem in children)
         {
-            var layerInfos:Array = [];
-            // get the actual visible layers       
-            var copyLayerInfos:Array = ArcGISDynamicMapServiceLayer(layer).dynamicLayerInfos ? ArcGISDynamicMapServiceLayer(layer).dynamicLayerInfos : ArcGISDynamicMapServiceLayer(layer).layerInfos;
-            var actualVisibleLayers:Array = getActualVisibleLayers(ArcGISDynamicMapServiceLayer(layer).visibleLayers.toArray(), ArcGISDynamicMapServiceLayer(layer).layerInfos.slice());
-            for each (var child:TocLayerInfoItem in children)
-            {
-                updateTOCItemVisibility(child, actualVisibleLayers);
-            }
+            updateTOCItemVisibility(child, actualVisibleLayers);
         }
     }
 
@@ -205,10 +242,12 @@ public class TocMapLayerItem extends TocItem
     {
         if (item.isGroupLayer())
         {
-            item.visible = actualVisibleLayers.indexOf(item.layerInfo.layerId) != -1;
-            for each (var child:TocLayerInfoItem in item.children)
+            if (item.visible)
             {
-                updateTOCItemVisibility(child, actualVisibleLayers);
+                for each (var child:TocLayerInfoItem in item.children)
+                {
+                    updateTOCItemVisibility(child, actualVisibleLayers);
+                }
             }
         }
         else
@@ -234,7 +273,8 @@ public class TocMapLayerItem extends TocItem
             }
         }
         else
-        { // Leaf layer
+        {
+            // Leaf layer
             if (item.visible)
             {
                 if (item is TocLayerInfoItem)
@@ -246,14 +286,49 @@ public class TocMapLayerItem extends TocItem
         }
     }
 
+    private function getLegendResult(layerLegendInfos:Array, token:Object = null):void
+    {
+        _layerLegendInfos = [];
+        getLayerLegendInfos(layerLegendInfos); // get all layerLegendInfos as these can be nested
+
+        createChildren();
+    }
+
+    private function getLayerLegendInfos(arr:Array):void
+    {
+        for each (var layerLegendInfo:LayerLegendInfo in arr)
+        {
+            if (layerLegendInfo) // check if layerLegendInfo exists
+            {
+                _layerLegendInfos.push(layerLegendInfo);
+                if (layerLegendInfo.layerLegendInfos)
+                {
+                    getLayerLegendInfos(layerLegendInfo.layerLegendInfos);
+                }
+            }
+        }
+    }
+
+    private function getLegendFault(fault:Fault, token:Object = null):void
+    {
+        createChildren();
+    }
+
     private function onLayerLoad(event:LayerEvent):void
     {
         // Relabel this item, since map layer URL or service name might have changed.
         label = _labelFunction(layer);
         if (!_isMSOnly)
         {
-            createChildren();
             layer.map.addEventListener(ExtentEvent.EXTENT_CHANGE, onExtentChange, false, 0, true);
+            if (layer is ILegendSupport && _includeLegendItems)
+            {
+                ILegendSupport(layer).getLegendInfos(new AsyncResponder(getLegendResult, getLegendFault));
+            }
+            else
+            {
+                createChildren();
+            }
         }
     }
 
@@ -276,9 +351,13 @@ public class TocMapLayerItem extends TocItem
     {
         if (layer is ArcGISDynamicMapServiceLayer || layer is ArcGISTiledMapServiceLayer)
         {
-            for each (var tocLayerInfoItem:TocLayerInfoItem in children)
+            for each (var tocItem:TocItem in children)
             {
-                updateEnabledBasedOnScale(tocLayerInfoItem, isTocLayerInfoItemInScale(tocLayerInfoItem.layerInfo));
+                if (tocItem is TocLayerInfoItem)
+                {
+                    var tocLayerInfoItem:TocLayerInfoItem = tocItem as TocLayerInfoItem;
+                    updateEnabledBasedOnScale(tocLayerInfoItem, isTocLayerInfoItemInScale(tocLayerInfoItem.layerInfo));
+                }
             }
         }
     }
@@ -288,9 +367,13 @@ public class TocMapLayerItem extends TocItem
         if (tocLayerInfoItem.children && tocLayerInfoItem.children.length)
         {
             tocLayerInfoItem.isInScaleRange = isInScaleRange;
-            for each (var childTocLayerInfoItem:TocLayerInfoItem in tocLayerInfoItem.children.toArray())
+            for each (var childTocItem:TocItem in tocLayerInfoItem.children.toArray())
             {
-                updateEnabledBasedOnScale(childTocLayerInfoItem, tocLayerInfoItem.isInScaleRange && isTocLayerInfoItemInScale(childTocLayerInfoItem.layerInfo));
+                if (childTocItem is TocLayerInfoItem)
+                {
+                    var childTocLayerInfoItem:TocLayerInfoItem = childTocItem as TocLayerInfoItem;
+                    updateEnabledBasedOnScale(childTocLayerInfoItem, tocLayerInfoItem.isInScaleRange && isTocLayerInfoItemInScale(childTocLayerInfoItem.layerInfo));
+                }
             }
         }
         else
@@ -339,14 +422,20 @@ public class TocMapLayerItem extends TocItem
         else if (layer is ArcGISDynamicMapServiceLayer)
         {
             var arcGISDynamicMapServiceLayer:ArcGISDynamicMapServiceLayer = ArcGISDynamicMapServiceLayer(layer);
-            // TODO - watch for visibleLayers property change
-            var copyLayerInfos:Array = arcGISDynamicMapServiceLayer.dynamicLayerInfos ? arcGISDynamicMapServiceLayer.dynamicLayerInfos : arcGISDynamicMapServiceLayer.layerInfos;
+            _dynamicMapServiceLayerInfos = arcGISDynamicMapServiceLayer.dynamicLayerInfos ? arcGISDynamicMapServiceLayer.dynamicLayerInfos : arcGISDynamicMapServiceLayer.layerInfos;
+            if (!arcGISDynamicMapServiceLayer.visibleLayers)
+            {
+                var visLayers:Array = getActualVisibleLayers(MapServiceUtil.getVisibleSubLayers(_dynamicMapServiceLayerInfos), _dynamicMapServiceLayerInfos);
+                arcGISDynamicMapServiceLayer.visibleLayers = new ArrayCollection(visLayers);
+            }
+            arcGISDynamicMapServiceLayer.visibleLayers.addEventListener(CollectionEvent.COLLECTION_CHANGE, visibleLayersChangeHandler);
+            _visibleLayersChangeWatcher = ChangeWatcher.watch(arcGISDynamicMapServiceLayer, "visibleLayers", visibleLayersChange);
             if (_isVisibleLayersSet)
             {
                 layerInfos = [];
                 // get the actual visible layers
-                var actualVisibleLayers:Array = getActualVisibleLayers(arcGISDynamicMapServiceLayer.visibleLayers.toArray(), copyLayerInfos);
-                for each (var layerInfo:LayerInfo in copyLayerInfos)
+                var actualVisibleLayers:Array = getActualVisibleLayers(arcGISDynamicMapServiceLayer.visibleLayers.toArray(), _dynamicMapServiceLayerInfos);
+                for each (var layerInfo:LayerInfo in _dynamicMapServiceLayerInfos)
                 {
                     if (actualVisibleLayers.indexOf(layerInfo.layerId) != -1)
                     {
@@ -361,7 +450,7 @@ public class TocMapLayerItem extends TocItem
             }
             else
             {
-                layerInfos = copyLayerInfos;
+                layerInfos = _dynamicMapServiceLayerInfos;
             }
         }
         else if (layer is ArcIMSMapServiceLayer)
@@ -389,6 +478,18 @@ public class TocMapLayerItem extends TocItem
                 if (!exclude)
                 {
 					addChild(createTocLayer(this, layerInfo1, layerInfos, layerInfo1.defaultVisibility, isTocLayerInfoItemInScale(layerInfo1)));
+                }
+                
+            }
+        }
+        else if (_layerLegendInfos && _layerLegendInfos.length)
+        {
+            var layerLegendInfo:LayerLegendInfo = _layerLegendInfos[0];
+            if (layerLegendInfo)
+            {
+                for each (var legendItemInfo:LegendItemInfo in layerLegendInfo.legendItemInfos)
+                {
+                    addChild(new TocLegendItem(this, legendItemInfo));
                 }
             }
         }
@@ -435,13 +536,23 @@ public class TocMapLayerItem extends TocItem
         return result;
     }
 
-    private function createKMLLayerTocItems(parentItem:TocItem, layer:KMLLayer):void
+    private function createKMLLayerTocItems(parentItem:TocItem, layer:KMLLayer, isNetworkLink:Boolean = false):void
     {
         for each (var folder:KMLFolder in layer.folders)
         {
             if (folder.parentFolderId == -1)
             {
-                parentItem.addChild(createKmlFolderTocItem(parentItem, folder, layer.folders, layer));
+                if (isNetworkLink)
+                {
+                    if (folder.subFolderIds && folder.subFolderIds.length)
+                    {
+                        parentItem.addChild(createKmlFolderTocItem(parentItem, folder, layer.folders, layer));
+                    }
+                }
+                else
+                {
+                    parentItem.addChild(createKmlFolderTocItem(parentItem, folder, layer.folders, layer));
+                }
             }
         }
 
@@ -450,7 +561,7 @@ public class TocMapLayerItem extends TocItem
             // If the parent folder exists , do not create NetworkLinkItem as it is already created
             if (!(hasParentFolder(Number(networkLink.id), layer.folders)))
             {
-                // add network link 
+                // add network link
                 parentItem.addChild(createKmlNetworkLinkTocItem(parentItem, networkLink, layer));
             }
         }
@@ -531,7 +642,35 @@ public class TocMapLayerItem extends TocItem
                 }
             }
         }
+        else
+        {
+            var layerLegendInfo:LayerLegendInfo = getLayerLegendInfo(layerInfo.layerId);
+            if (layerLegendInfo)
+            {
+                for each (var legendItemInfo:LegendItemInfo in layerLegendInfo.legendItemInfos)
+                {
+                    item.addChild(new TocLegendItem(item, legendItemInfo));
+                }
+            }
+        }
+
         return item;
+    }
+
+    private function getLayerLegendInfo(layerId:Number):LayerLegendInfo
+    {
+        var result:LayerLegendInfo;
+
+        for each (var layerLegendInfo:LayerLegendInfo in _layerLegendInfos)
+        {
+            if (Number(layerLegendInfo.layerId) == layerId)
+            {
+                result = layerLegendInfo;
+                break;
+            }
+        }
+
+        return result;
     }
 
     private function createKmlFolderTocItem(parentItem:TocItem, folder:KMLFolder, folders:Array, layer:KMLLayer):TocKmlFolderItem
@@ -551,7 +690,7 @@ public class TocMapLayerItem extends TocItem
                 }
             }
         }
-        else if (folder.featureInfos && folder.featureInfos.length > 0)
+        if (folder.featureInfos && folder.featureInfos.length > 0)
         {
             for each (var featureInfo:KMLFeatureInfo in folder.featureInfos)
             {
@@ -570,7 +709,7 @@ public class TocMapLayerItem extends TocItem
         var tocKmlNetworkLinkItem:TocKmlNetworkLinkItem = new TocKmlNetworkLinkItem(item, networkLink, layer);
         if (networkLink.loaded)
         {
-            createKMLLayerTocItems(tocKmlNetworkLinkItem, networkLink); // as network link is also a type of KMLLayer
+            createKMLLayerTocItems(tocKmlNetworkLinkItem, networkLink, true); // as network link is also a type of KMLLayer
         }
         else
         {
@@ -579,7 +718,7 @@ public class TocMapLayerItem extends TocItem
 
         function layerLoadHandler(event:LayerEvent):void
         {
-            createKMLLayerTocItems(tocKmlNetworkLinkItem, networkLink);
+            createKMLLayerTocItems(tocKmlNetworkLinkItem, networkLink, true);
         }
 
         return tocKmlNetworkLinkItem;

@@ -36,7 +36,9 @@
             import com.esri.viewer.managers.SecurityManager;
             import com.esri.viewer.managers.UIManager;
             import com.esri.viewer.managers.WidgetManager;
+            import com.esri.viewer.utils.LocalizationUtil;
 
+            import mx.controls.Alert;
             import mx.core.FlexGlobals;
             import mx.core.IVisualElement;
             import mx.events.FlexEvent;
@@ -106,6 +108,11 @@
             private function initializeHandler(event:FlexEvent):void
             {
                 IdentityManager.instance.enabled = true;
+
+                Alert.yesLabel = LocalizationUtil.getDefaultString('yesLabel');
+                Alert.noLabel = LocalizationUtil.getDefaultString('noLabel');
+                Alert.okLabel = LocalizationUtil.getDefaultString('okLabel');
+                Alert.cancelLabel = LocalizationUtil.getDefaultString('cancelLabel');
             }
 
             private function creationCompleteHandler(event:FlexEvent):void
@@ -125,7 +132,11 @@
 
                 AppEvent.addListener(AppEvent.CONFIG_LOADED, configLoadedHandler);
 
-                //tell the modules it's on business.
+                if (mapManager.map)
+                {
+                    mapManager.map.setFocus();
+                }
+
                 AppEvent.dispatch(ViewerContainer.CONTAINER_INITIALIZED);
             }
 
@@ -162,8 +173,7 @@
                 }
                 catch (error:Error)
                 {
-                    // Commented out to prevent this error from showing incorrectly when hosting the viewer at a non-standard URL
-                    //AppEvent.showError("Some error occurred. ExternalInterface doesn't work in Standalone player.", VIEWER_CONTAINER);
+                    AppEvent.showError(LocalizationUtil.getDefaultString("standalonePlayerExternalInterfaceErrorText"), VIEWER_CONTAINER);
                 }
             }
 
@@ -257,8 +267,9 @@
 
                 if (isAddChild)
                 {
-                    addElement(mapManager);
+                    widgetManager.mapManager = this.mapManager;
                     addElement(widgetManager);
+
                     isAddChild = false;
                 }
             }

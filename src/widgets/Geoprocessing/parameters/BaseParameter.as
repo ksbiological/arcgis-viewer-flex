@@ -25,6 +25,38 @@ public class BaseParameter implements IGPParameter
     //--------------------------------------------------------------------------
 
     //----------------------------------
+    //  serviceInfo
+    //----------------------------------
+
+    private var _serviceInfo:Object;
+
+    public function get serviceInfo():Object
+    {
+        return _serviceInfo ||= {};
+    }
+
+    public function set serviceInfo(value:Object):void
+    {
+        _serviceInfo = value;
+    }
+
+    //----------------------------------
+    //  paramInfo
+    //----------------------------------
+
+    private var _paramInfo:Object;
+
+    public function get paramInfo():Object
+    {
+        return _paramInfo ||= {};
+    }
+
+    public function set paramInfo(value:Object):void
+    {
+        _paramInfo = value;
+    }
+
+    //----------------------------------
     //  label
     //----------------------------------
 

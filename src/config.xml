@@ -1,8 +1,17 @@
+
 <?xml version="1.0" ?>
 <!--
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Read more about ArcGIS Viewer for Flex - http://links.esri.com/flexviewer
+// Copyright (c) 2010 ESRI
+//
+// All rights reserved under the copyright laws of the United States.
+// You may freely redistribute and use this software, with or
+// without modification, provided you include the original copyright
+// and use restrictions.  See use restrictions in the file:
+// <install location>/License.txt
+//
+// Read more about ArcGIS Viewer for Flex 3.0 - http://links.esri.com/flexviewer
 //
 ////////////////////////////////////////////////////////////////////////////////
 -->
@@ -12,19 +21,18 @@
         <colors>0xFFFFFF,0x023D9B,0x101010,0x000000,0xFFFFFF</colors>
         <alpha>1.0</alpha>
     </style>
-    <!-- replace the following url with your own geometryservice -->
-    <geometryservice url="http://tasks.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer" />
+
+    <geometryservice url="http://kars.ku.edu/ArcGIS/rest/services/Geometry/GeometryServer" />
     
     <headerLinkContent>
         <![CDATA[
             
 <a href="http://www.kdwpt.state.ks.us/" target="_blank">KDWPT - Home Page</a> | 
-<a href="ftp://wiley.kars.ku.edu/windresource/NRP_Guide.pdf" target="_blank">User Guide</a> | 
-<a href="ftp://wiley.kars.ku.edu/windresource/NRP_Metadata.pdf" target="_blank">Metadata</a> | 
+<a href="http://kars.ku.edu/media/uploads/maps/nrp/NRP_Guide.pdf" target="_blank">User Guide</a> | 
 <a href="http://kars.ku.edu/natural-resource-planner/nrp-additional-resources/" target="_blank">Additional resources</a> | 
 <a href="http://kars.ku.edu/natural-resource-planner/view-arcmap/" target="_blank">View in ArcMap</a> | 
 <a href="http://kars.ku.edu/geonetwork/srv/en/main.home" target="_blank">Download Geodata</a> | 
-<a href="http://kars.ku.edu/ArcGIS/rest/services/NaturalResourcePlanner/MapServer" target="_blank">Web Service Contents</a> | 
+<a href="http://kars.ku.edu/ArcGIS/rest/services/NaturalResourcePlanner/MapServer" target="_blank">Layer Metadata</a> | 
 
             <a href="http://kbs.ku.edu/" target="_blank">Kansas Biological Survey</a> | 
             <a href="http://kars.ku.edu/" target="_blank">Kansas Applied Remote Sensing (KARS)</a>
@@ -41,13 +49,13 @@
     <widget left="95" top="113" url="widgets/MapProgressBar/MapProgressBarWidget.swf"/>
 	
     
-    <map initialextent="-11600000 4260000 -10290000 5056000"  fullextent="-14859380 2246000 -6326550 8673717" top="40" >
+    <map addarcgisbasemaps="true" initialextent="-11600000 4260000 -10290000 5056000"  fullextent="-14859380 2246000 -6326550 8673717" top="40" >
         <basemaps>
-            <layer label="Streets" type="tiled" visible="false"  alpha="1"
+            <layer label="Streets" type="tiled" visible="false"  alpha="1" icon="assets/images/basemap_streets.jpg"
                    url="http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer"/>
-            <layer label="Aerial"  type="tiled" visible="true" alpha="1"
+            <layer label="Aerial"  type="tiled" visible="true" alpha="1" icon="assets/images/basemap_imagery.jpg"
                    url="http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer"/>
-            <layer label="Topo"    type="tiled" visible="false" alpha="1"
+            <layer label="Topo"    type="tiled" visible="false" alpha="1" icon="assets/images/basemap_topographic.jpg"
                    url="http://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer"/>
                         
         </basemaps>
@@ -76,10 +84,10 @@
         icon="assets/images/i_scissors.png"
         config="widgets/DataExtract/DataExtractWidget.xml"
         url="widgets/DataExtract/DataExtractWidget.swf"/> 
-<widget label="PLSS Summary"
+<widget label="PLSS Landscape Summary"
         icon="assets/images/i_table.png"
-        config="widgets/PLSSReport/PLSSReportWidget.xml"
-        url="widgets/PLSSReport/PLSSReportWidget.swf"/>
+        config="/reports/plss/CustomReportWidget.xml"
+        url="widgets/CustomReport/CustomReportWidget.swf"/>
 
 
         <widget label="Find location"   left="100" top="110"
@@ -121,6 +129,7 @@
     organizations (ie Kansas Department of Wildlife and Parks, U.S. Fish and Wildlife Service, 
     Kansas Biological Survey, The Nature Conservancy) as a more thorough review and investigation
     of variables could impact a proposed project.</p><br />
+    <p> Last update: January 4, 2013 </p>
     ]]>
   </mapDescription>
 

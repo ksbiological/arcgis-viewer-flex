@@ -21,12 +21,16 @@ import com.esri.ags.layers.ArcGISDynamicMapServiceLayer;
 import com.esri.ags.layers.ArcGISImageServiceLayer;
 import com.esri.ags.layers.ArcGISTiledMapServiceLayer;
 import com.esri.ags.layers.ArcIMSMapServiceLayer;
+import com.esri.ags.layers.CSVLayer;
 import com.esri.ags.layers.FeatureLayer;
+import com.esri.ags.layers.GeoRSSLayer;
 import com.esri.ags.layers.KMLLayer;
 import com.esri.ags.layers.Layer;
 import com.esri.ags.layers.OpenStreetMapLayer;
 import com.esri.ags.layers.WMSLayer;
 import com.esri.ags.layers.WMTSLayer;
+import com.esri.ags.layers.WebTiledLayer;
+import com.esri.ags.layers.supportClasses.Field;
 import com.esri.ags.virtualearth.VETiledLayer;
 
 import flash.utils.setInterval;
@@ -85,6 +89,18 @@ public class LayerCreator
         {
             return createKMLLayer(layerCreationProperties);
         }
+        else if (layerType == "csv")
+        {
+            return createCSVLayer(layerCreationProperties);
+        }
+        else if (layerType == "georss")
+        {
+            return createGeoRSSLayer(layerCreationProperties);
+        }
+        else if (layerType == "webtiled")
+        {
+            return createWebTiledLayer(layerCreationProperties);
+        }
         else
         {
             //TODO: throw meaningful error instead.
@@ -98,15 +114,22 @@ public class LayerCreator
         tiledLayer.alpha = layerCreationProperties.alpha;
         tiledLayer.id = layerCreationProperties.label;
         tiledLayer.name = layerCreationProperties.label;
+        tiledLayer.showInLegend = layerCreationProperties.showInLegend;
         tiledLayer.token = layerCreationProperties.token;
         tiledLayer.visible = layerCreationProperties.visible;
+
+        if (layerCreationProperties.copyright != null)
+        {
+            tiledLayer.copyright = layerCreationProperties.copyright;
+        }
+        if (layerCreationProperties.showInLegend
+            && layerCreationProperties.showInLegendHiddenLayers)
+        {
+            tiledLayer.showInLegendHiddenLayers = toNumericArray(layerCreationProperties.showInLegendHiddenLayers.split(","));
+        }
         if (layerCreationProperties.displayLevels)
         {
-            tiledLayer.displayLevels = layerCreationProperties.displayLevels.split(",");
-            for (var i:int = 0; i < tiledLayer.displayLevels.length; i++)
-            {
-                tiledLayer.displayLevels[i] = Number(tiledLayer.displayLevels[i]); // convert to Numbers
-            }
+            tiledLayer.displayLevels = toNumericArray(layerCreationProperties.displayLevels.split(","));
         }
         if (layerCreationProperties.proxyUrl && layerCreationProperties.useProxy)
         {
@@ -123,6 +146,16 @@ public class LayerCreator
         return tiledLayer;
     }
 
+    private static function toNumericArray(textualNumberArray:Array):Array
+    {
+        var numericArray:Array = [];
+        for (var i:int = 0; i < textualNumberArray.length; i++)
+        {
+            numericArray.push(Number(textualNumberArray[i]));
+        }
+        return numericArray;
+    }
+
     private static function createDynamicLayer(layerCreationProperties:LayerCreationProperties):ArcGISDynamicMapServiceLayer
     {
         var dynLayer:ArcGISDynamicMapServiceLayer = new ArcGISDynamicMapServiceLayer(layerCreationProperties.url);
@@ -130,9 +163,21 @@ public class LayerCreator
         dynLayer.id = layerCreationProperties.label;
         dynLayer.gdbVersion = layerCreationProperties.gdbVersion;
         dynLayer.name = layerCreationProperties.label;
+        dynLayer.showInLegend = layerCreationProperties.showInLegend;
         dynLayer.token = layerCreationProperties.token;
         dynLayer.visible = layerCreationProperties.visible;
         dynLayer.useMapTime = layerCreationProperties.useMapTime;
+        dynLayer.disableClientCaching = layerCreationProperties.disableClientCaching;
+
+        if (layerCreationProperties.copyright != null)
+        {
+            dynLayer.copyright = layerCreationProperties.copyright;
+        }
+        if (layerCreationProperties.showInLegend
+            && layerCreationProperties.showInLegendHiddenLayers)
+        {
+            dynLayer.showInLegendHiddenLayers = toNumericArray(layerCreationProperties.showInLegendHiddenLayers.split(","));
+        }
         if (layerCreationProperties.autoRefresh > 0)
         {
             setInterval(dynLayer.refresh, layerCreationProperties.autoRefresh * 1000);
@@ -143,12 +188,7 @@ public class LayerCreator
         }
         if (layerCreationProperties.visibleLayers)
         {
-            var vizLayers:Array = layerCreationProperties.visibleLayers.split(",");
-            for (var i:int = 0; i < vizLayers.length; i++)
-            {
-                vizLayers[i] = Number(vizLayers[i]); // convert to Numbers
-            }
-            dynLayer.visibleLayers = new ArrayCollection(vizLayers);
+            dynLayer.visibleLayers = new ArrayCollection(toNumericArray(layerCreationProperties.visibleLayers.split(",")));
         }
         if (layerCreationProperties.proxyUrl && layerCreationProperties.useProxy)
         {
@@ -187,6 +227,20 @@ public class LayerCreator
         featureLayer.visible = layerCreationProperties.visible;
         featureLayer.useMapTime = layerCreationProperties.useMapTime;
         featureLayer.clusterer = layerCreationProperties.clusterer;
+        featureLayer.disableClientCaching = layerCreationProperties.disableClientCaching;
+        featureLayer.showInLegend = layerCreationProperties.showInLegend;
+        if (layerCreationProperties.copyright != null)
+        {
+            featureLayer.copyright = layerCreationProperties.copyright;
+        }
+        if (layerCreationProperties.renderer)
+        {
+            featureLayer.renderer = layerCreationProperties.renderer;
+        }
+        if (layerCreationProperties.autoRefresh > 0)
+        {
+            setInterval(featureLayer.refresh, layerCreationProperties.autoRefresh * 1000);
+        }
         if (layerCreationProperties.useAMF)
         {
             featureLayer.useAMF = (layerCreationProperties.useAMF == "true");
@@ -211,8 +265,12 @@ public class LayerCreator
         {
             featureLayer.maxScale = layerCreationProperties.maxScale;
         }
+        if (!layerCreationProperties.isEditable)
+        {
+            featureLayer.isEditable = false; // only set it if it is 'false'
+        }
         // example for hard-coding layer symbology, e.g. for pre-10.0 ArcGIS Servers
-        /* if (label == "Traffic Cameras") // the layer label in main configuration file
+        /* if (layerCreationProperties.label == "Traffic Cameras") // the layer label in main configuration file
         {
         var picSymbol:PictureMarkerSymbol = new PictureMarkerSymbol("assets/images/i_camera.png",30,30,0,0,0);
         var rend:Renderer = new SimpleRenderer(picSymbol);
@@ -229,6 +287,11 @@ public class LayerCreator
         veTiledLayer.key = layerCreationProperties.bingMapKey;
         veTiledLayer.visible = layerCreationProperties.visible;
         veTiledLayer.alpha = layerCreationProperties.alpha;
+        veTiledLayer.showInLegend = layerCreationProperties.showInLegend;
+        if (layerCreationProperties.copyright != null)
+        {
+            veTiledLayer.copyright = layerCreationProperties.copyright;
+        }
         if (layerCreationProperties.style)
         {
             veTiledLayer.mapStyle = layerCreationProperties.style;
@@ -239,11 +302,7 @@ public class LayerCreator
         }
         if (layerCreationProperties.displayLevels)
         {
-            veTiledLayer.displayLevels = layerCreationProperties.displayLevels.split(",");
-            for (var i:int = 0; i < veTiledLayer.displayLevels.length; i++)
-            {
-                veTiledLayer.displayLevels[i] = Number(veTiledLayer.displayLevels[i]); // convert to Numbers
-            }
+            veTiledLayer.displayLevels = toNumericArray(layerCreationProperties.displayLevels.split(","));
         }
         if (!isNaN(layerCreationProperties.minScale))
         {
@@ -266,17 +325,19 @@ public class LayerCreator
         imgLayer.visible = layerCreationProperties.visible;
         imgLayer.noData = layerCreationProperties.noData;
         imgLayer.useMapTime = layerCreationProperties.useMapTime;
+        imgLayer.disableClientCaching = layerCreationProperties.disableClientCaching;
+        imgLayer.showInLegend = layerCreationProperties.showInLegend;
+        if (layerCreationProperties.copyright != null)
+        {
+            imgLayer.copyright = layerCreationProperties.copyright;
+        }
         if (layerCreationProperties.imageFormat)
         {
             imgLayer.imageFormat = layerCreationProperties.imageFormat;
         }
         if (layerCreationProperties.bandIds)
         {
-            imgLayer.bandIds = layerCreationProperties.bandIds.split(",");
-            for (var i:int = 0; i < imgLayer.bandIds.length; i++)
-            {
-                imgLayer.bandIds[i] = Number(imgLayer.bandIds[i]); // convert to Numbers
-            }
+            imgLayer.bandIds = toNumericArray(layerCreationProperties.bandIds.split(","));
         }
         if (layerCreationProperties.proxyUrl && layerCreationProperties.useProxy)
         {
@@ -302,6 +363,11 @@ public class LayerCreator
         arcimsLayer.visible = layerCreationProperties.visible;
         arcimsLayer.serviceHost = layerCreationProperties.serviceHost;
         arcimsLayer.serviceName = layerCreationProperties.serviceName;
+        arcimsLayer.showInLegend = layerCreationProperties.showInLegend;
+        if (layerCreationProperties.copyright != null)
+        {
+            arcimsLayer.copyright = layerCreationProperties.copyright;
+        }
         if (layerCreationProperties.autoRefresh > 0)
         {
             setInterval(arcimsLayer.refresh, layerCreationProperties.autoRefresh * 1000);
@@ -342,6 +408,12 @@ public class LayerCreator
         wmsLayer.id = layerCreationProperties.label;
         wmsLayer.name = layerCreationProperties.label;
         wmsLayer.visible = layerCreationProperties.visible;
+        wmsLayer.disableClientCaching = layerCreationProperties.disableClientCaching;
+        wmsLayer.showInLegend = layerCreationProperties.showInLegend;
+        if (layerCreationProperties.copyright != null)
+        {
+            wmsLayer.copyright = layerCreationProperties.copyright;
+        }
         if (layerCreationProperties.wkid)
         {
             wmsLayer.spatialReference = new SpatialReference(layerCreationProperties.wkid);
@@ -402,6 +474,11 @@ public class LayerCreator
         wmtsLayer.id = layerCreationProperties.label;
         wmtsLayer.name = layerCreationProperties.label;
         wmtsLayer.visible = layerCreationProperties.visible;
+        wmtsLayer.showInLegend = layerCreationProperties.showInLegend;
+        if (layerCreationProperties.copyright != null)
+        {
+            wmtsLayer.copyright = layerCreationProperties.copyright;
+        }
         if (layerCreationProperties.imageFormat)
         {
             wmtsLayer.imageFormat = layerCreationProperties.imageFormat;
@@ -417,6 +494,14 @@ public class LayerCreator
         if (layerCreationProperties.layerId)
         {
             wmtsLayer.layerId = layerCreationProperties.layerId;
+        }
+        if (layerCreationProperties.tileMatrixSetId)
+        {
+            wmtsLayer.tileMatrixSetId = layerCreationProperties.tileMatrixSetId;
+        }
+        if (layerCreationProperties.style)
+        {
+            wmtsLayer.style = layerCreationProperties.style;
         }
         if (!isNaN(layerCreationProperties.minScale))
         {
@@ -436,6 +521,11 @@ public class LayerCreator
         osmLayer.id = layerCreationProperties.label;
         osmLayer.name = layerCreationProperties.label;
         osmLayer.visible = layerCreationProperties.visible;
+        osmLayer.showInLegend = layerCreationProperties.showInLegend;
+        if (layerCreationProperties.copyright != null)
+        {
+            osmLayer.copyright = layerCreationProperties.copyright;
+        }
         if (!isNaN(layerCreationProperties.minScale))
         {
             osmLayer.minScale = layerCreationProperties.minScale;
@@ -454,6 +544,12 @@ public class LayerCreator
         kmlLayer.alpha = layerCreationProperties.alpha;
         kmlLayer.id = layerCreationProperties.label;
         kmlLayer.name = layerCreationProperties.label;
+        kmlLayer.disableClientCaching = layerCreationProperties.disableClientCaching;
+        kmlLayer.showInLegend = layerCreationProperties.showInLegend;
+        if (layerCreationProperties.copyright != null)
+        {
+            kmlLayer.copyright = layerCreationProperties.copyright;
+        }
         if (layerCreationProperties.serviceURL)
         {
             kmlLayer.serviceURL = layerCreationProperties.serviceURL;
@@ -469,5 +565,135 @@ public class LayerCreator
         kmlLayer.visible = layerCreationProperties.visible;
         return kmlLayer;
     }
+
+    private static function createCSVLayer(layerCreationProperties:LayerCreationProperties):CSVLayer
+    {
+        var csvLayer:CSVLayer = new CSVLayer(layerCreationProperties.url);
+
+        csvLayer.alpha = layerCreationProperties.alpha;
+        csvLayer.id = layerCreationProperties.label;
+        csvLayer.name = layerCreationProperties.label;
+        csvLayer.latitudeFieldName = layerCreationProperties.latitudeFieldName;
+        csvLayer.longitudeFieldName = layerCreationProperties.longitudeFieldName;
+        csvLayer.showInLegend = layerCreationProperties.showInLegend;
+        if (layerCreationProperties.copyright != null)
+        {
+            csvLayer.copyright = layerCreationProperties.copyright;
+        }
+        if (layerCreationProperties.renderer)
+        {
+            csvLayer.renderer = layerCreationProperties.renderer;
+        }
+        if (layerCreationProperties.columnDelimiter)
+        {
+            csvLayer.columnDelimiter = layerCreationProperties.columnDelimiter;
+        }
+        if (layerCreationProperties.sourceFields)
+        {
+            var sFields:Array = layerCreationProperties.sourceFields.split(",");
+            var fields:Array = [];
+            for (var i:int = 0; i < sFields.length; i++)
+            {
+                var field:Field = new Field;
+                var fieldProps:Array = String(sFields[i]).split("|");
+                if (fieldProps.length == 1) // field name only     
+                {
+                    field.name = fieldProps[0];
+                }
+                else if (fieldProps.length == 2) // field name and alias
+                {
+                    field.name = fieldProps[0];
+                    field.alias = fieldProps[1];
+                }
+                else if (fieldProps.length == 3) // field name, alias and type
+                {
+                    field.name = fieldProps[0];
+                    field.alias = fieldProps[1];
+                    field.type = fieldProps[2];
+                }
+                fields.push(field);
+            }
+            csvLayer.sourceFields = fields;
+        }
+        return csvLayer;
+    }
+
+    private static function createGeoRSSLayer(layerCreationProperties:LayerCreationProperties):GeoRSSLayer
+    {
+        var geoRSSLayer:GeoRSSLayer = new GeoRSSLayer(layerCreationProperties.url);
+
+        geoRSSLayer.alpha = layerCreationProperties.alpha;
+        geoRSSLayer.id = layerCreationProperties.label;
+        geoRSSLayer.name = layerCreationProperties.label;
+        geoRSSLayer.disableClientCaching = layerCreationProperties.disableClientCaching;
+        geoRSSLayer.showInLegend = layerCreationProperties.showInLegend;
+        geoRSSLayer.visible = layerCreationProperties.visible;
+
+        if (layerCreationProperties.copyright != null)
+        {
+            geoRSSLayer.copyright = layerCreationProperties.copyright;
+        }
+        if (layerCreationProperties.serviceURL)
+        {
+            geoRSSLayer.serviceURL = layerCreationProperties.serviceURL;
+        }
+        if (!isNaN(layerCreationProperties.minScale))
+        {
+            geoRSSLayer.minScale = layerCreationProperties.minScale;
+        }
+        if (!isNaN(layerCreationProperties.maxScale))
+        {
+            geoRSSLayer.maxScale = layerCreationProperties.maxScale;
+        }
+        if (layerCreationProperties.markerSymbol)
+        {
+            geoRSSLayer.pointSymbol = layerCreationProperties.markerSymbol;
+        }
+        if (layerCreationProperties.lineSymbol)
+        {
+            geoRSSLayer.polylineSymbol = layerCreationProperties.lineSymbol;
+        }
+        if (layerCreationProperties.fillSymbol)
+        {
+            geoRSSLayer.polygonSymbol = layerCreationProperties.fillSymbol;
+        }
+
+        return geoRSSLayer;
+    }
+
+    private static function createWebTiledLayer(layerCreationProperties:LayerCreationProperties):Layer
+    {
+        var webTiledLayer:WebTiledLayer = new WebTiledLayer(layerCreationProperties.url);
+
+        webTiledLayer.alpha = layerCreationProperties.alpha;
+        webTiledLayer.id = layerCreationProperties.label;
+        webTiledLayer.name = layerCreationProperties.label;
+        webTiledLayer.visible = layerCreationProperties.visible;
+        webTiledLayer.showInLegend = layerCreationProperties.showInLegend;
+
+        if (layerCreationProperties.copyright != null)
+        {
+            webTiledLayer.copyright = layerCreationProperties.copyright;
+        }
+        if (layerCreationProperties.displayLevels)
+        {
+            webTiledLayer.displayLevels = toNumericArray(layerCreationProperties.displayLevels.split(","));
+        }
+        if (!isNaN(layerCreationProperties.minScale))
+        {
+            webTiledLayer.minScale = layerCreationProperties.minScale;
+        }
+        if (!isNaN(layerCreationProperties.maxScale))
+        {
+            webTiledLayer.maxScale = layerCreationProperties.maxScale;
+        }
+        if (layerCreationProperties.subDomains)
+        {
+            webTiledLayer.subDomains = layerCreationProperties.subDomains.split(",");
+        }
+
+        return webTiledLayer;
+    }
 }
+
 }

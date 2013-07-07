@@ -22,14 +22,12 @@
                    xmlns:esri="http://www.esri.com/2008/ags"
                    xmlns:viewer="com.esri.viewer.*"
                    creationComplete="basewidget_creationCompleteHandler(event)"
-                   widgetConfigLoaded="basewidget_widgetConfigLoaded(event)">
+                   initialize="basewidget_initializeHandler()"
+                   widgetConfigLoaded="basewidget_widgetConfigLoaded()">
 
     <fx:Style>
-        @namespace s "library://ns.adobe.com/flex/spark";
-        @namespace mx "library://ns.adobe.com/flex/halo";
         @namespace esri "http://www.esri.com/2008/ags";
-        @namespace viewer "com.esri.viewer.*";
-        
+
         esri|TemplatePicker
         {
             skin-class: ClassReference("widgets.Edit.EditWidgetTemplatePickerSkin");
@@ -40,10 +38,12 @@
         <![CDATA[
             import com.esri.ags.Graphic;
             import com.esri.ags.components.AttributeInspector;
+            import com.esri.ags.components.supportClasses.FieldInspector;
             import com.esri.ags.events.AttributeInspectorEvent;
             import com.esri.ags.events.FeatureLayerEvent;
             import com.esri.ags.events.LayerEvent;
             import com.esri.ags.events.MapEvent;
+            import com.esri.ags.geometry.Geometry;
             import com.esri.ags.layers.ArcGISDynamicMapServiceLayer;
             import com.esri.ags.layers.ArcGISTiledMapServiceLayer;
             import com.esri.ags.layers.FeatureLayer;
@@ -53,10 +53,12 @@
             import com.esri.ags.layers.supportClasses.FeatureTableDetails;
             import com.esri.ags.layers.supportClasses.Field;
             import com.esri.ags.layers.supportClasses.LayerInfo;
+            import com.esri.ags.skins.fieldClasses.CalendarField;
             import com.esri.ags.skins.supportClasses.AttachmentMouseEvent;
             import com.esri.ags.tasks.GeometryServiceSingleton;
             import com.esri.ags.tasks.JSONTask;
             import com.esri.viewer.AppEvent;
+            import com.esri.viewer.utils.MapServiceUtil;
 
             import mx.binding.utils.ChangeWatcher;
             import mx.collections.ArrayCollection;
@@ -78,8 +80,9 @@
             private var deleteFeatures:Boolean = true;
             private var updateGeometry:Boolean = true;
             private var updateAttributes:Boolean = true;
-            private var dictionary:Dictionary = new Dictionary /*<layer,renderer*/;
-            private var featureLayerToDynamicMapService:Dictionary = new Dictionary /*FeatureLayer,ArcGISDynamicMapServiceLayer*/
+            private var dictionary:Dictionary = new Dictionary /*layer,renderer*/;
+            private var featureLayerToDynamicMapService:Dictionary = new Dictionary /*FeatureLayer,ArcGISDynamicMapServiceLayer*/;
+            private var hiddenFeatureLayerToSettingsName:Dictionary = new Dictionary /*FeatureLayer,String*/;
             private var excludeLayers:Array;
             private var lastState:String;
 
@@ -88,6 +91,8 @@
             private var attributesLabel:String;
             [Bindable]
             private var attachmentsLabel:String;
+            [Bindable]
+            private var relatedRecordsLabel:String;
 
             [Bindable]
             private var showAttributesText:String;
@@ -96,8 +101,24 @@
 
             private var visibleLayersChangeWatcher:ChangeWatcher;
             private var activeFeatureChangeWatcher:ChangeWatcher;
+            private var layerToSettings:Dictionary = new Dictionary /*layer,settingsObject*/;
+            private var featureLayerToSelectionColor:Dictionary = new Dictionary /*FeatureLayer,SelectionColor*/;
 
-            private function basewidget_widgetConfigLoaded(event:Event):void
+            private function basewidget_initializeHandler():void
+            {
+                if (isPartOfPanel) // if widget is part of "left", "right" or "bottom" panel
+                {
+                    this.percentWidth = this.percentHeight = 100;
+                    wTemplate.percentWidth = wTemplate.percentHeight = 100;
+                }
+                else
+                {
+                    wTemplate.width = wTemplate.minWidth = 310;
+                    wTemplate.height = wTemplate.minHeight = 310;
+                }
+            }
+
+            private function basewidget_widgetConfigLoaded():void
             {
                 // hide map infowindow if any
                 map.infoWindow.hide();
@@ -186,9 +207,14 @@
                     }
                     editor.updateGeometryEnabled = updateGeometry;
 
-                    // formFieldsOrder
-                    if (configXML.formfieldsorder.length() > 0)
+                    if (configXML.layersettings.length() > 0)
                     {
+                        // layerSettings, overriding default settings
+                        configureLayerSettings(configXML.layersettings.layer);
+                    }
+                    else if (configXML.formfieldsorder.length() > 0)
+                    {
+                        // formFieldsOrder - applies to all layers
                         editor.attributeInspector.formFieldsOrder = toAttributeInspectorFormFieldsOrder(configXML.formfieldsorder);
                     }
 
@@ -202,8 +228,91 @@
 
                 AppEvent.dispatch(AppEvent.DATA_OPT_LAYERS, null, getOplayers);
                 mapLayers = map.layers as ArrayCollection;
-                arrLayers = getLayers(mapLayers); // get all the layers on map except basemap layers;    
+                arrLayers = getLayers(mapLayers); // get all the layers on map except basemap layers;
                 populateEditor(arrLayers);
+            }
+
+            private function configureLayerSettings(layers:XMLList):void
+            {
+                for (var l:int = 0; l < layers.length(); l++)
+                {
+                    var layerXML:XML = layers[l] as XML;
+
+                    var layerName:String = layerXML.@name[0];
+                    var subLayers:XMLList = layerXML.sublayer; // for configuring sublayers in a dynamic map service
+                    if (subLayers.length() > 0)
+                    {
+                        for each (var subLayerXML:XML in subLayers)
+                        {
+                            var subLayerId:String = subLayerXML.@id[0];
+                            layerToSettings[layerName + "/" + subLayerId] = getLayerSettings(subLayerXML);
+                        }
+                    }
+                    else
+                    {
+                        layerToSettings[layerName] = getLayerSettings(layerXML);
+                    }
+                }
+            }
+
+            private function getLayerSettings(layerXML:XML):Object
+            {
+                var layerSettings:Object = {};
+
+                var layerFields:XMLList = layerXML.fields;
+                if (layerFields.length() > 0)
+                {
+                    var outFields:Array = [];
+                    var fields:XMLList = layerFields.field;
+                    for each (var fieldXML:XML in fields)
+                    {
+                        if (fieldXML.@name[0])
+                        {
+                            var fieldObject:Object = {};
+                            fieldObject.name = fieldXML.@name;
+                            if (fieldXML.@alias[0])
+                            {
+                                fieldObject.alias = fieldXML.@alias;
+                            }
+                            if (fieldXML.@tooltip[0])
+                            {
+                                fieldObject.tooltip = fieldXML.@tooltip;
+                            }
+                            if (fieldXML.@dateformat[0])
+                            {
+                                fieldObject.dateFormat = fieldXML.@dateformat;
+                            }
+                            if (fieldXML.@useutc[0])
+                            {
+                                fieldObject.useUTC = fieldXML.@useutc == "true";
+                            }
+                            if (fieldXML.@required[0])
+                            {
+                                fieldObject.required = fieldXML.@required == "true";
+                            }
+                            outFields.push(fieldObject);
+                        }
+                    }
+                    layerSettings.outFields = outFields;
+                }
+                if (layerXML.singletomultilinethreshold.length() > 0)
+                {
+                    layerSettings.singleToMultilineThreshold = layerXML.singletomultilinethreshold;
+                }
+                if (layerXML.formfieldsorder.length() > 0)
+                {
+                    layerSettings.formFieldsOrder = toAttributeInspectorFormFieldsOrder(layerXML.formfieldsorder);
+                }
+                if (layerXML.showobjectid.length() > 0)
+                {
+                    layerSettings.showObjectID = layerXML.showobjectid;
+                }
+                if (layerXML.showglobalid.length() > 0)
+                {
+                    layerSettings.showGlobalID = layerXML.showglobalid;
+                }
+
+                return layerSettings;
             }
 
             private function toAttributeInspectorFormFieldsOrder(formFieldsOrder:String):String
@@ -230,11 +339,13 @@
             {
                 attributesLabel = labels.attributeslabel[0] || getDefaultString("attributesLabel");
                 attachmentsLabel = labels.attachmentslabel[0] || getDefaultString("attachmentsLabel");
+                relatedRecordsLabel = labels.relatedrecordslabel[0] || getDefaultString("relatedRecordsLabel");
                 noEditableLayersText = labels.noeditablelayerstext[0] || getDefaultString("noEditableLayersText");
 
                 EditWidgetTemplatePickerSkin.featureLayerOutOfScaleText = labels.featurelayeroutofscaletext[0] || getDefaultString("featureLayerOutOfScaleText");
 
                 EditWidgetAttributeInspectorSkin.showAttachmentsText = labels.showattachmentstext[0] || getDefaultString("showAttachmentsText");
+                EditWidgetAttributeInspectorSkin.showRelatedRecordsText = labels.showrelatedrecordstext[0] || getDefaultString("showRelatedRecordsText");
                 EditWidgetAttributeInspectorSkin.deleteLabel = labels.deletelabel[0] || getDefaultString("deleteLabel");
                 EditWidgetAttributeInspectorSkin.saveLabel = labels.savelabel[0] || getDefaultString("okLabel");
 
@@ -243,6 +354,8 @@
                 EditWidgetAttachmentInspectorSkin.attachmentSubmitLabel = labels.attachmentsubmitlabel[0] || getDefaultString("attachmentSubmitLabel");
                 EditWidgetAttachmentInspectorSkin.attachmentCancelLabel = labels.attachmentcancellabel[0] || getDefaultString("attachmentCancelLabel");
                 EditWidgetAttachmentInspectorSkin.showAttributesText = labels.showattributestext[0] || getDefaultString("showAttributesText");
+
+                EditWidgetRelationshipInspectorSkin.showAttributesText = labels.showattributestext[0] || getDefaultString("showAttributesText");
             }
 
             private function basewidget_creationCompleteHandler(event:FlexEvent):void
@@ -252,9 +365,11 @@
 
                 editor.attributeInspector.setStyle("skinClass", EditWidgetAttributeInspectorSkin);
                 editor.attributeInspector.addEventListener("attachmentGroupClicked", attachmentGroupClickedHandler);
+                editor.attributeInspector.addEventListener("relatedRecordsGroupClicked", relatedRecordsGroupClickedHandler);
                 editor.attributeInspector.addEventListener(AttributeInspectorEvent.SHOW_FEATURE, attributeInspector_showFeatureHandler);
 
                 attachmentInspector.addEventListener("attributeGroupClicked", attributeGroupClickedHandler);
+                relationshipInspector.addEventListener("attributeGroupClicked", attributeGroupClickedHandler);
             }
 
             private function getOplayers(event:AppEvent):void
@@ -264,7 +379,7 @@
 
             private function getLayers(layers:ArrayCollection):Array
             {
-                // all the layers except basemaps                
+                // all the layers except basemaps
                 var result:Array = [];
                 var includeLayer:Boolean;
                 var dynamicBaseMapLayers:Array = [];
@@ -288,14 +403,14 @@
                             n++;
                         }
                     }
-                    if (includeLayer && !isLayerPartOfExcludeLayers(layer) && (layer is FeatureLayer || layer is ArcGISDynamicMapServiceLayer))
+                    if (includeLayer && !isLayerPartOfExcludeLayers(layer.name) && (layer is FeatureLayer || layer is ArcGISDynamicMapServiceLayer))
                     {
                         result.push(layer);
                     }
                 }
                 for each (var dynamicBaseMapLayer:ArcGISDynamicMapServiceLayer in dynamicBaseMapLayers.reverse())
                 {
-                    if (!isLayerPartOfExcludeLayers(dynamicBaseMapLayer))
+                    if (!isLayerPartOfExcludeLayers(dynamicBaseMapLayer.name))
                     {
                         result.push(dynamicBaseMapLayer);
                     }
@@ -323,8 +438,6 @@
                     {
                         if ((layer is FeatureLayer && layer.name.indexOf("hiddenLayer_") == -1) && FeatureLayer(layer).isEditable && !FeatureLayer(layer).featureCollection)
                         {
-//                            changeOplListObjectVisibility(layer);
-
                             layer.removeEventListener(FeatureLayerEvent.SELECTION_COMPLETE, featureLayer_selectionComplete);
                             layer.addEventListener(FeatureLayerEvent.SELECTION_COMPLETE, featureLayer_selectionComplete, false, 1);
                             featureLayers.push(layer);
@@ -361,7 +474,7 @@
                     {
                         noLayers.visible = noLayers.includeInLayout = false;
                         selectTemplateLabel.visible = selectTemplateLabel.includeInLayout = true;
-                        if (!atleastOneFeatureLayerHasCreateCapability(featureLayers))
+                        if (!editor.addEnabled || !atleastOneFeatureLayerHasCreateCapability(featureLayers))
                         {
                             selectTemplateLabel.text = getDefaultString("noCreateCapabilityLayersText");
                         }
@@ -369,8 +482,9 @@
                         //store the renderer info for each layer on map
                         storeInfoWindowRenderer();
                         editor.map = map;
+                        updateSelectionColor(featureLayers);
                         editor.featureLayers = featureLayers;
-                        // infowindowLabel on the AttributeInspetor
+                        // infowindowLabel on the AttributeInspector
                         editor.attributeInspector.infoWindowLabel = attributesLabel;
                     }
                     else
@@ -391,13 +505,15 @@
             {
                 // look at the url
                 var serviceURL:String = layer.url;
-                var gdbVersion:String = ArcGISDynamicMapServiceLayer(layer).gdbVersion;
-                var featureServiceURL:String = serviceURL.replace("MapServer", "FeatureServer");
+                var gdbVersion:String = layer.gdbVersion;
+                var featureServiceURL:String = serviceURL.replace(/MapServer/i, "FeatureServer");
 
                 // get corresponding featurelayers
                 var jsonTask:JSONTask = new JSONTask;
                 var urlVars:URLVariables = new URLVariables();
                 urlVars.f = "json";
+                jsonTask.proxyURL = layer.proxyURL;
+                jsonTask.token = layer.token;
                 jsonTask.url = featureServiceURL;
                 jsonTask.execute(urlVars, new AsyncResponder(jsonTask_resultHandler, jsonTask_faultHandler, { layer: layer, count: index }));
 
@@ -406,27 +522,28 @@
                     const layers:Array = resultObject.layers;
                     if (layers && layers.length)
                     {
+                        var arcGISDynamicMapServiceLayer:ArcGISDynamicMapServiceLayer = ArcGISDynamicMapServiceLayer(token.layer);
+
                         var atleastOneFeatureLayerAlreadyIncluded:Boolean;
                         var candidateFeatureLayers:Array = [];
                         for (var i:int = 0; i < layers.length; )
                         {
-                            if (isFeatureLayerPartOfMap(featureServiceURL + "/" + layers[i].id, gdbVersion))
+                            if (isFeatureLayerPartOfOpList(featureServiceURL + "/" + layers[i].id, gdbVersion))
                             {
                                 atleastOneFeatureLayerAlreadyIncluded = true;
                                 break;
                             }
                             else
                             {
-                                candidateFeatureLayers.push(layers[i]);
+                                if (!isLayerPartOfExcludeLayers(arcGISDynamicMapServiceLayer.name + "/" + layers[i].id))
+                                {
+                                    candidateFeatureLayers.push(layers[i]);
+                                }
                                 i++;
                             }
                         }
-                        if (!atleastOneFeatureLayerAlreadyIncluded)
+                        if (!atleastOneFeatureLayerAlreadyIncluded && candidateFeatureLayers.length)
                         {
-                            //changeOplListObjectVisibility(token.layer);
-
-                            var arcGISDynamicMapServiceLayer:ArcGISDynamicMapServiceLayer = ArcGISDynamicMapServiceLayer(token.layer);
-
                             arcGISDynamicMapServiceLayer.removeEventListener(LayerEvent.IS_IN_SCALE_RANGE_CHANGE, layer_isInScaleRangeChangeHandler);
                             arcGISDynamicMapServiceLayer.removeEventListener(FlexEvent.HIDE, layer_hideShowHandler);
                             arcGISDynamicMapServiceLayer.removeEventListener(FlexEvent.SHOW, layer_hideShowHandler);
@@ -435,13 +552,14 @@
                             arcGISDynamicMapServiceLayer.addEventListener(FlexEvent.HIDE, layer_hideShowHandler);
                             arcGISDynamicMapServiceLayer.addEventListener(FlexEvent.SHOW, layer_hideShowHandler);
 
-                            if (arcGISDynamicMapServiceLayer.visibleLayers)
-                            {
-                                arcGISDynamicMapServiceLayer.visibleLayers.removeEventListener(CollectionEvent.COLLECTION_CHANGE, visibleLayersChangeHandler);
-                                arcGISDynamicMapServiceLayer.visibleLayers.addEventListener(CollectionEvent.COLLECTION_CHANGE, visibleLayersChangeHandler);
-                            }
-                            visibleLayersChangeWatcher = ChangeWatcher.watch(arcGISDynamicMapServiceLayer, "visibleLayers", visibleLayersChange);
                             var copyLayerInfos:Array = arcGISDynamicMapServiceLayer.layerInfos;
+                            if (!arcGISDynamicMapServiceLayer.visibleLayers)
+                            {
+                                var visLayers:Array = getActualVisibleLayers(MapServiceUtil.getVisibleSubLayers(copyLayerInfos), copyLayerInfos);
+                                arcGISDynamicMapServiceLayer.visibleLayers = new ArrayCollection(visLayers);
+                            }
+                            arcGISDynamicMapServiceLayer.visibleLayers.addEventListener(CollectionEvent.COLLECTION_CHANGE, visibleLayersChangeHandler);
+                            visibleLayersChangeWatcher = ChangeWatcher.watch(arcGISDynamicMapServiceLayer, "visibleLayers", visibleLayersChange);
                             for each (var copyLayerInfo:LayerInfo in copyLayerInfos)
                             {
                                 updateMinMaxScaleOnLayerInfos(copyLayerInfo, copyLayerInfos);
@@ -457,11 +575,33 @@
                                 if (index1 < candidateFeatureLayers.length)
                                 {
                                     fLayerObject = candidateFeatureLayers[index1];
-                                    var featureLayer:FeatureLayer = new FeatureLayer;
-                                    featureLayer.url = featureServiceURL + "/" + fLayerObject.id;
-                                    updateFeatureLayerMinMaxScale(featureLayer, fLayerObject.id, copyLayerInfos);
-                                    featureLayer.addEventListener(LayerEvent.LOAD, featureLayerLoadHandler);
-                                    featureLayer.addEventListener(LayerEvent.LOAD_ERROR, featureLayerLoadErrorHandler);
+                                    var featureLayerFromMap:FeatureLayer = getFeatureLayerFromMap(featureServiceURL + "/" + fLayerObject.id, gdbVersion);
+                                    if (!featureLayerFromMap)
+                                    {
+                                        var featureLayer:FeatureLayer = new FeatureLayer;
+                                        featureLayer.proxyURL = arcGISDynamicMapServiceLayer.proxyURL;
+                                        featureLayer.token = arcGISDynamicMapServiceLayer.token;
+                                        featureLayer.url = featureServiceURL + "/" + fLayerObject.id;
+                                        updateFeatureLayerMinMaxScale(featureLayer, fLayerObject.id, copyLayerInfos);
+                                        featureLayer.addEventListener(LayerEvent.LOAD, featureLayerLoadHandler);
+                                        featureLayer.addEventListener(LayerEvent.LOAD_ERROR, featureLayerLoadErrorHandler);
+                                    }
+                                    else
+                                    {
+                                        featureLayerFromMap.addEventListener(FlexEvent.HIDE, featureLayer_hideShowHandler);
+                                        featureLayerFromMap.addEventListener(FlexEvent.SHOW, featureLayer_hideShowHandler);
+                                        featureLayerToDynamicMapService[featureLayerFromMap] = arcGISDynamicMapServiceLayer;
+                                        if (!onMapLayerAdd)
+                                        {
+                                            featureLayers.push(featureLayerFromMap);
+                                        }
+                                        else
+                                        {
+                                            featureLayers.unshift(featureLayerFromMap);
+                                        }
+                                        index1++;
+                                        parseCandidateFeatureLayers(index1, candidateFeatureLayers);
+                                    }
                                 }
                                 else
                                 {
@@ -480,6 +620,7 @@
                                     else
                                     {
                                         deactivateEditor();
+                                        updateSelectionColor(featureLayers);
                                         editor.featureLayers = featureLayers;
                                         //store the renderer info for each layer on map
                                         storeInfoWindowRenderer();
@@ -630,12 +771,14 @@
                         event.layer.removeEventListener(FeatureLayerEvent.SELECTION_COMPLETE, featureLayer_selectionComplete);
                         event.layer.addEventListener(FeatureLayerEvent.SELECTION_COMPLETE, featureLayer_selectionComplete, false, 1);
 
-                        //store the renderer info for each layer on map                        
+                        //store the renderer info for each layer on map
                         storeInfoWindowRenderer();
 
                         arrFinalLayers.unshift(event.layer);
                         featureLayers.unshift(event.layer);
                         deactivateEditor();
+                        editor.map = map;
+                        updateSelectionColor(featureLayers);
                         editor.featureLayers = featureLayers;
                     }
                     else if (event.layer is ArcGISDynamicMapServiceLayer)
@@ -674,6 +817,7 @@
                     }
                     delete arrFinalLayers[index];
                     deactivateEditor();
+                    editor.map = map;
                     editor.featureLayers = featureLayers;
                 }
             }
@@ -691,8 +835,6 @@
                     if (layer is FeatureLayer && featureLayers.indexOf(layer) != -1)
                     {
                         moveFeatureLayerToTheBottom(FeatureLayer(layer));
-                        deactivateEditor();
-                        editor.featureLayers = featureLayers;
                     }
                     else if (layer is ArcGISDynamicMapServiceLayer)
                     {
@@ -711,17 +853,13 @@
                                 moveFeatureLayerToTheBottom(fl1);
                             }
                         }
-                        deactivateEditor();
-                        editor.featureLayers = featureLayers;
                     }
                 }
-                else if (newLayerIds.length - arrFinalLayers.length < index < newLayerIds.length)
+                else if ((newLayerIds.length - arrFinalLayers.length < index) && (index < newLayerIds.length))
                 {
                     if (layer is FeatureLayer && featureLayers.indexOf(layer) != -1)
                     {
                         moveFeatureLayer(FeatureLayer(layer));
-                        deactivateEditor();
-                        editor.featureLayers = featureLayers;
                     }
                     else if (layer is ArcGISDynamicMapServiceLayer)
                     {
@@ -740,10 +878,11 @@
                                 moveFeatureLayer(fLayer1);
                             }
                         }
-                        deactivateEditor();
-                        editor.featureLayers = featureLayers;
                     }
                 }
+                deactivateEditor();
+                editor.map = map;
+                editor.featureLayers = featureLayers;
 
                 function moveFeatureLayer(layer:FeatureLayer):void
                 {
@@ -833,14 +972,14 @@
                 }
             }
 
-            private function isLayerPartOfExcludeLayers(layer:Layer):Boolean
+            private function isLayerPartOfExcludeLayers(layerName:String):Boolean
             {
                 var result:Boolean;
 
                 // loop through all the excludeLayers
                 for (var n:int = 0; n < excludeLayers.length; )
                 {
-                    if (layer.name == excludeLayers[n])
+                    if (layerName == excludeLayers[n])
                     {
                         result = true;
                         break;
@@ -854,18 +993,38 @@
                 return result;
             }
 
-            private function isFeatureLayerPartOfMap(featureLayerURL:String, gdbVersion:String):Boolean
+            private function isFeatureLayerPartOfOpList(featureLayerURL:String, gdbVersion:String):Boolean
             {
                 var result:Boolean;
 
                 // loop through all the map layers
-                for (var n:int = 0; n < mapLayers.length; )
+                for each (var layerObj:Object in configData.opLayers)
                 {
-                    if (mapLayers.getItemAt(n) is FeatureLayer &&
-                        FeatureLayer(mapLayers.getItemAt(n)).url == featureLayerURL &&
-                        FeatureLayer(mapLayers.getItemAt(n)).gdbVersion == gdbVersion)
+                    var layer:Layer = layerObj.layer;
+                    if (layer is FeatureLayer
+                        && FeatureLayer(layer).url == featureLayerURL
+                        && FeatureLayer(layer).gdbVersion == gdbVersion)
                     {
                         result = true;
+                        break;
+                    }
+                }
+
+                return result;
+            }
+
+            private function getFeatureLayerFromMap(featureLayerURL:String, gdbVersion:String):FeatureLayer
+            {
+                var result:FeatureLayer;
+
+                // loop through all the map layers
+                for (var n:int = 0; n < mapLayers.length; )
+                {
+                    if (mapLayers.getItemAt(n) is FeatureLayer
+                        && FeatureLayer(mapLayers.getItemAt(n)).url == featureLayerURL
+                        && FeatureLayer(mapLayers.getItemAt(n)).gdbVersion == gdbVersion)
+                    {
+                        result = mapLayers.getItemAt(n) as FeatureLayer;
                         break;
                     }
                     else
@@ -1069,7 +1228,7 @@
                 }
                 else if (featureLayer.tableDetails is FeatureTableDetails)
                 {
-                    result = (featureLayer.layerDetails as FeatureTableDetails).isCreateAllowed;
+                    result = (featureLayer.tableDetails as FeatureTableDetails).isCreateAllowed;
                 }
 
                 return result;
@@ -1112,6 +1271,10 @@
                 {
                     attachmentInspector.clear();
                 }
+                if (relationshipInspector)
+                {
+                    relationshipInspector.clear();
+                }
             }
 
             private function attributeGroupClickedHandler(event:Event):void
@@ -1134,6 +1297,12 @@
                 }
             }
 
+            private function relatedRecordsGroupClickedHandler(event:Event):void
+            {
+                map.infoWindow.content = relationshipInspector;
+                relationshipInspector.graphic = editor.attributeInspector.activeFeature;
+            }
+
             private function attachmentInspector_initializeHandler(event:FlexEvent):void
             {
                 super.initializationComplete();
@@ -1154,6 +1323,131 @@
             {
                 attachmentInspector.addEnabled = editor.attributeInspector.updateEnabled;
                 attachmentInspector.deleteEnabled = editor.attributeInspector.deleteButtonVisible;
+                const featureLayer:FeatureLayer = event.featureLayer;
+                var settingsKey:String = featureLayer.name;
+                if (featureLayer.name.indexOf("hiddenLayer_") != -1)
+                {
+                    settingsKey = hiddenFeatureLayerToSettingsName[featureLayer];
+                    if (!settingsKey)
+                    {
+                        settingsKey = featureLayerToDynamicMapService[featureLayer].name +
+                            "/" + featureLayer.url.substring(featureLayer.url.lastIndexOf("/") + 1, featureLayer.url.length);
+                        hiddenFeatureLayerToSettingsName[featureLayer] = settingsKey;
+                    }
+                }
+                var settingsObject:Object = layerToSettings[settingsKey];
+                if (settingsObject)
+                {
+                    var outFields:Array = settingsObject.outFields as Array;
+                    if (outFields && outFields.length)
+                    {
+                        var attributeInspectorFieldInspectors:Array = [];
+                        var fieldInspector:FieldInspector;
+                        for each (var fieldObject:Object in outFields)
+                        {
+                            fieldInspector = new FieldInspector;
+                            fieldInspector.featureLayer = featureLayer;
+                            fieldInspector.visible = true;
+                            fieldInspector.fieldName = fieldObject.name;
+                            fieldInspector.label = fieldObject.alias;
+                            fieldInspector.toolTip = fieldObject.tooltip;
+                            if (isDateField(fieldObject.name, featureLayer) &&
+                                (fieldObject.dateFormat != null || fieldObject.useUTC != null))
+                            {
+                                var calendarFieldFactory:ClassFactory = new ClassFactory(CalendarField);
+                                calendarFieldFactory.properties = {};
+                                if (fieldObject.dateFormat != null)
+                                {
+                                    calendarFieldFactory.properties.dateFormat = fieldObject.dateFormat;
+                                }
+                                if (fieldObject.useUTC != null)
+                                {
+                                    calendarFieldFactory.properties.useUTC = fieldObject.useUTC;
+                                }
+                                fieldInspector.editor = calendarFieldFactory;
+                            }
+                            if (fieldObject.required != null)
+                            {
+                                fieldInspector.required = fieldObject.required;
+                            }
+                            attributeInspectorFieldInspectors.push(fieldInspector);
+                        }
+                        for each (var field:Field in featureLayer.layerDetails.fields)
+                        {
+                            if (outFields.indexOf(field.name) == -1)
+                            {
+                                fieldInspector = new FieldInspector;
+                                fieldInspector.featureLayer = featureLayer;
+                                fieldInspector.visible = false;
+                                fieldInspector.fieldName = field.name;
+
+                                attributeInspectorFieldInspectors.push(fieldInspector);
+                            }
+                        }
+                        editor.attributeInspector.fieldInspectors = attributeInspectorFieldInspectors;
+                        editor.attributeInspector.formFieldsOrder = AttributeInspector.FIELD_INSPECTOR_ORDER;
+                    }
+                    else
+                    {
+                        var formFieldsOrder:String = settingsObject.formFieldsOrder;
+                        if (formFieldsOrder)
+                        {
+                            editor.attributeInspector.formFieldsOrder = formFieldsOrder;
+                        }
+                    }
+                    var singleToMultilineThreshold:Number = settingsObject.singleToMultilineThreshold;
+                    if (singleToMultilineThreshold && !isNaN(singleToMultilineThreshold))
+                    {
+                        editor.attributeInspector.singleToMultilineThreshold = singleToMultilineThreshold;
+                    }
+                    var showObjectID:String = settingsObject.showObjectID;
+                    if (showObjectID)
+                    {
+                        editor.attributeInspector.showObjectID = showObjectID == "true";
+                    }
+                    var showGlobalID:String = settingsObject.showGlobalID;
+                    if (showGlobalID)
+                    {
+                        editor.attributeInspector.showGlobalID = showGlobalID == "true";
+                    }
+                }
+            }
+
+            private function isDateField(fieldName:String, featureLayer:FeatureLayer):Boolean
+            {
+                var result:Boolean;
+
+                var fields:Array = featureLayer.layerDetails.fields;
+                if (fields)
+                {
+                    for each (var field:Field in fields)
+                    {
+                        if (field.name == fieldName && field.type == Field.TYPE_DATE)
+                        {
+                            result = true;
+                            break;
+                        }
+                    }
+                }
+
+                return result;
+            }
+
+            private function updateSelectionColor(featureLayers:Array):void
+            {
+                if (!editor.toolbarVisible)
+                {
+                    for each (var featureLayer:FeatureLayer in featureLayers)
+                    {
+                        if (!featureLayerToSelectionColor[featureLayer] &&
+                            featureLayer.layerDetails &&
+                            (featureLayer.layerDetails.geometryType == Geometry.POLYGON || featureLayer.layerDetails.geometryType == Geometry.POLYLINE))
+                        {
+                            featureLayerToSelectionColor[featureLayer] = featureLayer.selectionColor;
+                            featureLayer.selectionColor = NaN;
+                        }
+                    }
+                }
             }
 
             private function widgetClosedHandler(event:Event):void
@@ -1166,6 +1460,10 @@
                 // clear feature layer selection
                 for each (var featureLayer:FeatureLayer in featureLayers)
                 {
+                    if (featureLayerToSelectionColor[featureLayer]) // restore selection color
+                    {
+                        featureLayer.selectionColor = featureLayerToSelectionColor[featureLayer];
+                    }
                     if (featureLayer.selectedFeatures.length > 0)
                     {
                         featureLayer.clearSelection();
@@ -1219,16 +1517,19 @@
         <esri:GeometryService id="geometryService" url="http://tasks.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer"/>
         <esri:CreateOptions id="createOptions"/>
         <esri:AttachmentInspector id="attachmentInspector"
-                                  width="280" height="280"
+                                  width="{Math.max(map.infoWindowContent.width, 300)}" height="{Math.max(map.infoWindowContent.height, 300)}"
                                   infoWindowLabel="{attachmentsLabel}"
                                   initialize="attachmentInspector_initializeHandler(event)"
                                   skinClass="widgets.Edit.EditWidgetAttachmentInspectorSkin"/>
+        <esri:RelationshipInspector id="relationshipInspector"
+                                    width="{Math.max(map.infoWindowContent.width, 300)}" height="{Math.max(map.infoWindowContent.height, 300)}"
+                                    editEnabled="true"
+                                    infoWindowLabel="{relatedRecordsLabel}"
+                                    skinClass="widgets.Edit.EditWidgetRelationshipInspectorSkin"/>
     </fx:Declarations>
 
-    <viewer:WidgetTemplate width="300" height="300"
+    <viewer:WidgetTemplate id="wTemplate"
                            closed="widgetClosedHandler(event)"
-                           minHeight="300"
-                           minWidth="300"
                            minimized="widgetMinimizedHandler(event)"
                            open="widgetOpenedHandler(event)">
         <viewer:layout>
@@ -1248,6 +1549,5 @@
         <esri:Editor id="editor"
                      width="100%" height="100%"
                      geometryService="{geometryService}"/>
-
     </viewer:WidgetTemplate>
 </viewer:BaseWidget>

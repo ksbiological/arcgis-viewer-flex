@@ -18,16 +18,17 @@ package widgets.Geoprocessing.parameters
 
 import com.esri.ags.FeatureSet;
 import com.esri.ags.SpatialReference;
-import com.esri.ags.layers.GraphicsLayer;
+import com.esri.ags.layers.FeatureLayer;
+import com.esri.ags.layers.supportClasses.FeatureCollection;
+import com.esri.ags.layers.supportClasses.LayerDetails;
+import com.esri.ags.portal.PopUpRenderer;
+import com.esri.ags.portal.supportClasses.PopUpInfo;
 import com.esri.ags.renderers.ClassBreaksRenderer;
 import com.esri.ags.renderers.IRenderer;
 import com.esri.ags.renderers.SimpleRenderer;
 import com.esri.ags.renderers.UniqueValueRenderer;
 import com.esri.ags.symbols.Symbol;
-import com.esri.ags.portal.PopUpRenderer;
-import com.esri.ags.portal.supportClasses.PopUpInfo;
 
-import mx.collections.ArrayCollection;
 import mx.core.ClassFactory;
 
 public class FeatureLayerParameter extends BaseParameter implements IGPFeatureParameter
@@ -40,6 +41,7 @@ public class FeatureLayerParameter extends BaseParameter implements IGPFeaturePa
 
     public static const DRAW_SOURCE:String = "drawtool";
     public static const LAYERS_SOURCE:String = "layers";
+    public static const MAP_EXTENT_SOURCE:String = "extent";
 
     public static const POINT:String = "point";
     public static const POLYGON:String = "polygon";
@@ -62,7 +64,9 @@ public class FeatureLayerParameter extends BaseParameter implements IGPFeaturePa
 
     public function FeatureLayerParameter()
     {
-        _layer = new GraphicsLayer();
+        _layer = new FeatureLayer();
+        _layer.featureCollection = new FeatureCollection(new FeatureSet([]), new LayerDetails());
+        _layer.outFields = [ "*" ];
     }
 
     //--------------------------------------------------------------------------
@@ -139,9 +143,9 @@ public class FeatureLayerParameter extends BaseParameter implements IGPFeaturePa
     //  layer
     //----------------------------------
 
-    private var _layer:GraphicsLayer;
+    private var _layer:FeatureLayer;
 
-    public function get layer():GraphicsLayer
+    public function get layer():FeatureLayer
     {
         return _layer;
     }
@@ -269,14 +273,27 @@ public class FeatureLayerParameter extends BaseParameter implements IGPFeaturePa
     //
     //--------------------------------------------------------------------------
 
+    override public function set paramInfo(value:Object):void
+    {
+        if (value)
+        {
+            super.paramInfo = value;
+            if (value.defaultValue)
+            {
+                var featureSet:FeatureSet = FeatureSet.fromJSON(value.defaultValue);
+                layer.featureCollection.layerDefinition.fields = featureSet.fields;
+            }
+        }
+    }
+
     override public function hasValidValue():Boolean
     {
-        return (_layer.graphicProvider as ArrayCollection).length > 0;
+        return _layer.featureCollection.featureSet.features.length > 0;
     }
 
     public override function getRequestObjectValue():Object
     {
-        return new FeatureSet((_layer.graphicProvider as ArrayCollection).source);
+        return _layer.featureCollection.featureSet;
     }
 }
 

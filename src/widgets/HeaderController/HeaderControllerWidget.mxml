@@ -20,8 +20,8 @@
                    xmlns:s="library://ns.adobe.com/flex/spark"
                    xmlns:mx="library://ns.adobe.com/flex/mx"
                    xmlns:viewer="com.esri.viewer.*"
-                   xmlns:HeaderController="widgets.HeaderController.*"
                    xmlns:components="com.esri.viewer.components.*"
+                   xmlns:HeaderController="widgets.HeaderController.*"
                    width="100%"
                    borderSkin="{null}"
                    creationComplete="creationCompleteHandler(event)"
@@ -31,26 +31,28 @@
         <![CDATA[
             import com.esri.viewer.AppEvent;
             import com.esri.viewer.WidgetStates;
-            import com.esri.viewer.components.HTMLPopup;
 
             import mx.collections.ArrayCollection;
+            import mx.collections.ArrayList;
             import mx.events.FlexEvent;
 
             import spark.components.supportClasses.ItemRenderer;
+            import spark.layouts.HorizontalAlign;
+            import spark.layouts.TileLayout;
+            import spark.layouts.TileOrientation;
+            import spark.layouts.VerticalAlign;
 
-            private var aboutContent:String;
+            private const NONSTOP_RESIZE_GAP:Number = 25;
 
-            private var aboutButtonLabel:String = "";
+            private const MIN_HEADING_WIDTH:Number = 100;
 
-            private var aboutWidth:Number;
-
-            private var aboutHeight:Number;
+            private var minHeadingGroupWidth:Number;
 
             [Bindable]
-            private var labelText:String = "";
+            private var linkList:ArrayList;
 
             [Bindable]
-            private var labelVisible:String = "";
+            private var headingWidth:Number = MIN_HEADING_WIDTH;
 
             [Bindable]
             private var widgetItemArrCol:ArrayCollection;
@@ -81,6 +83,7 @@
                             logoIcon.source = uiList[i].value;
                         } // default is no logo at all
                     }
+
                     AppEvent.addListener(AppEvent.SET_LOGO, setLogoHandler);
                     AppEvent.addListener(AppEvent.SET_TITLES, setTitlesHandler);
                     AppEvent.addListener(AppEvent.WIDGET_STATE_CHANGED, widgetStateChangedHandler);
@@ -103,64 +106,62 @@
             {
                 if (configXML)
                 {
-                    aboutContent = configXML.about.content || "";
-                    labelText = configXML.labels.abouttext[0] || configXML.about.label[0] || getDefaultString("aboutLabel");
-                    labelVisible = configXML.about.visible.toString() || "true";
-                    aboutButtonLabel = configXML.labels.btnlabel[0] || configXML.about.btnlabel[0] || getDefaultString("okLabel");
-                    aboutWidth = configXML.about.width || 500;
-                    aboutHeight = configXML.about.height || 500;
+                    //configureLinks();
                 }
             }
 
             private function getWidgetItems(widgetList:Array):ArrayCollection
             {
-                var menuItems:ArrayCollection = new ArrayCollection;
+                var menuItems:ArrayCollection = new ArrayCollection();
                 var widgetItem:WidgetItem;
                 for (var i:int = 0; i < widgetList.length; )
                 {
-                    if (widgetList[i].grouped)
+                    const isPartOfPanel:Boolean = widgetList[i].isPartOfPanel && widgetList[i].isPartOfPanel == true;
+                    if (!isPartOfPanel)
                     {
-                        // grouped
-                        var widgetArray:Array = [];
-                        var length:Number = widgetList[i].groupLength;
-                        for (var k:int = 0; k < length; k++)
+                        if (widgetList[i].grouped)
                         {
-                            widgetArray.push({ widget: widgetList[i + k], open: (widgetList[i].preload && (widgetList[i].preload == "open" || widgetList[i].preload == "minimized")) ? true : false });
+                            // grouped
+                            var widgetArray:Array = [];
+                            var length:Number = widgetList[i].groupLength;
+                            for (var k:int = 0; k < length; k++)
+                            {
+                                widgetArray.push({ widget: widgetList[i + k], open: (widgetList[i].preload && (widgetList[i].preload == "open" || widgetList[i].preload == "minimized")) ? true : false });
+                            }
+                            widgetItem = new WidgetItem();
+                            widgetItem.isGroup = true;
+                            widgetItem.label = widgetList[i].groupLabel;
+                            widgetItem.icon = widgetList[i].groupIcon;
+                            widgetItem.widgets = widgetArray;
+
+                            menuItems.addItem(widgetItem);
+
+                            // move to the next group
+                            i = i + length;
                         }
-                        widgetItem = new WidgetItem;
-                        widgetItem.isGroup = true;
-                        widgetItem.label = widgetList[i].groupLabel;
-                        widgetItem.icon = widgetList[i].groupIcon;
-                        widgetItem.widgets = widgetArray;
+                        else
+                        {
+                            // upgrouped
+                            widgetItem = new WidgetItem();
+                            widgetItem.id = widgetList[i].id;
+                            widgetItem.label = widgetList[i].label;
+                            widgetItem.icon = widgetList[i].icon;
+                            widgetItem.url = widgetList[i].url;
+                            widgetItem.open = widgetList[i].preload && (widgetList[i].preload == "open" || widgetList[i].preload == "minimized");
 
-                        menuItems.addItem(widgetItem);
+                            menuItems.addItem(widgetItem);
 
-                        // move to the next group
-                        i = i + length;
+                            // move to the next individual widget
+                            i++;
+                        }
                     }
                     else
                     {
-                        // upgrouped
-                        widgetItem = new WidgetItem;
-                        widgetItem.id = widgetList[i].id;
-                        widgetItem.label = widgetList[i].label;
-                        widgetItem.icon = widgetList[i].icon;
-                        widgetItem.url = widgetList[i].url;
-                        widgetItem.open = widgetList[i].preload && (widgetList[i].preload == "open" || widgetList[i].preload == "minimized");
-
-                        menuItems.addItem(widgetItem);
-
-                        // move to the next individual widget
                         i++;
                     }
                 }
 
                 return menuItems;
-            }
-
-            private function showAbout():void
-            {
-                HTMLPopup.show(aboutContent, aboutButtonLabel, aboutWidth, aboutHeight);
             }
 
             private function widgetItemDG_widgetItemClickHandler(event:Event):void
@@ -172,7 +173,7 @@
                     // check the array of widgets if they are open before hand
                     for each (var widgetObj:Object in widgetItem.widgets)
                     {
-                        var widgetItem1:WidgetItem = new WidgetItem;
+                        var widgetItem1:WidgetItem = new WidgetItem();
                         widgetItem1.id = widgetObj.widget.id;
                         widgetItem1.label = widgetObj.widget.label;
                         widgetItem1.icon = widgetObj.widget.icon;
@@ -183,6 +184,7 @@
                     }
                     menuToolTip.visible = false;
                     widgetList.visible = true;
+                    widgetListDG.setFocus();
                 }
                 else
                 {
@@ -222,57 +224,60 @@
             private function widgetStateChangedHandler(event:AppEvent):void
             {
                 var data:Object = event.data;
-                for (var i:Number = 0; i < widgetItemArrCol.length; )
+                if (widgetItemArrCol.length)
                 {
-                    if (widgetItemArrCol.getItemAt(i).isGroup)
+                    for (var i:Number = 0; i < widgetItemArrCol.length; )
                     {
-                        // make sure to check it for the array of widgets(group) if they are open before hand
-                        var widgetFound:Boolean;
-                        for each (var widgetObj:Object in widgetItemArrCol.getItemAt(i).widgets)
+                        if (widgetItemArrCol.getItemAt(i).isGroup)
                         {
-                            if (data.id as Number == widgetObj.widget.id)
+                            // make sure to check it for the array of widgets(group) if they are open before hand
+                            var widgetFound:Boolean;
+                            for each (var widgetObj:Object in widgetItemArrCol.getItemAt(i).widgets)
                             {
-                                widgetFound = true;
-                                widgetObj.open = (data.state as String == WidgetStates.WIDGET_OPENED) || (data.state as String == WidgetStates.WIDGET_MINIMIZED);
+                                if (data.id as Number == widgetObj.widget.id)
+                                {
+                                    widgetFound = true;
+                                    widgetObj.open = (data.state as String == WidgetStates.WIDGET_OPENED) || (data.state as String == WidgetStates.WIDGET_MINIMIZED);
+                                    break;
+                                }
+                            }
+                            if (widgetFound)
+                            {
                                 break;
                             }
-                        }
-                        if (widgetFound)
-                        {
-                            break;
+                            else
+                            {
+                                i++;
+                            }
                         }
                         else
                         {
-                            i++;
+                            if (data.id as Number == widgetItemArrCol.getItemAt(i).id)
+                            {
+                                widgetItemArrCol.getItemAt(i).open = (data.state as String == WidgetStates.WIDGET_OPENED) || (data.state as String == WidgetStates.WIDGET_MINIMIZED);
+                                break;
+                            }
+                            else
+                            {
+                                i++;
+                            }
                         }
                     }
-                    else
+                    // check for any grouped widgets
+                    if (groupWidgetArrCol && groupWidgetArrCol.length > 0)
                     {
-                        if (data.id as Number == widgetItemArrCol.getItemAt(i).id)
+                        for (var j:Number = 0; j < groupWidgetArrCol.length; )
                         {
-                            widgetItemArrCol.getItemAt(i).open = (data.state as String == WidgetStates.WIDGET_OPENED) || (data.state as String == WidgetStates.WIDGET_MINIMIZED);
-                            break;
-                        }
-                        else
-                        {
-                            i++;
-                        }
-                    }
-                }
-                // check for any grouped widgets
-                if (groupWidgetArrCol && groupWidgetArrCol.length > 0)
-                {
-                    for (var j:Number = 0; j < groupWidgetArrCol.length; )
-                    {
-                        if (data.id as Number == groupWidgetArrCol.getItemAt(j).id)
-                        {
-                            groupWidgetArrCol.getItemAt(j).open = (data.state as String == WidgetStates.WIDGET_OPENED) || (data.state as String == WidgetStates.WIDGET_MINIMIZED);
-                            widgetList.visible = false;
-                            break;
-                        }
-                        else
-                        {
-                            j++;
+                            if (data.id as Number == groupWidgetArrCol.getItemAt(j).id)
+                            {
+                                groupWidgetArrCol.getItemAt(j).open = (data.state as String == WidgetStates.WIDGET_OPENED) || (data.state as String == WidgetStates.WIDGET_MINIMIZED);
+                                widgetList.visible = false;
+                                break;
+                            }
+                            else
+                            {
+                                j++;
+                            }
                         }
                     }
                 }
@@ -282,18 +287,12 @@
             {
                 widgetList.visible = false;
             }
+
         ]]>
     </fx:Script>
 
     <s:Group id="headerGroup"
              width="100%" height="147">
-        <!-- basic structure is an hbox with
-             logoIcon: a logo (if specified)
-             titleGroup: the title on top of the subtitle
-             widgetBox: icons for all widgets specified in main configuration file
-             linkBox: "link buttons" for all links specified in main configuration file
-        -->
-
         <s:Group id="headerContent"
                  width="100%" height="{headerGroup.height - 45}">
             <s:Rect width="100%" height="100%"
@@ -334,25 +333,28 @@
                       gap="2"
                       paddingLeft="10"
                       verticalAlign="bottom">
+
                 <s:HGroup id="widgetBox"
                           width="100%"
                           horizontalAlign="right">
                     <HeaderController:WidgetItemDataGroup id="widgetItemDG"
                                                           dataProvider="{widgetItemArrCol}"
+                                                          horizontalCenter="0"
                                                           widgetItemClick="widgetItemDG_widgetItemClickHandler(event)"
                                                           widgetItemMouseOut="widgetItemDG_widgetItemMouseOutHandler(event)"
                                                           widgetItemMouseOver="widgetItemDG_widgetItemMouseOverHandler(event)">
                         <HeaderController:layout>
                             <s:HorizontalLayout gap="12"
+                                                horizontalAlign="center"
                                                 useVirtualLayout="true"
                                                 verticalAlign="middle"/>
                         </HeaderController:layout>
                     </HeaderController:WidgetItemDataGroup>
                 </s:HGroup>
-
-                <mx:Spacer width="70"/>
+				<mx:Spacer width="70"/>
             </s:HGroup>
         </s:Group>
+
         <s:VGroup id="menuToolTip"
                   x="{xOver + 12 - menuToolTipBox.width/2}" y="{headerContent.height}"
                   gap="0"
@@ -367,6 +369,7 @@
                     </s:Path>
                 </s:Group>
             </s:Graphic>
+
             <s:BorderContainer id="menuToolTipBox"
                                width="{menuTitle.width + 8}" height="{menuTitle.height +2}"
                                backgroundColor="{getStyle('contentBackgroundColor')}"
@@ -376,6 +379,7 @@
                 <s:layout>
                     <s:HorizontalLayout horizontalAlign="center" verticalAlign="middle"/>
                 </s:layout>
+
                 <s:Label id="menuTitle"
                          paddingBottom="4"
                          paddingLeft="5"
@@ -384,6 +388,7 @@
                          visible="{menuToolTip.visible}"/>
             </s:BorderContainer>
         </s:VGroup>
+
         <s:BorderContainer id="widgetList"
                            x="{xOver + 4 - widgetListDG.width/2}" y="{headerContent.height}" width="{widgetListDG.width + 4}" height="{widgetListDG.height + 2}"
                            backgroundColor="{getStyle('contentBackgroundColor')}"
@@ -395,7 +400,8 @@
             <HeaderController:WidgetListDataGroup id="widgetListDG"
                                                   width="150"
                                                   dataProvider="{groupWidgetArrCol}"
-                                                  visible="{widgetList.visible}"
+                                                  focusEnabled="false"
+                                                  tabChildren="true"
                                                   widgetListItemClick="widgetList_widgetItemClickHandler(event)">
                 <HeaderController:layout>
                     <s:VerticalLayout paddingTop="6"
@@ -404,6 +410,7 @@
                 </HeaderController:layout>
             </HeaderController:WidgetListDataGroup>
         </s:BorderContainer>
+
         <s:filters>
             <s:DropShadowFilter alpha="0.5"
                                 blurX="10"

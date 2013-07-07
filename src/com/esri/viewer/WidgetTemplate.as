@@ -16,7 +16,9 @@
 package com.esri.viewer
 {
 
+import com.esri.viewer.components.FocusableImage;
 import com.esri.viewer.components.TitlebarButton;
+import com.esri.viewer.utils.LocalizationUtil;
 
 import flash.events.Event;
 import flash.events.MouseEvent;
@@ -35,6 +37,8 @@ import spark.components.SkinnableContainer;
 [Event(name="open", type="flash.events.Event")]
 [Event(name="minimized", type="flash.events.Event")]
 [Event(name="closed", type="flash.events.Event")]
+[Event(name="startDrag", type="flash.events.Event")]
+[Event(name="stopDrag", type="flash.events.Event")]
 
 [SkinState("open")]
 [SkinState("minimized")]
@@ -52,13 +56,13 @@ public class WidgetTemplate extends SkinnableContainer implements IWidgetTemplat
     public var headerToolGroup:Group;
 
     [SkinPart(required="false")]
-    public var icon:Image;
+    public var icon:FocusableImage;
 
     [SkinPart(required="false")]
-    public var closeButton:Image;
+    public var closeButton:FocusableImage;
 
     [SkinPart(required="false")]
-    public var minimizeButton:Image;
+    public var minimizeButton:FocusableImage;
 
     [SkinPart(required="false")]
     public var resizeButton:Image;
@@ -93,6 +97,10 @@ public class WidgetTemplate extends SkinnableContainer implements IWidgetTemplat
 
     private static const WIDGET_CLOSED:String = "closed";
 
+    private static const WIDGET_START_DRAG:String = "startDrag";
+
+    private static const WIDGET_STOP_DRAG:String = "stopDrag";
+
     private var _widgetId:Number;
 
     private var _widgetState:String = WIDGET_OPENED;
@@ -113,6 +121,11 @@ public class WidgetTemplate extends SkinnableContainer implements IWidgetTemplat
     public function set baseWidget(value:IBaseWidget):void
     {
         _baseWidget = value;
+
+        if (value.isPartOfPanel)
+        {
+            this.enableIcon = this.enableCloseButton = this.enableMinimizeButton = this.enableDraging = false;
+        }
         this.resizable = value.isResizeable;
         this.draggable = value.isDraggable;
         this.widgetId = value.widgetId;
@@ -243,6 +256,8 @@ public class WidgetTemplate extends SkinnableContainer implements IWidgetTemplat
         this.width = 300;
         this.height = 300;
 
+        this.hasFocusableChildren = true;
+
         this.addEventListener(FlexEvent.CREATION_COMPLETE, creationCompleteHandler);
     }
 
@@ -251,8 +266,8 @@ public class WidgetTemplate extends SkinnableContainer implements IWidgetTemplat
         widgetWidth = width;
         widgetHeight = height;
 
-        this.closeButton.toolTip = resourceManager.getString("ViewerStrings", "close");
-        this.minimizeButton.toolTip = resourceManager.getString("ViewerStrings", "minimize");
+        this.closeButton.toolTip = LocalizationUtil.getDefaultString("close");
+        this.minimizeButton.toolTip = LocalizationUtil.getDefaultString("minimize");
     }
 
     protected override function partAdded(partName:String, instance:Object):void
@@ -346,6 +361,7 @@ public class WidgetTemplate extends SkinnableContainer implements IWidgetTemplat
             if (!DragManager.isDragging)
             {
                 widget.startDrag();
+                dispatchEvent(new Event(WIDGET_START_DRAG));
             }
 
             if (_resizable)
@@ -367,6 +383,7 @@ public class WidgetTemplate extends SkinnableContainer implements IWidgetTemplat
         var widget:UIComponent = parent as UIComponent;
 
         widget.stopDrag();
+        dispatchEvent(new Event(WIDGET_STOP_DRAG));
 
         var appHeight:Number = FlexGlobals.topLevelApplication.height;
         var appWidth:Number = FlexGlobals.topLevelApplication.width;

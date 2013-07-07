@@ -16,10 +16,20 @@
 package widgets.Geoprocessing.parameters
 {
 
+import com.esri.ags.symbols.SimpleLineSymbol;
 import com.esri.viewer.utils.PopUpInfoParser;
+import com.esri.viewer.utils.RendererParser;
+import com.esri.viewer.utils.SymbolParser;
 
 public class OutputParamParser extends BaseParamParser
 {
+    public function OutputParamParser()
+    {
+        var outputParamSymbolParser:SymbolParser = new SymbolParser();
+        outputParamSymbolParser.defaultPolylineSymbol = new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, 0, 1, 1);
+        rendererParser = new RendererParser(outputParamSymbolParser);
+    }
+
     override public function parseParameters(paramsXML:XMLList):Array
     {
         var params:Array = [];
@@ -30,6 +40,7 @@ public class OutputParamParser extends BaseParamParser
             param = GPParameterFactory.getGPParamFromType(paramXML.@type);
             param.label = paramXML.@label;
             param.name = paramXML.@name;
+            param.visible = (paramXML.@visible == "true");
             param.toolTip = paramXML.@tooltip;
 
             var featureParam:IGPFeatureParameter = param as IGPFeatureParameter;
@@ -43,7 +54,10 @@ public class OutputParamParser extends BaseParamParser
                     featureParam.popUpInfo = PopUpInfoParser.parsePopUpInfo(paramXML.popup[0]);
                 }
 
-                featureParam.renderer = featureParam.geometryType ? parseRenderer(paramXML.renderer[0], featureParam.geometryType) : null;
+                if (featureParam.geometryType)
+                {
+                    featureParam.renderer = parseRenderer(paramXML, featureParam.geometryType);
+                }
             }
 
             params.push(param);

@@ -20,8 +20,6 @@ import com.esri.viewer.managers.EventBus;
 
 import flash.events.Event;
 
-import widgets.Bookmark.Bookmark;
-
 /**
  * AppEvent is used within the application to send messages among components
  * through the EventBus. All event driven messaging in the Flex Viewer is
@@ -38,7 +36,7 @@ import widgets.Bookmark.Bookmark;
  *   AppEvent.addListener(AppEvent.DATA_PUBLISH, sharedDataUpdated);
  * </listing>
  *
- * @see EventBus
+ * @see com.esri.viewer.managers.EventBus
  */
 public class AppEvent extends Event
 {
@@ -60,7 +58,7 @@ public class AppEvent extends Event
      * AppEvent.dispatch(AppEvent.APP_ERROR, "An Error Message"));
      * </listing>
      *
-     * @see components.ErrorWindow
+     * @see com.esri.viewer.components.ErrorWindow
      */
     public static const APP_ERROR:String = "appError";
 
@@ -102,7 +100,7 @@ public class AppEvent extends Event
 
     /**
      * This event type is used by either Flex Viewer components or a widget to
-     * request set the map naviation method. The map navigation method could be
+     * request set the map navigation method. The map navigation method could be
      * pan, zoomin, zoomout, etc.
      *
      * <p>The navigation methods supported are:</p>
@@ -282,6 +280,11 @@ public class AppEvent extends Event
     public static const SUSPEND_TOC_HIDE_TIMER:String = "suspendTOCHideTimer";
 
     public static const LAUNCHING_TOC_LAYER_MENU:String = "launchingTocLayerMenu";
+
+    /**
+     * Legend(Widget) Refresh
+     */
+    public static const REFRESH_LEGEND:String = "refreshLegend";
 
     //--------------------------------------------------------------------------
     //

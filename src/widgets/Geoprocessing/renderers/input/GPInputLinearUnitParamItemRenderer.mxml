@@ -19,7 +19,8 @@
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
                 xmlns:s="library://ns.adobe.com/flex/spark"
                 xmlns:mx="library://ns.adobe.com/flex/mx"
-                xmlns:esri="http://www.esri.com/2008/ags"
+                xmlns:fieldClasses="com.esri.ags.skins.fieldClasses.*"
+                width="100%"
                 autoDrawBackground="false">
     <fx:Script>
         <![CDATA[
@@ -69,18 +70,21 @@
             }
         ]]>
     </fx:Script>
+
     <mx:FormItem width="100%"
                  direction="horizontal"
                  label="{data.label}"
                  required="{data.required}">
-        <esri:DoubleField id="distanceInput"
-                          width="80"
-                          change="updateDistance()"
-                          text="{data.defaultValue.distance}"
-                          toolTip="{data.toolTip}"/>
-        <mx:ComboBox id="unitSelection"
-                     width="100%"
-                     change="updateUnits()"
-                     labelFunction="unitLabelFunction"/>
+        <fieldClasses:DoubleField id="distanceInput"
+                                  width="100%"
+                                  change="updateDistance()"
+                                  text="{data.defaultValue.distance}"
+                                  toolTip="{data.toolTip}"/>
+
+        <s:DropDownList id="unitSelection"
+                        width="100%"
+                        change="updateUnits()"
+                        labelFunction="unitLabelFunction"
+                        requireSelection="true"/>
     </mx:FormItem>
 </s:ItemRenderer>
