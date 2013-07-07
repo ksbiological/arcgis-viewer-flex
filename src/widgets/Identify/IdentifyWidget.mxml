@@ -383,22 +383,22 @@
 				switch (value){
 					case DrawTool.MAPPOINT:{
 						status = pointLabel;
-						setMapAction(DrawTool.MAPPOINT, status, identMarkerSymbol, drawEnd, false);
+						setMapAction(DrawTool.MAPPOINT, status, identMarkerSymbol, drawEnd);
 						break;
 					}
 					case DrawTool.POLYLINE:{
 						status = lineLabel;
-						setMapAction(DrawTool.POLYLINE, status, identLineSymbol, drawEnd, false);
+						setMapAction(DrawTool.POLYLINE, status, identLineSymbol, drawEnd);
 						break;
 					}
 					case DrawTool.EXTENT:{
 						status = rectLabel;
-						setMapAction(DrawTool.EXTENT, status, identFillSymbol, drawEnd, false);
+						setMapAction(DrawTool.EXTENT, status, identFillSymbol, drawEnd);
 						break;
 					}
 					case DrawTool.POLYGON:{
 						status = polyLabel;
-						setMapAction(DrawTool.POLYGON, status, identFillSymbol, drawEnd, false);
+						setMapAction(DrawTool.POLYGON, status, identFillSymbol, drawEnd);
 						break;
 					}
 				}
