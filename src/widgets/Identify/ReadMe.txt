@@ -1,4 +1,67 @@
-This is my identify widget for FlexViewer 3.0
+This is my identify widget for FlexViewer 3.3
+
+* 3.3.2 - Fixed issue where user was presented with login dialog even though token was provided in main config.xml
+	- Added circle and ellipse tools
+	- Applied workaround for ArcGIS Server 10 services sometimes not returning identify results in requested map projection.
+
+* 3.3.1 - Fixed bug with null values in Date fields coming back as some bad date (00/01/NaN).
+	- Added new Tag replacenullswithemptystring which specifies if a null field should display as
+	  null or an empty string in the results. 
+
+* 3.3   - Recompiled for Flex Viewer 3.3
+
+* 3.2	- Fixed bug with useutc and dateformat being ignored
+	- Workaround for doubleclick giving two results
+
+* 3.1.4	- Fixed a bug when an unsupported layer is encountered in the map an RTE (Runtime Error) occurs.
+
+* 3.1.3f- Fixed a bug where if you specified a layer from the drop down any layer from that map service
+	  returned results anyway.
+
+* 3.1.3 - Fixed an issue where the URL is for the layer in the main config.xml and the one used in the
+	  IdentifyWidget.xml have to be the same exact CaSe.
+	- Fixed a Bug where link field names still required the Field Alias name and not the actual field name.
+
+* 3.1.2f- Fixed bug when disablelayerdropdown is set not results are returned in some situations.
+
+* 3.1.2 - The use on the name tag for layers is now just an alias for what you want to appear in the dropdown list and as the title of the identify results.
+	  It is no longer required to be the exact name of the layer as specified in the REST Service directory.
+	- Each configured layer requires a url tag and an id tag. This is how this new version knows how to match the identify result to a layer that you have configured.
+	- The field element name is now the actual field name and NOT the alias name of the field as it was in all previous versions.
+	- Each excludelayer requires a url tag and an id tag. This is how this new version knows how to match the identify result to a layer that you have configured to be excluded.
+	- If a link field is null the hyperlink or icon or image will not be included in the results.
+	- You can disable the configured layer selection drop down list completely and it will not appear in the widget.
+	- You can disable just the All Layers as a choice from the drop down list and force your user to select only one layer at a time for identifying.
+	- You can disable popups for result graphics by using enablegraphicclickinfo.
+	- ArcGIS Online FeatureServer layers are now supported.
+	- Less traffic goes to the server as checks are made to see if layers require identification based on configuration.
+	- FeatureLayer types are now using QueryTask instead of trying to change the layer type to a dynamic map service so that the IdentifyTask can be used.
+	- Results are sorted in the in map layer order (i.e. the top most layers results are at the top of the results list).
+	- Because of the major changes configuring the identifying of Raster layers are now supported.
+	- You are warned with a popup if you fail to read these instructions first and do not update your old IdentifyWidget.xml file.
+
+* 3.1.1 - Fixed an issue with attempts to identify hiddenLayer_s and featurelayers with no urls
+	- If the identify task fails the message with remaining layers to identify decrements properly.
+
+* 3.1   - Recompiled for Flex Viewer 3.1
+
+* 3.0.2 - Fixed the Gray Circle Of Death (GCOD) people were seeing beacuse of the glowfilter
+	  being applied to graphics not completely in the map extent.
+	- Fixed the identifying features message to more accurately report the identify progress.
+
+* 3.0.1f - Fixed bug where patch to image of remove result was incorrect in the code
+
+* 3.0.1 - Added a dropdown to choose which configured layer to identify or just all layers
+        - Added a remove button to each result, so that you can remove unwanted results from the list
+	- Added tag excludelayer to the IdentifyWidget.xml that allows you to specify a layer that you do not
+	  want to see results for.
+	- Fixed widget resizing issue after a popup has been displayed
+	- Added tag disablepopuplinks to the IdentifyWidget.xml that allows you to turn off url links for popups only.
+	- If no results are found the widget will automatically transition back to the identify tools view
+	- All identify tools buttons toggle now.
+	- Mouse over graphics now works even if you have the widget set to keepidentifyactive.
+
+* 3.0i - Recompiled for Flex Viewer 3.0 with no localization specified
 
 * 3.0 - Recompiled for Flex Viewer 3.0
 

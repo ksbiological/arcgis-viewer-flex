@@ -12,6 +12,7 @@ package widgets.Identify
 	[Event(name="idResultClick", type="flash.events.Event")]
 	[Event(name="idResultOver", type="flash.events.Event")]
 	[Event(name="idResultOut", type="flash.events.Event")]
+	[Event(name="idResultDelete", type="flash.events.Event")]
 	
 	public class IdResultDataGroup extends DataGroup
 	{

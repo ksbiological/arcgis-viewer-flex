@@ -30,6 +30,8 @@ package widgets.Identify
 		
 		public var zoom2msg:String;
 		
+		public var removemsg:String;
+		
 		public var zoomScale:Number;
 		
 		public var geometry:Geometry;
@@ -37,5 +39,9 @@ package widgets.Identify
 		public var forceScale:Boolean;
 		
 		public var graphic:Graphic;
+		
+		public var gid:Number;
+        
+        public var maporder:Number;
 	}
 }
