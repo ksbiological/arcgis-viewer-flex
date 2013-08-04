@@ -3,7 +3,7 @@
     <layerlist visible="true">
         <!-- <excludelayer>The Label Of Some Layer In Main Config File</excludelayer> -->
     </layerlist>
-    <expandlayeritems>true</expandlayeritems>
+    <expandlayeritems>false</expandlayeritems>
 </configuration>
 
 <!--
