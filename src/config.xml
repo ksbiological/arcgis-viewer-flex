@@ -88,6 +88,10 @@
         icon="assets/images/i_table.png"
         config="/reports/plss/CustomReportWidget.xml"
         url="widgets/CustomReport/CustomReportWidget.swf"/>
+        <widget label="Attribute Table"
+        icon="assets/images/i_table.png"
+        config="widgets/AttributeTable/AttributeTableWidget.xml"
+        url="widgets/AttributeTable/AttributeTableWidget.swf"/>
 
 
         <widget label="Find location"   left="100" top="110"
