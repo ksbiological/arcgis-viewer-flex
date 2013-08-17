@@ -1,7 +1,7 @@
 Viewer development
 ==================
 
-The viewer's files are a version-controlled folder at ``\\groups2.home.ku.edu\KBS_General\web_site\code\flexviewer``.
+The viewer's files are in a version-controlled folder at ``\\groups2.home.ku.edu\KBS_General\web_site\code\flexviewer``.
 
 Reminder: Read Esri's documentation
 -----------------------------------
@@ -36,7 +36,7 @@ You should now be able to administer the flex viewer project from within Flash B
 Widgets
 -------
 
-ESRI's ArcGIS Viewer for Flex 3.4 uses components called *widgets* to provide functionality in their viewer. KBS' version uses many of the included widgets without modification, and some that have been modified to meet the Survey's specifications. KBS' viewer also utilizes third-party widgets and a custom widgets built from scratch.
+ESRI's ArcGIS Viewer for Flex 3.4 uses components called *widgets* to provide functionality in their viewer. KBS' version uses many of the included widgets without modification, and some that have been modified to meet the Survey's specifications. KBS' viewer also utilizes third-party widgets and a custom widget built from scratch.
 
 How to add a widget
 ^^^^^^^^^^^^^^^^^^^
@@ -78,7 +78,7 @@ Deploying the viewer
 
 In order for the changes you make in ``flexviewer`` to take effect on KBS' web maps, you must deploy the viewer. This process involves exporting a release build of the viewer from Flash Builder 4.6 and copying it to the appropriate location on the server. The release build contains the compiled .swf files which are necessary in order to load the web map in a browser. If you have made any changes to things in the currently-deployed viewer folder, you must copy over those changes to the ``flexviewer`` project beforehand, or the changes will be overwritten.
 
-The hosted copy of the map viewer is located at ``\\Gremlin\media\viewer\``, or online at `http://kars.ku.edu/viewer/`. Remember that this is a copy of what is produced from the viewer source code when the project is built by Flash builder.
+The hosted copy of the map viewer is located at ``\\Gremlin\media\viewer\``, or online at `http://kars.ku.edu/media/viewer/`. Remember that this is a copy of what is produced from the viewer source code when the project is built by Flash builder.
 
 1. Verify that all changes made locally to the deployed viewer (at ``\\Gremlin\media\viewer\``) that you want to keep have been copied over to the ``flexviewer`` project. The ``flexviewer`` folder is the authoritative version of the project; the deployed viewer folder is an exported copy and changes made there will be lost upon redeployment of the server unless you bring them to ``flexviewer`` beforehand. You can use a tool such as WinMerge to compare two viewer folders (e.g. the currently-deployed one and the one you want to deploy) to more easily splot files that may have been changed in the currently-deployed viewer folder.
 2. Delete the "bin-release" folder in the ``flexviewer`` project folder (it will be recreated in a later step.)
@@ -86,4 +86,4 @@ The hosted copy of the map viewer is located at ``\\Gremlin\media\viewer\``, or 
 4. Delete the old viewer deployment folder, ``\\Gremlin\media\viewer\``, (or rename it to something else temporarily, until you are sure all of the local changes were successfully copied to ``flexviewer``.) Then copy ``bin-release`` into ``\\Gremlin\media\`` and rename the "bin-release" folder to "viewer".
 5. Restart the Ubuntu virtual machine and clear the cache in your browser to make sure when you load the viewer again, it will load the updated version.
 
-That is the basic process to make permanent changes to the viewer. Remember that local changes to the deployed viewer folder will be overwritten whenever a new version of the viewer is built and copied over to the server. Take care to copy over any changes you've made to the widget XML files so that those changes don't get erased when you deploy a new version of the viewer. (This currently applies only to the widget configuration files, not to the map configuration files. The map configuration files are currently stored in gremlin-vm, not in the ``flexviewer`` project or the deployed viewer folder.)
+That is the basic process to make permanent changes to the viewer. Remember that local changes to the deployed viewer folder will be overwritten whenever a new version of the viewer is built and copied over to the server. Take care to copy over any changes you've made to the widget XML files into the ``flexviewer`` repository beforehand so that those changes don't get erased during deployment. (This currently applies only to the widget configuration files, not to the map configuration files. The map configuration files are currently stored in gremlin-vm, not in the ``flexviewer`` project or the deployed viewer folder.)

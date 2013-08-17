@@ -9,6 +9,18 @@ The web maps are coupled to Django in the following ways:
 
 * The web map configuration files currently use Django template tags and some template variables.
 * The web pages which load the web maps are served by Django.
+
+  * The URLs (e.g. ``/maps/sgpchat/``) get handled by Django.
+  * The HTML responses are rendered by Django from the ``kbsdjango/templates/map.html`` template of the ``kbsdjango`` project instead of ``viewer/index.html`` (which is generated from ``html-template/index.template.html`` in the ``flexviewer`` repository.) ``kbsdjango/templates/map.html`` is a slightly-modified version of ``viewer/index.html``:
+
+    * The page title is set dynamically depending on which map is being requested.
+    * The location of the configuration XML file to use is set dynamically depending on which map is being requested.
+    * The Google Analytics ID is set dynamically depending on which site the map is being viewed on (e.g. ``kars.ku.edu``, ``kbs.ku.edu``, etc.)
+
+      * Note that the KARS Google Analytics code has been added to ``html-template/index.template.html`` in the ``flexviewer`` repository, so the analytics code should appear in ``viewer/index.html`` and should still work for maps on the KARS website even after the maps have been decoupled from Django.
+
+    * The absolute URLs of ``viewer/swfobject.js`` and ``viewer/index.swf`` are hardcoded (e.g. to ``http://kars.ku.edu/media/viewer/swfobject.js`` and ``http://kars.ku.edu/media/viewer/index.swf``, if on the KARS website.)
+
 * Web maps are assciated with (and pull some data from) the Django ``Map`` model defined in the ``kbsdjango`` project.
 
 To decouple the web maps from Django:
