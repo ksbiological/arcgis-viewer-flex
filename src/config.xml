@@ -1,4 +1,3 @@
-
 <?xml version="1.0" ?>
 <!--
 ////////////////////////////////////////////////////////////////////////////////
@@ -11,14 +10,14 @@
 // and use restrictions.  See use restrictions in the file:
 // <install location>/License.txt
 //
-// Read more about ArcGIS Viewer for Flex 3.0 - http://links.esri.com/flexviewer
+// Read more about ArcGIS Viewer for Flex 3.4 - http://links.esri.com/flexviewer
 //
 ////////////////////////////////////////////////////////////////////////////////
 -->
 <configuration>
-    <title>Natural Resource Planner</title>
+    <title> Southern Great Plains Crucial Habitat Assessment Tool (SGP CHAT) </title>
     <style>
-        <colors>0xFFFFFF,0x023D9B,0x101010,0x000000,0xFFFFFF</colors>
+        <colors>0x4C2600,0xFFEDB8,0xB2AD81,0x6F6750,0x4C2600</colors>
         <alpha>1.0</alpha>
     </style>
 
@@ -27,16 +26,12 @@
     <headerLinkContent>
         <![CDATA[
             
-<a href="http://www.kdwpt.state.ks.us/" target="_blank">KDWPT - Home Page</a> | 
-<a href="http://kars.ku.edu/media/uploads/maps/nrp/NRP_Guide.pdf" target="_blank">User Guide</a> | 
-<a href="http://kars.ku.edu/natural-resource-planner/nrp-additional-resources/" target="_blank">Additional resources</a> | 
-<a href="http://kars.ku.edu/natural-resource-planner/view-arcmap/" target="_blank">View in ArcMap</a> | 
-<a href="http://kars.ku.edu/geonetwork/srv/en/main.home" target="_blank">Download Geodata</a> | 
-<a href="http://kars.ku.edu/ArcGIS/rest/services/NaturalResourcePlanner/MapServer" target="_blank">Layer Metadata</a> | 
+<a href="http://kars.ku.edu/geodata/maps/sgpchat/" target="_blank">Project Home Page</a> |
+<a href="http://kars.ku.edu/media/uploads/maps/sgpchat/SGPCHAT_User_Guide.pdf" target="_blank">User Guide</a> |
+<a href="http://kars.ku.edu/geonetwork/srv/en/main.home" target="_blank">Download</a> |
+<a href="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013" target="_blank">Web Service Contents</a> |
 
-            <a href="http://kbs.ku.edu/" target="_blank">Kansas Biological Survey</a> | 
-            <a href="http://kars.ku.edu/" target="_blank">Kansas Applied Remote Sensing (KARS)</a>
-            
+
 
         ]]>
     </headerLinkContent>
@@ -44,12 +39,12 @@
     <!-- UI elements -->
     <widget left="10"  top="110"    config="widgets/Navigation/NavigationWidget.xml" url="widgets/Navigation/NavigationWidget.swf"/>
     <widget right="-2" bottom="-2" config="widgets/OverviewMap/OverviewMapWidget.xml" url="widgets/OverviewMap/OverviewMapWidget.swf"/>
-    <widget right="60" top="145"    config="widgets/MapSwitcher/MapSwitcherWidget.xml" url="widgets/MapSwitcher/MapSwitcherWidget.swf"/>
+    <widget right="60" top="145"    config="widgets/MapSwitcher/SGPCHAT_MapSwitcherWidget.xml" url="widgets/MapSwitcher/MapSwitcherWidget.swf"/>
     <widget left="0"   top="0"     config="widgets/HeaderController/HeaderControllerWidget.xml" url="widgets/HeaderController/HeaderControllerWidget.swf"/>
     <widget left="95" top="113" url="widgets/MapProgressBar/MapProgressBarWidget.swf"/>
 	
     
-    <map addarcgisbasemaps="true" initialextent="-11600000 4260000 -10290000 5056000"  fullextent="-14859380 2246000 -6326550 8673717" top="40" >
+    <map addarcgisbasemaps="true" initialextent="-13138000 3091000 -9449000 5119000"  fullextent="-13138000 3091000 -9449000 5119000" top="40" >
         <basemaps>
             <layer label="Streets" type="tiled" visible="false"  alpha="1" icon="assets/images/basemap_streets.jpg"
                    url="http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer"/>
@@ -61,10 +56,32 @@
         </basemaps>
         <operationallayers>
 			
-<layer label="Natural Resource Planner" type="dynamic" visible="true" alpha="1" imageformat="png32"
-       url="http://kars.ku.edu/ArcGIS/rest/services/NaturalResourcePlanner/MapServer"/>
-<layer label="Kansas County Boundaries" type="dynamic" visible="true" alpha="1"
-       url="http://kars.ku.edu/ArcGIS/rest/services/SingleLayers/KansasCountiesBoundaries/MapServer"/>
+<layer label="NLCD 2006 Landcover" type="dynamic" visible="false" alpha="1" imageformat="png32"
+       url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2NLCD2006Landcover/MapServer" />
+
+<layer label="Modified Cropland Classifications" type="dynamic" visible="false" alpha="1" imageformat="png32"
+       url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2ModifiedCrop/MapServer" />
+
+<layer label="Landscape Summaries" type="dynamic" visible="false" alpha="1" imageformat="png32"
+       url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2LandscapeSummaries/MapServer" />
+
+<layer label="LEPC Crucial Habitat" type="dynamic" visible="false" alpha="1" imageformat="png32"
+       url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2LEPCCrucialHabitat/MapServer" />
+
+<layer label="Infrastructures Impacts Buffers" type="dynamic" visible="false" alpha="1" imageformat="png32"
+       url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2InfrastructuresImpacts/MapServer" />
+
+<layer label="Focal Areas and Connectivity Zones" type="dynamic" visible="true" alpha="1" imageformat="png32"
+       url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2FACZ/MapServer" />
+
+<layer label="LEPC Survey Areas" type="dynamic" visible="false" alpha="1" imageformat="png32"
+	url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2LEPCSurveyAreas/MapServer" />
+
+<layer label="LEPC Estimated Occupied Range" type="dynamic" visible="true" alpha="1" imageformat="png32"
+       url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2LEPCEstimatedRange/MapServer" />
+
+<layer label="Base Layers" type="dynamic" visible="true" alpha="1" imageformat="png32"
+       url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2BaseLayers/MapServer" />
 
         </operationallayers>
     </map>
@@ -80,21 +97,48 @@
             	  preload="open"/> 
 
         
-<widget label="Data Extract" left="140" top="160"
-        icon="assets/images/i_scissors.png"
-        config="widgets/DataExtract/DataExtractWidget.xml"
-        url="widgets/DataExtract/DataExtractWidget.swf"/> 
-<widget label="PLSS Landscape Summary"
-        icon="assets/images/i_table.png"
-        config="/reports/plss/CustomReportWidget.xml"
-        url="widgets/CustomReport/CustomReportWidget.swf"/>
-        <widget label="Attribute Table"
+
+
+
+<widget label="Attribute Table"
         icon="assets/images/i_table.png"
         config="widgets/AttributeTable/AttributeTableWidget.xml"
         url="widgets/AttributeTable/AttributeTableWidget.swf"/>
 
+<widget label="LEPC Oil and Gas Well Impact Estimator. 
+	The resulting numbers are ESTIMATES based on 
+	best and worst current habitat conditions. 
+	Site specific field level habitat assessments 
+	are needed for more precise numbers." left="186" top="160"
+        icon="assets/images/i_widget.png"
+        config="widgets/Geoprocessing/SGPCHAT_OilAndGas.xml"
+        url="widgets/Geoprocessing/GeoprocessingWidget.swf"/>
 
-        <widget label="Find location"   left="100" top="110"
+
+
+<widget label="LEPC Transmission Line Impact Estimator.
+	The resulting numbers are ESTIMATES based on 
+	best and worst current habitat conditions. 
+	Site specific field level habitat assessments 
+	are needed for more precise numbers." left="186" top="160"
+        icon="assets/images/i_widget.png"
+        config="widgets/Geoprocessing/SGPCHAT_TransmissionLines.xml"
+        url="widgets/Geoprocessing/GeoprocessingWidget.swf"/>
+
+
+<widget label="LEPC Vertical Structure Impact Estimator:
+wind turbines, radio towers, compressor stations, and industrial facilities.
+	The resulting numbers are ESTIMATES based on 
+	best and worst current habitat conditions. 
+	Site specific field level habitat assessments 
+	are needed for more precise numbers." left="186" top="160"
+        icon="assets/images/i_widget.png"
+        config="widgets/Geoprocessing/SGPCHAT_VerticalStructures.xml"
+        url="widgets/Geoprocessing/GeoprocessingWidget.swf"/>
+
+
+
+        <widget label="Find location"   left="100" top="110" height="280"
                 icon="assets/images/i_search.png"
                 config="widgets/Locate/LocateWidget_US.xml"
                 url="widgets/Locate/LocateWidget.swf"/>
@@ -104,7 +148,7 @@
                 url="widgets/Draw/DrawWidget.swf"/>
         <widget label="Print" left="390" top="400"
                 icon="assets/images/i_print.png"
-                config="widgets/Print/PrintWidget.xml"
+                config="widgets/Print/PrintWidget1.xml"
                 url="widgets/Print/PrintWidget.swf"/>
         <widget label="Identify"
                 icon="assets/images/i_info.png"
@@ -117,35 +161,66 @@
     </widgetcontainer>
     
     
-<dataextractionservice>http://kars.ku.edu/arcgis/rest/services/Geoprocessing/NaturalResourcePlanner/GPServer/Extract%20Data%20Task</dataextractionservice>
-<logo>assets/images/header_kdwp_logo.png</logo>
+<widget left="-2" bottom="-2" config="widgets/Coordinate/CoordinateWidget.xml" url="widgets/Coordinate/CoordinateWidget.swf"/>
+<dataextractionservice>http://kars.ku.edu/arcGIS/rest/services/Geoprocessing/SouthernGreatPlainsCrucialHabitatAssessmentTool/GPServer/Extract%20Data%20Task</dataextractionservice>
+<logo>assets/images/sgpchat_logos.png</logo> 
+<headerBackgroundImage>assets/images/sgpchat_header_background.jpg</headerBackgroundImage>
+<widget top="0" left="0" url="widgets/Splash/SplashWidget.swf" config="widgets/Splash/SplashWidget.xml"/>
+
+<splashcontent>
+<p align="center"><font size="14"><b>Disclaimer</b></font></p>
+<textformat leftmargin="8" rightmargin="8">
+<p>The Southern Great Plains Crucial Habitat Assessment Tool (SGP CHAT) is intended to provide useful and non-regulatory information during the early planning stages of development projects, conservation opportunities, and environmental review.</p>
+<p>SGP CHAT is not intended to replace consultation with local, state, or federal agencies.</p>
+<p>The finest data resolution is one square mile hexagons, and use of these data layers at a more localized scale is not appropriate and may lead to inaccurate interpretations. The classification may or may not apply to the entire section. Consult with local biologists for more localized information.</p>
+<p>I understand the intent of this system and do not consider this a replacement for consultations with other sources that would be used on a site specific basis.</p>
+<p>The SGP CHAT was last updated on: March 20, 2014.</p>
+<p>Layers: LEPC leks and Vertical structures.</p>
+
+</textformat>
+</splashcontent>
+
+<splashbtnlabel>Agree</splashbtnlabel>
 <mapDescription>
   <![CDATA[
-    <p>The Kansas Natural Resource Planner was designed to depict general areas of conservation 
-    sensitivity and is intended to serve as a guide for the siting of wind farms, oil and gas 
-    fields, transmission lines, and other landscape-altering structures. The data here is an 
-    accumulation of data available from different organizations across the state and is presented
-    here as an organized, assessable, and unbiased resource for people. The information presented
-    is based on the collective judgment of all the groups contributing and is not intended to be 
-    prejudiced in favor of, or against, any specific form of development. This map, and the data 
-    contained therein, is for general planning purposes only. Any final decisions should be based
-    on actual field investigation as well as consultation with appropriate agencies and 
-    organizations (ie Kansas Department of Wildlife and Parks, U.S. Fish and Wildlife Service, 
-    Kansas Biological Survey, The Nature Conservancy) as a more thorough review and investigation
-    of variables could impact a proposed project.</p><br />
-    <p> Last update: January 4, 2013 </p>
-    ]]>
-  </mapDescription>
+    <p>The Southern Great Plains Crucial Habitat Assessment Tool (SGP CHAT) is a dynamic online mapping application 
+created by a coalition of states at the request of the Western Governors Association's Wildlife Council to provide
+ information on lesser prairie-chicken (LEPC) habitat (and other species in coming years) to help facilitate responsible
+ development of natural resources.  The SGP CHAT encompasses those portions of Colorado, Kansas, New Mexico, Oklahoma, 
+and Texas that fall within the historic range of the LEPC.  Representatives from each state worked together to acquire 
+the best bio-geo physical data available for the region to model the habitat probability and identify important movement 
+corridors within and between meta populations. This map, and the data contained therein, is for general planning purposes
+ only. Any final decisions should be based on actual field investigation as well as consultation with appropriate agencies
+ and organizations (Colorado Parks and Wildlife, Kansas Department of Wildlife Parks and Tourism, New Mexico Game and Fish,
+ Oklahoma Department of Wildlife Conservation, Texas Parks and Wildlife Department) as a more thorough review and investigation
+ of variables could impact a proposed project.</p>
 
+<p>The SGP CHAT was last updated on: March 20, 2014.</p>
+
+
+    <p>See the <a href="http://kars.ku.edu/geodata/maps/sgpchat/" target="_blank">project page</a> for more information.</p>
+    
+
+   ]]>
+  </mapDescription>
   <copyrightDescription>
     <![CDATA[
       <p>This map is released by the Kansas Biological Survey under a Creative Commons 
-      Attribution-Non Commercial-No Derivative Works License version 3.0.</p><br />
+      Attribution-Non Commercial-No Derivative Works License version 3.0.</p>
+      <p>Please cite references to the SGP CHAT as:</p>
+   <p><i>Southern Great Plains Crucial Habitat Assessment Tool. August,2013. <a href="http://kars.ku.edu/maps/sgpchat/" target="_blank">kars.ku.edu/maps/sgpchat/</a></i></p>
     ]]>
   </copyrightDescription>
     
   <disclaimerDescription>
     <![CDATA[
+<p><b>SGP CHAT Disclaimer</p>
+<p>The Southern Great Plains Crucial Habitat Assessment Tool (SGP CHAT) is intended to provide useful and non-regulatory information during the early planning stages of development projects, conservation opportunities, and environmental review.</p>
+<p>SGP CHAT is not intended to replace consultation with local, state, or federal agencies.</p>
+<p>The finest data resolution is one square mile hexagons, and use of these data layers at a more localized scale is not appropriate and may lead to inaccurate interpretations. The classification may or may not apply to the entire section. Consult with local biologists for more localized information.</p>
+<p>The states of Colorado, Kansas, New Mexico, Oklahoma, and Texas make no warranty or representation, either expressed or implied, with respect to the digital data and their documentation, their quality, performance, merchantability, or fitness for a particular purpose. The digital data are distributed on "as is" basis, and the user assumes all risk as to their quality, the results obtained from their use, and the performance of the data. In no event will the States or their representatives be liable for any direct, indirect, special, incidental or consequential damages resulting from and defect in the SGP CHAT's digital data or in their documentation. This disclaimer of warranty is exclusive and in lieu of all others, oral or written, expressed or implied.</p>
+
+<p><b>Kansas Biological Survey Disclaimer</b></p>
       <p>The Kansas Biological Survey (KBS) and its representatives make no warranty or 
       representation, either expressed or implied, with respect to the digital data and 
       their documentation, their quality, performance, merchantability, or fitness for a 

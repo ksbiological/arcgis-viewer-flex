@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<configuration label="Calculate buffer">
+    <description> For each line to be assessed, click a line icon and
+then draw it on the map. After all of the lines
+have been drawn, press Submit.
+Results may take some time to appear. To view results,
+open the Attribute Table widget in the top right widget list.</description>
+    <taskurl>http://kars.ku.edu/arcgis/rest/services/Geoprocessing/TransmissionLineImpactEstimatorTask/GPServer/Transmission%20Line%20Impact%20Estimator</taskurl>
+    <helpurl>http://kars.ku.edu/arcgis/rest/directories/arcgisoutput/Geoprocessing/TransmissionLineImpactEstimatorTask_GPServer/Geoprocessing_TransmissionLineImpactEstimatorTask/TransmissionLineImpactEstimatorTask.htm</helpurl>
+    <shareresults>true</shareresults>
+    <inputparams>
+        <param name="input_line_route"
+               geometrytype="polyline"
+               label="Transmission line"
+               required="true"
+               type="featurerecordset"
+               visible="true">
+            <renderer type="simple">
+                <defaultsymbol alpha="0.5"
+                               color="0x008844"
+                               size="15"
+                               type="simplemarker">
+                    <outline width="1" color="0x22DD00"/>
+                </defaultsymbol>
+            </renderer>
+        </param>
+    </inputparams>
+    <outputparams>
+        <param name="Output_Trans_Line_Impact_Pieces"
+               geometrytype="polygon"
+               label="Trans Line Impact pieces"
+               required="true"
+               type="featurerecordset"
+               visible="true">
+            <renderer type="simple">
+                <defaultsymbol alpha="0.5"
+                               color="0xFF00FF"
+                               type="simplefill">
+                    <outline width="1" color="0x000000"/>
+                </defaultsymbol>
+            </renderer>
+        </param>
+ </outputparams>
+    <layerorder>line_input_route,Output_Trans_Line_Impact_Pieces</layerorder>
+</configuration>

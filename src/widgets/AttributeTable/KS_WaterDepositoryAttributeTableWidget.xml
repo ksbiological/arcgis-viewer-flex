@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<configuration> 
+<excludelayer>Kansas Legal Boundaries</excludelayer>
+<excludelayer>Hydrography</excludelayer>
+<excludelayer>Lakes and Reservoirs</excludelayer>
+<layersettings>
+<layer name="Chemistry">
+<showattachments>true</showattachments>      
+</layer>
+</layersettings>
+</configuration>
+
+<!--
+    See Attribute Table widget documentation at
+    http://links.esri.com/attributetablewidget
+-->

@@ -3,18 +3,22 @@
     <locator>http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer</locator>
     <minscore>40</minscore>
     <zoomscale>10000</zoomscale>
-    <plssLayerURL>http://kars.ku.edu/ArcGIS/rest/services/NaturalResourcePlanner/MapServer/0</plssLayerURL>
+    <plssLayerURL>http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/KSCONMOKPLSSSubset/MapServer/0</plssLayerURL>
     <labels>
-        <plsslabel>PLSS</plsslabel>
-        <plsstitle>PLSS</plsstitle>
+        <plsslabel>PLSS within the LEPC range</plsslabel>
+        <plsstitle>PLSS within the Lesser Prairie-Chicken range</plsstitle>
+        <stateLabel>State</stateLabel>
         <rangeLabel>Range</rangeLabel>
         <rangeDirLabel>Range direction</rangeDirLabel>
         <townshipLabel>Township</townshipLabel>
+        <townshipDirLabel>Township direction</townshipDirLabel>
         <sectionLabel>Section</sectionLabel>
+        <stateexamplevalueindex>0</stateexamplevalueindex>
         <rangeexamplevalue>1</rangeexamplevalue>
-        <rangedirexamplevalueindex>0</rangedirexamplevalueindex>
-        <townshipexamplevalue>2</townshipexamplevalue>
-        <sectionexamplevalue>3</sectionexamplevalue>
+        <rangedirexamplevalueindex>1</rangedirexamplevalueindex>
+        <townshipexamplevalue>1</townshipexamplevalue>
+        <townshipdirexamplevalueindex>1</townshipdirexamplevalueindex>
+        <sectionexamplevalue>1</sectionexamplevalue>
     </labels>
 </configuration>
 

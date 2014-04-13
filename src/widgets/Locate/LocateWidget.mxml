@@ -58,7 +58,7 @@
             import com.esri.ags.virtualearth.VEGeocodeResult;
             import com.esri.viewer.components.toc.utils.MapUtil;
             import com.esri.viewer.utils.ErrorMessageUtil;
-
+            
             import mx.collections.ArrayCollection;
             import mx.collections.ArrayList;
             import mx.collections.ItemResponder;
@@ -68,7 +68,7 @@
             import mx.managers.IFocusManagerComponent;
             import mx.rpc.AsyncResponder;
             import mx.rpc.Fault;
-
+            
             import spark.components.DropDownList;
             import spark.components.RichEditableText;
             import spark.components.supportClasses.ItemRenderer;
@@ -124,7 +124,13 @@
             private var rangeDirLabel:String;
             [Bindable]
             private var rangeDirExampleValueIndex:Number;
-            [Bindable]
+			
+			[Bindable] 
+			private var townshipDirLabel:String; 
+			[Bindable] 
+			private var townshipDirExampleValueIndex:Number; 
+			
+            [Bindable]		
             private var sectionLabel:String;
             [Bindable]
             private var sectionExampleValue:Number;
@@ -132,6 +138,10 @@
             private var townshipLabel:String;
             [Bindable]
             private var townshipExampleValue:Number;
+			[Bindable]
+			private var stateLabel:String; 
+			[Bindable]
+			private var stateExampleValueIndex:Number; 
             [Bindable]
             private var plssLayerURL:String;
 
@@ -248,15 +258,19 @@
                 yExampleValue = configXML.labels.yexamplevalue || getDefaultString("locateExampleValueY");
 
                 // Labels for the "plss" tab
+				stateLabel = configXML.labels.stateLabel || getDefaultString("stateLabel"); 
                 rangeLabel = configXML.labels.rangeLabel || getDefaultString("rangeLabel");
                 rangeDirLabel = configXML.labels.rangeDirLabel || getDefaultString("rangeDirLabel");
                 townshipLabel = configXML.labels.townshipLabel || getDefaultString("townshipLabel");
+				townshipDirLabel = configXML.labels.townshipDirLabel || getDefaultString("townshipDirLabel"); 
                 sectionLabel = configXML.labels.sectionLabel || getDefaultString("sectionLabel");
+				stateExampleValueIndex = parseInt(configXML.labels.stateexamplevalueindex || getDefaultString("stateExampleValueIndex")); 
                 rangeExampleValue = parseInt(configXML.labels.rangeexamplevalue || getDefaultString("rangeExampleValue"));
                 rangeDirExampleValueIndex = parseInt(configXML.labels.rangedirexamplevalueindex || getDefaultString("rangeDirExampleValueIndex"));
                 townshipExampleValue = parseInt(configXML.labels.townshipexamplevalue || getDefaultString("townshipExampleValue"));
                 sectionExampleValue = parseInt(configXML.labels.sectionexamplevalue || getDefaultString("sectionExampleValue"));
-                //labels for the "results" tab
+                townshipDirExampleValueIndex = parseInt(configXML.labels.townshipdirexamplevalueindex || getDefaultString("tnshipDirExampleValueIndex")); 
+			    //labels for the "results" tab
                 loadingLabel = configXML.labels.loadinglabel || getDefaultString("loadingLabel");
                 locationsLabel = configXML.labels.locationslabel || getDefaultString("locationsLabel");
             }
@@ -890,15 +904,19 @@
 
                 try
                 {
-                    var pRange:String = range.value.toString();
+                    var pState:String = state.selectedItem; 
+					var pRange:String = range.value.toString();
                     var pRangeDir:String = rangeDir.selectedItem;
                     var pTownship:String = township.value.toString();
+					var pTownshipDir:String = townshipDir.selectedItem; // Gina added this line 1-30-2014
                     var pSection:String = section.value.toString();
-                    if (pRange && pRangeDir && pTownship)
+                    if (pState && pRange && pRangeDir && pTownship && pTownshipDir) // Gina added "pState &&" and "&& pTownshipDir" on 1-30-2014
                     {
-                        plssQuery.where= "RANGE = " + pRange + 
+                        plssQuery.where= "STATE = '" + pState + "'" + 
+							" AND RANGE = " + pRange + // Gina added "AND"
                             " AND RANGE_DIR = '" + pRangeDir + "'" +
                             " AND TOWNSHIP = " + pTownship +
+							" AND TOWNSHIP_D = '" + pTownshipDir + "'" + // Gina added this line  1-30-2014
                             " AND SECTION = " + pSection;
 
                         // Not too hard here to allow filtering down to +1 results (e.g. leave section blank -> ~ 36 results)
@@ -1516,10 +1534,21 @@
                              required="true">
                     <s:NumericStepper id="range"
                                       width="100%"
-                                      maximum="43"
+                                      maximum="70"
                                       minimum="1"
-                                      value="{rangeExampleValue}"/>
+                                      value="{rangeExampleValue}"/> 
                 </mx:FormItem>
+				<mx:FormItem width="100%"
+							 label="{stateLabel}"
+							 required="true">
+					<s:DropDownList id="state"
+									width="100%"
+									selectedIndex="{stateExampleValueIndex}">
+						<s:dataProvider>
+							<s:ArrayList source="[KS,CO,NM,OK]" />
+						</s:dataProvider>
+					</s:DropDownList>
+				</mx:FormItem>
                 <mx:FormItem width="100%"
                              label="{rangeDirLabel}"
                              required="true">
@@ -1528,9 +1557,20 @@
                                     selectedIndex="{rangeDirExampleValueIndex}">
                         <s:dataProvider>
                             <s:ArrayList source="[E,W]" />
-                        </s:dataProvider>
+                        </s:dataProvider> 
                     </s:DropDownList>
                 </mx:FormItem>
+				<mx:FormItem width="100%" 
+							 label="{townshipDirLabel}"
+							 required="true">
+					<s:DropDownList id="townshipDir"
+									width="100%"
+									selectedIndex="{townshipDirExampleValueIndex}">
+						<s:dataProvider>
+							<s:ArrayList source="[N,S]" />
+						</s:dataProvider>
+					</s:DropDownList>
+				</mx:FormItem>
                 <mx:FormItem width="100%"
                              label="{townshipLabel}"
                              required="true">
