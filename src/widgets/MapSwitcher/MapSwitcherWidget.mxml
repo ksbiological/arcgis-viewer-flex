@@ -17,6 +17,7 @@
 ///////////////////////////////////////////////////////////////////////////
 -->
 <viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
                    xmlns:s="library://ns.adobe.com/flex/spark"
                    xmlns:viewer="com.esri.viewer.*"
                    xmlns:toc="com.esri.viewer.components.toc.*"
@@ -27,6 +28,7 @@
 
             import mx.collections.ArrayCollection;
             import mx.collections.ArrayList;
+			import mx.core.FlexGlobals;
             import mx.core.LayoutDirection;
             import mx.core.UIComponent;
             import mx.events.CollectionEvent;
@@ -105,16 +107,6 @@
                     showThumbnails = (configXML.showthumbnails[0] != "false");
                 }
                 initBasemaps(showThumbnails);
-            }
-
-            private function startTOCHideListener(event:AppEvent):void
-            {
-                startHideTimer();
-            }
-
-            private function resetTOCHideListener(event:AppEvent):void
-            {
-                hideOpLayersTimer.reset();
             }
 
             private function initBasemaps(showThumbnails:Boolean):void
