@@ -18,7 +18,6 @@
 -->
 <viewer:BaseWidget xmlns:fx="http://ns.adobe.com/mxml/2009"
                    xmlns:s="library://ns.adobe.com/flex/spark"
-                   xmlns:mx="library://ns.adobe.com/flex/mx"
                    xmlns:viewer="com.esri.viewer.*"
                    xmlns:toc="com.esri.viewer.components.toc.*"
                    widgetConfigLoaded="widgetConfigLoadedHandler()">
@@ -28,7 +27,6 @@
 
             import mx.collections.ArrayCollection;
             import mx.collections.ArrayList;
-            import mx.core.FlexGlobals;
             import mx.core.LayoutDirection;
             import mx.core.UIComponent;
             import mx.events.CollectionEvent;
@@ -47,6 +45,7 @@
 
             private var expandLayerItems:Boolean;
             private var includeLegendItems:Boolean = true; // include legend items in the TOC
+            private var showLayerMenu:Boolean = true; // show layer menu in the TOC
             private var basemapSelectionComponent:ListBase;
             private var previousConfigBasemapsTotal:int;
 
@@ -82,6 +81,10 @@
                     {
                         includeLegendItems = (configXML.includelegenditems == "true");
                     }
+                    if (configXML.showlayermenu.length())
+                    {
+                        showLayerMenu = (configXML.showlayermenu == "true");
+                    }
 
                     var needToInitTOC:Boolean = (!configXML.layerlist.@visible[0] || configXML.layerlist.@visible[0] == "true");
                     if (needToInitTOC)
@@ -102,6 +105,16 @@
                     showThumbnails = (configXML.showthumbnails[0] != "false");
                 }
                 initBasemaps(showThumbnails);
+            }
+
+            private function startTOCHideListener(event:AppEvent):void
+            {
+                startHideTimer();
+            }
+
+            private function resetTOCHideListener(event:AppEvent):void
+            {
+                hideOpLayersTimer.reset();
             }
 
             private function initBasemaps(showThumbnails:Boolean):void
@@ -169,21 +182,13 @@
 
             private function hideOpLayersTimer_timerHandler(event:TimerEvent):void
             {
-                if (!hideSuspended)
-                {
-                    AppEvent.dispatch(AppEvent.TOC_HIDDEN);
-                    shouldShowOpLayers = false;
-                }
+                AppEvent.dispatch(AppEvent.TOC_HIDDEN);
+                shouldShowOpLayers = false;
             }
 
             private function hideBasemapsTimer_timerHandler(event:TimerEvent):void
             {
                 shouldShowBasemaps = false;
-            }
-
-            private function suspendHideListener(event:AppEvent):void
-            {
-                hideSuspended = (event.data != null);
             }
 
             private function initTOC(expandLayerItems:Boolean = false):void
@@ -194,6 +199,7 @@
                 toc.basemapLayers = getBasemapLayers();
                 toc.excludeGraphicsLayers = true;
                 toc.includeLegendItems = includeLegendItems;
+                toc.showLayerMenu = showLayerMenu;
                 var tocLayers:ArrayCollection = toc.dataProvider as ArrayCollection;
                 opLayersButton.visible = tocLayers.length ? true : false;
                 tocLayers.addEventListener(CollectionEvent.COLLECTION_CHANGE, toc_collectionChangeHandler);

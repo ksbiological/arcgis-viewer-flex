@@ -311,6 +311,11 @@ public class UIManager extends EventDispatcher
             cssStyleDeclarationPopUpRendererLink.setStyle("linkActiveColor", titleColor);
             cssStyleDeclarationPopUpRendererLink.setStyle("linkNormalColor", textColor);
             cssStyleDeclarationPopUpRendererLink.setStyle("linkHoverColor", titleColor);
+
+            var cssStyleDeclarationLabelFieldLink:CSSStyleDeclaration = topLevelStyleManager.getStyleDeclaration("com.esri.ags.skins.fieldClasses.LabelField");
+            cssStyleDeclarationLabelFieldLink.setStyle("linkActiveColor", titleColor);
+            cssStyleDeclarationLabelFieldLink.setStyle("linkNormalColor", textColor);
+            cssStyleDeclarationLabelFieldLink.setStyle("linkHoverColor", titleColor);
         }
 
         var cssStyleDeclarationContentNavigator:CSSStyleDeclaration = topLevelStyleManager.getStyleDeclaration("com.esri.ags.components.ContentNavigator");
@@ -447,6 +452,13 @@ public class UIManager extends EventDispatcher
             var cssStyleDeclarationChartDataTips:CSSStyleDeclaration = new CSSStyleDeclaration();
             cssStyleDeclarationChartDataTips.setStyle("backgroundColor", backgroundColor);
             topLevelStyleManager.setStyleDeclaration("mx.charts.chartClasses.DataTip", cssStyleDeclarationChartDataTips, false);
+        }
+
+        // Style the divider used when using widgetcontainers
+        var cssStyleDeclarationMxDividedBox:CSSStyleDeclaration = topLevelStyleManager.getStyleDeclaration("mx.containers.DividedBox");
+        if (numberOfStyleColors > 4)
+        {
+            cssStyleDeclarationMxDividedBox.setStyle("_dividerFillColors", [ titleColor, titleColor ]);
         }
 
         var cssStyleDeclarationModal:CSSStyleDeclaration = topLevelStyleManager.getStyleDeclaration("global")
