@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<configuration> 
+<excludelayer>Kansas Legal Boundaries</excludelayer>
+<excludelayer>Hydrography</excludelayer>
+<excludelayer>Lakes</excludelayer>
+<excludelayer>Bathymetry - Depth in feet</excludelayer>
+<excludelayer>Major Watersheds of Kansas</excludelayer>
+<excludelayer>Average Annual Precipitation</excludelayer>
+<excludelayer>Ogallala Aquifer</excludelayer>
+</configuration>
+
+<!--
+    See Attribute Table widget documentation at
+    http://links.esri.com/attributetablewidget
+-->

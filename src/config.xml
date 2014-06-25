@@ -104,6 +104,15 @@
         icon="assets/images/i_table.png"
         config="widgets/AttributeTable/AttributeTableWidget.xml"
         url="widgets/AttributeTable/AttributeTableWidget.swf"/>
+      	
+<widget label="LEPC Point Impact Estimator. 
+	The resulting numbers are ESTIMATES based on 
+	best and worst current habitat conditions. 
+	Site specific field level habitat assessments 
+	are needed for more precise numbers." left="186" top="160"
+        icon="assets/images/i_widget.png"
+        config="widgets/Geoprocessing/SGPCHAT_PointImpactEstimator.xml"
+        url="widgets/Geoprocessing/GeoprocessingWidget.swf"/>
 
 <widget label="LEPC Oil and Gas Well Impact Estimator. 
 	The resulting numbers are ESTIMATES based on 
@@ -136,7 +145,10 @@ wind turbines, radio towers, compressor stations, and industrial facilities.
         config="widgets/Geoprocessing/SGPCHAT_VerticalStructures.xml"
         url="widgets/Geoprocessing/GeoprocessingWidget.swf"/>
 
-
+<widget label="Extract Data" left="100" top="110"
+        icon="assets/images/i_scissors.png"
+        config="widgets/DataExtract/PWA_UTM15_DataExtractWidget.xml"
+        url="widgets/DataExtract/DataExtractWidget.swf"/>
 
         <widget label="Find location"   left="100" top="110" height="280"
                 icon="assets/images/i_search.png"

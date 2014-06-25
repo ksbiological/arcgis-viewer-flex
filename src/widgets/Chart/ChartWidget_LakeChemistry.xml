@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<configuration>
+ <labels>
+        <layerselectionlabel>Select layer</layerselectionlabel>
+        <drawtoolmenulabel>Select a data point using any of the drawing tools</drawtoolmenulabel>
+    </labels>
+    <layers> 
+   		<layer label="Chemistry - Socchi Depth" url="http://kars.ku.edu/arcgis/rest/services/TestCharts/MapServer/0" where ="Secchi_m > 0"> 
+           <fields>
+                <field name="Name"/>
+                <field name="Secchi_m"/>
+                <field name="Date"/>
+            </fields> 
+            <medias>
+                 <media caption=
+                "
+                Count {=COUNT} 
+                Minimum {=MIN}
+                Maximum {=MAX}
+                Average {=AVERAGE}"
+                	   chartfields="Secchi_m"
+                       title="Secchi depth(m)"
+                       type="columnchart"/>
+            </medias>
+            <labelfield>Date</labelfield>
+        </layer>
+       	<layer label="Chemistry - Nitrogen" url="http://kars.ku.edu/arcgis/rest/services/TestCharts/MapServer/0" where ="Total_N_mg > 0">
+            <fields>
+            	<field name="Name"/>
+				<field name="Total_N_mg"/>
+				<field name="Date"/>
+            </fields>
+			<medias>
+                <media caption=
+                "
+                Count {=COUNT} 
+                Minimum {=MIN}
+                Maximum {=MAX}
+                Average {=AVERAGE}"
+                	   chartfields="Total_N_mg"
+                       title="Total Nitrogen (mg/l)"
+                       type="columnchart"/>
+            </medias>
+            <labelfield>Date</labelfield>
+       </layer>
+       <layer label="Chemistry - Phosphorous" url="http://kars.ku.edu/arcgis/rest/services/TestCharts/MapServer/0" where ="Total_P_mg > 0">       
+            <fields>
+            	<field name="Name"/>
+				<field name="Total_P_mg"/>
+				<field name="Date"/>
+            </fields>
+			<medias>
+                <media caption=
+                "
+                Count {=COUNT} 
+                Minimum {=MIN}
+                Maximum {=MAX}
+                Average {=AVERAGE}"
+                	   chartfields="Total_P_mg"
+                       title="Total Phosphorus (mg/l)"
+                       type="columnchart"/>
+            </medias>
+            <labelfield>Date</labelfield>
+       </layer>
+       <layer label="Chemistry - Chlorophyll" url="http://kars.ku.edu/arcgis/rest/services/TestCharts/MapServer/0" where ="Chla_ug > 0">       
+            <fields>
+            	<field name="Name"/>
+				<field name="Chla_ug"/>
+				<field name="Date"/>
+            </fields>
+			<medias>
+                <media caption=
+                "
+                Count {=COUNT} 
+                Minimum {=MIN}
+                Maximum {=MAX}
+                Average {=AVERAGE}" 
+                	   chartfields="Chla_ug"
+                       title="Clorophyll (ug/l)"
+                       type="columnchart"/>
+            </medias>
+            <labelfield>Date</labelfield>
+       </layer>
+   	</layers>
+</configuration>
