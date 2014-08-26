@@ -96,9 +96,10 @@
                 url="widgets/Legend/LegendWidget.swf"
             	  preload="open"/> 
 
-        
-
-
+         <widget label="Lake Chemistry Data Statistics"
+       	 icon="assets/images/i_piechart.png"
+        	config="widgets/Chart/ChartWidget_LakeChemistryNew.xml"
+        	url="widgets/Chart/ChartWidget.swf"/>
 
 <widget label="Attribute Table"
         icon="assets/images/i_table.png"
