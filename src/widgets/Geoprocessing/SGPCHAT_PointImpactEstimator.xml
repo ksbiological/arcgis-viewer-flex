@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<configuration label="Calculate buffer">
+    <description> Click point icon and digitize a point on map for each
+desired analysis location. When finished, press Submit.
+Results may take some time to appear. To view results,
+open the Attribute Table widget in the top right widget list.
+
+Distance to buffer features (in meters).
+667 Wind turbines, Vertical structures>=150 feet tall,
+        Large compressor stations, Electrical substations,
+        Industrial buildings
+200 Oil/gas wells (5 acre pads), small compressor stations
+133 Houses and other structures.
+</description>
+    <taskurl>http://kars.ku.edu/arcgis/rest/services/Geoprocessing/PointImpactEstimatorTask/GPServer/PointImpactEstimator</taskurl>
+    <helpurl>http://kars.ku.edu/arcgis/rest/directories/arcgisoutput/Geoprocessing/PointImpactEstimatorTask_GPServer/Geoprocessing_PointImpactEstimatorTask/PointImpactEstimatorV21.htm</helpurl>
+    <shareresults>true</shareresults>
+    <inputparams>
+        <param name="Input_point_feature"
+               geometrytype="point"
+               label="Assessment point"
+               required="true"
+               type="featurerecordset"
+               visible="true">
+            <renderer type="simple">
+                <defaultsymbol alpha="0.5"
+                               color="0xCC0000"
+                               size="15"
+                               type="simplemarker">
+                    <outline width="1" color="0x22DD00"/>
+                </defaultsymbol>
+            </renderer>
+        </param>
+        <param name="Input_buffer_distance"
+        	   label ="Input buffer distance"
+        	   type="long"
+        	   required="true"
+        	   visible="true">
+        </param>
+    </inputparams>
+    <outputparams>
+        <param name="Output_Point_impact_estimation_shp"
+               geometrytype="polygon"
+               label="Point impact pieces"
+               required="true"
+               type="featurerecordset"
+               visible="true">
+            <renderer type="simple">
+                <defaultsymbol alpha="0.5"
+                               color="0xFF00FF"
+                               type="simplefill">
+                    <outline width="1" color="0x000000"/>
+                </defaultsymbol>
+            </renderer>
+        </param>
+        <param name="Output_impact_1pt25mB_shp"
+               geometrytype="polygon"
+               label="Impact 1.25 mile Buffer"
+               required="true"
+               type="featurerecordset"
+               visible="true">
+             <renderer type="simple">
+                <defaultsymbol alpha="0.5"
+                               color="0xFFFFFF"
+                               type="simplefill">
+                    <outline width="1" color="0x000000"/>
+                </defaultsymbol>
+            </renderer>
+         </param>
+         <param name="Output_buffered_all_infrastructure_D_shp"
+                geometrytype="polygon"
+                label="Buffered all infrastructure"
+                required="true"
+                type="featurerecordset"
+                visible="true">
+             <renderer type="simple">
+                <defaultsymbol alpha="0.5"
+                               color="0x000000"
+                               type="simplefill">
+                    <outline width="1" color="0x000000"/>
+                </defaultsymbol>
+            </renderer>
+          </param>
+    </outputparams>
+    <layerorder>Input_point_feature,Input_buffer_distance,Output_Point_impact_estimation_shp,Output_impact_1pt25mB_shp,Output_buffered_all_infrastructure_D_shp</layerorder>
+</configuration>
