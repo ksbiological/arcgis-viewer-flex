@@ -5,8 +5,8 @@
     <zoomscale>10000</zoomscale>
     <plssLayerURL>http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/KSCONMOKPLSSSubset/MapServer/0</plssLayerURL>
     <labels>
-        <plsslabel>PLSS within the LEPC range</plsslabel>
-        <plsstitle>PLSS within the Lesser Prairie-Chicken range</plsstitle>
+        <plsslabel>PLSS locator</plsslabel>
+        <plsstitle>PLSS locator</plsstitle>
         <stateLabel>State</stateLabel>
         <rangeLabel>Range</rangeLabel>
         <rangeDirLabel>Range direction</rangeDirLabel>

@@ -13,6 +13,7 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
+
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////////
 -->
@@ -116,7 +117,7 @@
                 copyStyleFromParent("mx.charts.series.ColumnSeries");
                 copyStyleFromParent("mx.charts.series.LineSeries");
                 copyStyleFromParent("mx.charts.series.PieSeries");
-            }
+            } 
 
             private function copyStyleFromParent(selector:String):void
             {
@@ -129,7 +130,7 @@
                         styleManager.setStyleDeclaration(selector, parentStyle, false);
                     }
                 }
-            }
+            } 
 
             private function basewidget_initializeHandler():void
             {

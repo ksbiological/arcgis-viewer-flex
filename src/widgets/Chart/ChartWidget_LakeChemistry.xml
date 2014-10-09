@@ -2,33 +2,35 @@
 <configuration>
  <labels>
         <layerselectionlabel>Select layer</layerselectionlabel>
-        <drawtoolmenulabel>Select a data point using any of the drawing tools</drawtoolmenulabel>
+        <drawtoolmenulabel>Select a lake using any of the drawing tools</drawtoolmenulabel>
     </labels>
+    <highlightcolor>071000</highlightcolor>
     <layers> 
-   		<layer label="Chemistry - Socchi Depth" url="http://kars.ku.edu/arcgis/rest/services/TestCharts/MapServer/0" where ="Secchi_m > 0"> 
+   		<layer label="Chemistry - Secchi Depth" url="http://kars.ku.edu/arcgis/rest/services/WaterResources/ChemistryKsAtlas/MapServer/0" where ="secchi_m > -1" > 
            <fields>
-                <field name="Name"/>
-                <field name="Secchi_m"/>
-                <field name="Date"/>
-            </fields> 
+                <field name="Name_use"/>
+                <field name="secchi_m"/>
+                <field name="Year"/>
+            </fields>
             <medias>
                  <media caption=
-                "
+                " 
                 Count {=COUNT} 
                 Minimum {=MIN}
                 Maximum {=MAX}
                 Average {=AVERAGE}"
-                	   chartfields="Secchi_m"
+                	   chartfields="secchi_m" 
                        title="Secchi depth(m)"
                        type="columnchart"/>
             </medias>
-            <labelfield>Date</labelfield>
+           
+            <labelfield>Year</labelfield>
         </layer>
-       	<layer label="Chemistry - Nitrogen" url="http://kars.ku.edu/arcgis/rest/services/TestCharts/MapServer/0" where ="Total_N_mg > 0">
+       	<layer label="Chemistry - Nitrogen" url="http://kars.ku.edu/arcgis/rest/services/WaterResources/ChemistryKsAtlas/MapServer/0" where ="TN_mg_l > -1">
             <fields>
-            	<field name="Name"/>
-				<field name="Total_N_mg"/>
-				<field name="Date"/>
+            	<field name="Name_use"/>
+				<field name="TN_mg_l"/>
+				<field name="Year"/>
             </fields>
 			<medias>
                 <media caption=
@@ -37,17 +39,17 @@
                 Minimum {=MIN}
                 Maximum {=MAX}
                 Average {=AVERAGE}"
-                	   chartfields="Total_N_mg"
+                	   chartfields="TN_mg_l"
                        title="Total Nitrogen (mg/l)"
                        type="columnchart"/>
             </medias>
-            <labelfield>Date</labelfield>
+            <labelfield>Year</labelfield>
        </layer>
-       <layer label="Chemistry - Phosphorous" url="http://kars.ku.edu/arcgis/rest/services/TestCharts/MapServer/0" where ="Total_P_mg > 0">       
+       <layer label="Chemistry - Phosphorous" url="http://kars.ku.edu/arcgis/rest/services/WaterResources/ChemistryKsAtlas/MapServer/0" where ="TP_mg_l > -1">       
             <fields>
-            	<field name="Name"/>
-				<field name="Total_P_mg"/>
-				<field name="Date"/>
+            	<field name="Name_use"/>
+				<field name="TP_mg_l"/>
+				<field name="Year"/>
             </fields>
 			<medias>
                 <media caption=
@@ -56,17 +58,17 @@
                 Minimum {=MIN}
                 Maximum {=MAX}
                 Average {=AVERAGE}"
-                	   chartfields="Total_P_mg"
+                	   chartfields="TP_mg_l"
                        title="Total Phosphorus (mg/l)"
                        type="columnchart"/>
             </medias>
-            <labelfield>Date</labelfield>
+            <labelfield>Year</labelfield>
        </layer>
-       <layer label="Chemistry - Chlorophyll" url="http://kars.ku.edu/arcgis/rest/services/TestCharts/MapServer/0" where ="Chla_ug > 0">       
+       <layer label="Chemistry - Chlorophyll" url="http://kars.ku.edu/arcgis/rest/services/WaterResources/ChemistryKsAtlas/MapServer/0" where ="Chla_ug_l > -1">       
             <fields>
-            	<field name="Name"/>
-				<field name="Chla_ug"/>
-				<field name="Date"/>
+            	<field name="Name_use"/>
+				<field name="Chla_ug_l"/>
+				<field name="Year"/>
             </fields>
 			<medias>
                 <media caption=
@@ -75,11 +77,11 @@
                 Minimum {=MIN}
                 Maximum {=MAX}
                 Average {=AVERAGE}" 
-                	   chartfields="Chla_ug"
+                	   chartfields="Chla_ug_l"
                        title="Clorophyll (ug/l)"
                        type="columnchart"/>
             </medias>
-            <labelfield>Date</labelfield>
+            <labelfield>Year</labelfield>
        </layer>
    	</layers>
 </configuration>

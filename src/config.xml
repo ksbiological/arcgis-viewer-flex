@@ -55,6 +55,20 @@
                         
         </basemaps>
         <operationallayers>
+         <!--  <layer label="greenreport" type="wms" visible="true" alpha="1"
+       url="http://kars.ku.edu/arcgis/services/GreenReport/MapServer/WMSServer"
+       visiblelayers="5"
+       imageFormat="png"
+       skipgetcapabilities="true"
+       version="1.3.0"/>
+       
+       
+       <layer label="Transportation_Roads" type="wms" visible="true" alpha="1"
+       url="http://webservices.nationalatlas.gov/wms/transportation"
+       visiblelayers="roads"
+       imageFormat="png"
+       skipgetcapabilities="true"
+       version="1.3.0"/> -->
 			
 <layer label="NLCD 2006 Landcover" type="dynamic" visible="false" alpha="1" imageformat="png32"
        url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2NLCD2006Landcover/MapServer" />
@@ -98,7 +112,7 @@
 
          <widget label="Lake Chemistry Data Statistics"
        	 icon="assets/images/i_piechart.png"
-        	config="widgets/Chart/ChartWidget_LakeChemistryNew.xml"
+        	config="widgets/Chart/ChartWidget_LakeChemistry.xml"
         	url="widgets/Chart/ChartWidget.swf"/>
 
 <widget label="Attribute Table"
@@ -115,35 +129,15 @@
         config="widgets/Geoprocessing/SGPCHAT_PointImpactEstimator.xml"
         url="widgets/Geoprocessing/GeoprocessingWidget.swf"/>
 
-<widget label="LEPC Oil and Gas Well Impact Estimator. 
-	The resulting numbers are ESTIMATES based on 
-	best and worst current habitat conditions. 
-	Site specific field level habitat assessments 
-	are needed for more precise numbers." left="186" top="160"
-        icon="assets/images/i_widget.png"
-        config="widgets/Geoprocessing/SGPCHAT_OilAndGas.xml"
-        url="widgets/Geoprocessing/GeoprocessingWidget.swf"/>
 
-
-
-<widget label="LEPC Transmission Line Impact Estimator.
-	The resulting numbers are ESTIMATES based on 
-	best and worst current habitat conditions. 
-	Site specific field level habitat assessments 
-	are needed for more precise numbers." left="186" top="160"
-        icon="assets/images/i_widget.png"
-        config="widgets/Geoprocessing/SGPCHAT_TransmissionLines.xml"
-        url="widgets/Geoprocessing/GeoprocessingWidget.swf"/>
-
-
-<widget label="LEPC Vertical Structure Impact Estimator:
+<widget label="LEPC Linear Impact Estimator Impact Estimator:
 wind turbines, radio towers, compressor stations, and industrial facilities.
 	The resulting numbers are ESTIMATES based on 
 	best and worst current habitat conditions. 
 	Site specific field level habitat assessments 
 	are needed for more precise numbers." left="186" top="160"
         icon="assets/images/i_widget.png"
-        config="widgets/Geoprocessing/SGPCHAT_VerticalStructures.xml"
+        config="widgets/Geoprocessing/SGPCHAT_LinearImpactEstimator.xml"
         url="widgets/Geoprocessing/GeoprocessingWidget.swf"/>
 
 <widget label="Extract Data" left="100" top="110"
