@@ -7,6 +7,9 @@
 <excludelayer>Major Watersheds of Kansas</excludelayer>
 <excludelayer>Average Annual Precipitation</excludelayer>
 <excludelayer>Ogallala Aquifer</excludelayer>
+<excludelayer>Federal Lakes Watersheds</excludelayer>
+<excludelayer>State Lakes Watersheds</excludelayer>
+<excludelayer>STORET Monitoring Locations</excludelayer>
 </configuration>
 
 <!--

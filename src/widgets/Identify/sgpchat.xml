@@ -47,54 +47,15 @@
     <map addarcgisbasemaps="true" initialextent="-13138000 3091000 -9449000 5119000"  fullextent="-13138000 3091000 -9449000 5119000" top="40" >
         <basemaps>
             <layer label="Streets" type="tiled" visible="false"  alpha="1" icon="assets/images/basemap_streets.jpg"
-                   url="http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer"/>
+                   url="http://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer"/>
             <layer label="Aerial"  type="tiled" visible="true" alpha="1" icon="assets/images/basemap_imagery.jpg"
-                   url="http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer"/>
+                   url="http://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer"/>
             <layer label="Topo"    type="tiled" visible="false" alpha="1" icon="assets/images/basemap_topographic.jpg"
-                   url="http://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer"/>
+                   url="http://server.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer"/>
                         
         </basemaps>
         <operationallayers>
-         <!--  <layer label="greenreport" type="wms" visible="true" alpha="1"
-       url="http://kars.ku.edu/arcgis/services/GreenReport/MapServer/WMSServer"
-       visiblelayers="5"
-       imageFormat="png"
-       skipgetcapabilities="true"
-       version="1.3.0"/>
-       
-       
-       <layer label="Transportation_Roads" type="wms" visible="true" alpha="1"
-       url="http://webservices.nationalatlas.gov/wms/transportation"
-       visiblelayers="roads"
-       imageFormat="png"
-       skipgetcapabilities="true"
-       version="1.3.0"/> -->
-       
- <layer label="Kansas Land Cover Patterns" type="dynamic" visible="false" alpha="1"
-	url="http://kars.ku.edu/ArcGIS/rest/services/SingleLayers/LandCoverPatternsLevelIV/MapServer"/>
-<layer label="WGA CHAT" type="dynamic" visible="false" alpha="1"
-	url="http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/WgaChat/MapServer"/>
-<layer label="Kansas Streams, Waterways Order" type="dynamic" visible="false" alpha="1"
-	url="http://kars.ku.edu/ArcGIS/rest/services/KansasStreamsOrder/MapServer"/>
-<layer label="Kansas Hydrologic Units (HUC)" type="dynamic" visible="false" alpha="1"
-       url="http://kars.ku.edu/ArcGIS/rest/services/KansasHUCBoundaries/MapServer"/>
-<layer label="Wetland and Riparian" type="dynamic" visible="false" alpha="1"
-	url="http://kars.ku.edu/ArcGIS/rest/services/KansasNaturalResourcePlanner/WetlandAndRiparian/MapServer"/>
-<layer label="Fish and Game" type="dynamic" visible="false" alpha="1"
-	url="http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/FishAndGame/MapServer"/>
-<layer label="Lakes and Reservoirs" type="dynamic" visible="false" alpha="1"
-	url="http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/LakesAndReservoirs/MapServer"/>
-<layer label="Aquatic Habitat" type="dynamic" visible="false" alpha="1"
-	url="http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/AquaticHabitat/MapServer"/>
-<layer label="Terrestrial Habitat" type="dynamic" visible="true" alpha="1"
-        url="http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/TerrestrialHabitat/MapServer"/>
-<layer label="Energy Resources" type="dynamic" visible="false" alpha="1"
-       url="http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/EnergyResources/MapServer"/>
-<layer label="Kansas Legal Boundaries" type="dynamic" visible="true" alpha="1"
-       url="http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/KansasLegalBoundariesWhiteLinesNRP/MapServer"/>
-       
-       
-		<!--   	
+			
 <layer label="NLCD 2006 Landcover" type="dynamic" visible="false" alpha="1" imageformat="png32"
        url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2NLCD2006Landcover/MapServer" />
 
@@ -104,7 +65,7 @@
 <layer label="Landscape Summaries" type="dynamic" visible="false" alpha="1" imageformat="png32"
        url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2LandscapeSummaries/MapServer" />
 
-<layer label="LEPC Crucial Habitat" type="dynamic" visible="false" alpha="1" imageformat="png32"
+<layer label="LEPC Crucial Habitat" type="dynamic" visible="true" alpha="1" imageformat="png32"
        url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2LEPCCrucialHabitat/MapServer" />
 
 <layer label="Infrastructures Impacts Buffers" type="dynamic" visible="false" alpha="1" imageformat="png32"
@@ -121,8 +82,6 @@
 
 <layer label="Base Layers" type="dynamic" visible="true" alpha="1" imageformat="png32"
        url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2BaseLayers/MapServer" />
-       
-       -->
 
         </operationallayers>
     </map>
@@ -137,40 +96,66 @@
                 url="widgets/Legend/LegendWidget.swf"
             	  preload="open"/> 
 
-         <widget label="Lake Chemistry Data Statistics"
-       	 icon="assets/images/i_piechart.png"
-        	config="widgets/Chart/ChartWidget_LakeChemistry.xml"
-        	url="widgets/Chart/ChartWidget.swf"/>
+        
+
+
 
 <widget label="Attribute Table"
         icon="assets/images/i_table.png"
         config="widgets/AttributeTable/AttributeTableWidget.xml"
         url="widgets/AttributeTable/AttributeTableWidget.swf"/>
-      	
-<widget label="LEPC Point Impact Estimator. 
+
+<widget label="Point Impact Estimator. 
+	The resulting numbers are ESTIMATES based on 
+	best and worst current habitat conditions. 
+	Site specific field level habitat assessments 
+	are needed for more precise numbers." left="186" top="160" height="380"
+        icon="assets/images/i_widget.png"
+        config="widgets/Geoprocessing/SGPCHAT_PointImpactEstimator.xml"
+        url="widgets/Geoprocessing/GeoprocessingWidget.swf"/>
+
+<widget label="Linear Impact Estimator. 
+	The resulting numbers are ESTIMATES based on 
+	best and worst current habitat conditions. 
+	Site specific field level habitat assessments 
+	are needed for more precise numbers." left="186" top="160" height="380"
+        icon="assets/images/i_widget.png"
+        config="widgets/Geoprocessing/SGPCHAT_LinearImpactEstimator.xml"
+        url="widgets/Geoprocessing/GeoprocessingWidget.swf"/> 
+
+
+<!-- <widget label="LEPC Oil and Gas Well Impact Estimator. 
 	The resulting numbers are ESTIMATES based on 
 	best and worst current habitat conditions. 
 	Site specific field level habitat assessments 
 	are needed for more precise numbers." left="186" top="160"
         icon="assets/images/i_widget.png"
-        config="widgets/Geoprocessing/SGPCHAT_PointImpactEstimator.xml"
+        config="widgets/Geoprocessing/SGPCHAT_OilAndGas.xml"
         url="widgets/Geoprocessing/GeoprocessingWidget.swf"/>
 
 
-<widget label="LEPC Linear Impact Estimator Impact Estimator:
+
+<widget label="LEPC Transmission Line Impact Estimator.
+	The resulting numbers are ESTIMATES based on 
+	best and worst current habitat conditions. 
+	Site specific field level habitat assessments 
+	are needed for more precise numbers." left="186" top="160"
+        icon="assets/images/i_widget.png"
+        config="widgets/Geoprocessing/SGPCHAT_TransmissionLines.xml"
+        url="widgets/Geoprocessing/GeoprocessingWidget.swf"/>
+
+
+<widget label="LEPC Vertical Structure Impact Estimator:
 wind turbines, radio towers, compressor stations, and industrial facilities.
 	The resulting numbers are ESTIMATES based on 
 	best and worst current habitat conditions. 
 	Site specific field level habitat assessments 
 	are needed for more precise numbers." left="186" top="160"
         icon="assets/images/i_widget.png"
-        config="widgets/Geoprocessing/SGPCHAT_LinearImpactEstimator.xml"
-        url="widgets/Geoprocessing/GeoprocessingWidget.swf"/>
+        config="widgets/Geoprocessing/SGPCHAT_VerticalStructures.xml"
+        url="widgets/Geoprocessing/GeoprocessingWidget.swf"/> -->
 
-<widget label="Extract Data" left="100" top="110"
-        icon="assets/images/i_scissors.png"
-        config="widgets/DataExtract/PWA_UTM15_DataExtractWidget.xml"
-        url="widgets/DataExtract/DataExtractWidget.swf"/>
+
 
         <widget label="Find location"   left="100" top="110" height="280"
                 icon="assets/images/i_search.png"
@@ -184,14 +169,14 @@ wind turbines, radio towers, compressor stations, and industrial facilities.
                 icon="assets/images/i_print.png"
                 config="widgets/Print/PrintWidget1.xml"
                 url="widgets/Print/PrintWidget.swf"/>
-        <widget label="Identify Enhanced"
-                icon="assets/images/i_info.png"
-                config="widgets/Identify/NRP_IdentifyWidget.xml"
-                url="widgets/Identify/IdentifyWidget_enhanced.swf"/>
-       <!--   <widget label="Identify"
+       <!-- <widget label="Identify"
                 icon="assets/images/i_info.png"
                 config="widgets/Identify/IdentifyWidget.xml"
                 url="widgets/Identify/IdentifyWidget.swf"/> -->
+	<widget label="Identify"
+                icon="assets/images/i_info.png"
+                config="widgets/Identify/SGPCHAT_IdentifyWidget.xml"
+                url="widgets/Identify/IdentifyWidget_enhanced.swf"/>
         <widget label="About this map" left="220" top="145"
                 icon="assets/images/i_help.png"
         	  url="widgets/About/AboutWidget.swf"/> 
@@ -212,8 +197,8 @@ wind turbines, radio towers, compressor stations, and industrial facilities.
 <p>SGP CHAT is not intended to replace consultation with local, state, or federal agencies.</p>
 <p>The finest data resolution is one square mile hexagons, and use of these data layers at a more localized scale is not appropriate and may lead to inaccurate interpretations. The classification may or may not apply to the entire section. Consult with local biologists for more localized information.</p>
 <p>I understand the intent of this system and do not consider this a replacement for consultations with other sources that would be used on a site specific basis.</p>
-<p>The SGP CHAT was last updated on: March 20, 2014.</p>
-<p>Layers: LEPC leks and Vertical structures.</p>
+<p>The SGP CHAT was last updated on: February 9, 2015.</p>
+<p>Layers: LEPC Survey Areas.</p>
 
 </textformat>
 </splashcontent>
@@ -233,7 +218,7 @@ corridors within and between meta populations. This map, and the data contained 
  Oklahoma Department of Wildlife Conservation, Texas Parks and Wildlife Department) as a more thorough review and investigation
  of variables could impact a proposed project.</p>
 
-<p>The SGP CHAT was last updated on: March 20, 2014.</p>
+<p>The SGP CHAT was last updated on: February 9, 2015.</p>
 
 
     <p>See the <a href="http://kars.ku.edu/geodata/maps/sgpchat/" target="_blank">project page</a> for more information.</p>

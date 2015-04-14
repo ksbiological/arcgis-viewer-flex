@@ -1,0 +1,202 @@
+<?xml version="1.0" ?>
+<!-- encoding="UTF-8" -->
+<configuration>
+<identifylayeroption>visible</identifylayeroption>
+<identifytolerance>10</identifytolerance>
+<defaultzoomscale>5000</defaultzoomscale>
+<keepidentifyactive>true</keepidentifyactive>
+<returngeometryforzoom>true</returngeometryforzoom>
+<enablelineselect>false</enablelineselect>
+<enableextentselect>true</enableextentselect>
+<enablepolyselect>false</enablepolyselect>
+<enablecircleselect>false</enablecircleselect>
+<enableellipseselect>false</enableellipseselect>
+<enablemouseovergraphicsinfo>false</enablemouseovergraphicsinfo>
+<enablemouseoverrecordinfo>true</enablemouseoverrecordinfo>
+<enablegraphicclickinfo>true</enablegraphicclickinfo>
+<usemaptime>false</usemaptime>
+<infoautoclosemilliseconds>2000</infoautoclosemilliseconds><!-- 2 seconds -->
+<autoactivatedtool>mappoint</autoactivatedtool><!-- possible values are extent or polygon or mappoint or polyline or nothing -->
+<excludebasemaps>false</excludebasemaps>
+<disablepopuplinks>false</disablepopuplinks>
+<disablelayerdropdown>false</disablelayerdropdown>
+<disablealllayerschoice>false</disablealllayerschoice>
+<replacenullswithemptystring>true</replacenullswithemptystring>
+<labels>
+<zoom2message>Click to Zoom to Point</zoom2message>
+<identifylabel>Identify</identifylabel>
+<resultslabel>Results</resultslabel>
+<descriptionlabel>Use the identify tool to identify features on the map:</descriptionlabel>
+<pointlabel>Identify by Point</pointlabel>
+<linelabel>Identify by Polyline</linelabel>
+<rectlabel>Identify by Rectangle</rectlabel>
+<polylabel>Identify by Polygon</polylabel>
+<circlelabel>Identify by Circle</circlelabel>
+<ellipselabel>Identify by Ellipse</ellipselabel>
+<clearlabel>Clear</clearlabel>
+<loadinglabel>Loading...</loadinglabel>
+<removeresultmessage>Remove Result</removeresultmessage>
+<idfrom>Identify From</idfrom>
+<noresultsfoundlabel>No Results Found</noresultsfoundlabel>
+<resultsfoundlabel>Results Found</resultsfoundlabel>
+<alllayers>All Layers</alllayers>
+<layersremaining>layers remaining:</layersremaining>
+<copylabel>Copy results to clipboard</copylabel>
+</labels>
+<layers onlythese="false">
+<layer>
+<useproxy>false</useproxy>
+<name>States Boundaries</name>
+<id>0</id>
+<url>http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2BaseLayers/MapServer</url>
+<fields>
+<field name="NAME" alias="State" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<useproxy>false</useproxy>
+<name>County Boundaries</name>
+<id>1</id>
+<url>http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2BaseLayers/MapServer</url>
+<fields>
+<field name="COUNTY" alias="County" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Public Land Survey System</name>
+<id>2</id>
+<url>http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2BaseLayers/MapServer</url>
+<fields>
+<field name="MERIDIAN" alias="Meridian" />
+<field name="TOWNSHIP_D" alias="Township Direction" />
+<field name="TOWNSHIP" alias="Township Line" />
+<field name="RANGE_DIR" alias="Range Direction" />
+<field name="RANGE" alias="Range Line" />
+<field name="SECTION" alias="Section" />
+<field name="LEGAL" alias="Legal Description" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>LEPC Estimated Occupied Range</name>
+<id>0</id>
+<url>http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2LEPCEstimatedRange/MapServer</url>
+<fields>
+<field name="acres" alias="Acres" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<useproxy>false</useproxy>
+<name>LEPC Leks</name>
+<id>0</id>
+<url>http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2LEPCSurveyAreas/MapServer</url>
+<fields>
+<field name="Obs_year" alias="Observation year" />
+</fields>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>LEPC Survey Areas</name>
+<id>1</id>
+<url>http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2LEPCSurveyAreas/MapServer</url>
+<fields>
+<field name="year" alias="Year" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>LEPC Non Survey Areas</name>
+<id>2</id>
+<url>http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2LEPCSurveyAreas/MapServer</url>
+<fields>
+<field name="survey" alias="Non Survey Areas" />
+<field name="SUM_acres" alias="Acres" />
+<field name="SUM_sq_mil" alias="Square miles" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>LEPC Focal Areas and Connectivity Zones</name>
+<id>0</id>
+<url>http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2FACZ/MapServer</url>
+<fields>
+<field name="FACZ_ID" alias="FACZ Management ID" />
+<field name="FACZ_class" alias="Management Zone" />
+<field name="SUM_acres" alias="Acres Impacted" />
+<field name="Eco_Div" alias="Eco Division" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>LEPC Crucial Habitat</name>
+<id>0</id>
+<url>http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2LEPCCrucialHabitat/MapServer</url>
+<fields>
+<field name="Hex_ID" alias="Hexagons ID" />
+<field name="state" alias="State" />
+<field name="Eco_div" alias="Eco Division" />
+<field name="EOR10" alias="Estimated Occupied Range" />
+<field name="LEPC_Cons" alias="Focal Areas and Connectivity Zones" />
+<field name="OG_wells" alias="OG Wells" />
+<field name="OG_Field" alias="OG Field" />
+<field name="CRP_acres" alias="CRP Acres" />
+<field name="pct527181" alias="Percent Shrub/Scrub/Grassland/Pasture" />
+<field name="pct_82" alias="Percent Cultivated Crops" />
+<field name="impct_pct" alias="Percent Impacted" />
+<field name="CHAT_score" alias="CHAT Score" />
+<field name="FACZ_ID" alias="FACZ ID" />
+<field name="FACZ_acres" alias="FACZ Acres" />
+<field name="InfAg_pct" alias="Infrastructure and Cropland Percent" />
+<field name="pct_CROP" alias="Percent Modified CROP" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<excludelayer url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2InfrastructuresImpacts/MapServer"/>
+<excludelayer url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2ModifiedCrop/MapServer" id="0"/>
+<excludelayer url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2NLCD2006Landcover/MapServer" id="0"/>
+<excludelayer url="http://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer" id="0"/>
+<excludelayer url="http://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer" id="1"/>
+<excludelayer url="http://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer" id="2"/>
+<excludelayer url="http://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer" id="3"/>
+<excludelayer url="http://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer" id="4"/>
+<excludelayer url="http://services.arcgisonline.com/arcgis/rest/services/Reference/World_Reference_Overlay/MapServer" id="0"/>
+<excludelayer url="http://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Reference/MapServer"/>
+<excludelayer url="http://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer"/>
+</layers>
+
+<symbols>
+<simplefillsymbol color="0x448ccb" alpha="0.4"
+style="solid">
+<outline color="0x448ccb" alpha="0.8" width="2" />
+</simplefillsymbol>
+<simplemarkersymbol style="circle" size="12"
+color="0x448ccb" alpha="0.8" xoffset="0" yoffset="0" angle="0">
+<outline style="solid" color="0xffffff" alpha="0.8"
+width="1" />
+</simplemarkersymbol>
+<picturemarkersymbol url="assets/images/i_info.png"
+height="30" width="30" xoffset="0" yoffset="0" />
+<simplelinesymbol color="0x448ccb" alpha="0.8"
+width="2" />
+</symbols>
+</configuration>

@@ -78,7 +78,7 @@
                 Maximum {=MAX}
                 Average {=AVERAGE}" 
                 	   chartfields="Chla_ug_l"
-                       title="Clorophyll (ug/l)"
+                       title="Chlorophyll (ug/l)"
                        type="columnchart"/>
             </medias>
             <labelfield>Year</labelfield>

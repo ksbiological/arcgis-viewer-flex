@@ -2,12 +2,12 @@
 <configuration>
     <!-- change this URL to your own Export Web Map Task (requires ArcGIS Server 10.1), or just remove the taskurl tag to get quick printing -->
     <taskurl>http://kars.ku.edu/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task</taskurl>
-	<formats visible="true" defaultvalue="PDF">
-		<format>PDF</format>
-		<format>PNG32</format>
+	<formats visible="true" defaultvalue="JPG">
 		<format>JPG</format>
 		<format>GIF</format>
+		<format>PNG32</format>
 		<format>EPS</format>
+		<format>PDF</format>
 	</formats>
 </configuration>
 

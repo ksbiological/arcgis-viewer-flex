@@ -401,32 +401,111 @@ Class used to configure the viewer map component (including layers) and handle m
                 }
             }
 
-            private function map_loadHandler(event:MapEvent):void
-            {
-                map.removeEventListener(MapEvent.LOAD, map_loadHandler);
-
-                if (m_initialExtent)
-                {
-                    project(m_initialExtent, new mx.rpc.Responder(project_resultHandler,
-                                                                  project_faultHandler));
-                }
-                else
-                {
-                    applyCenter();
-                }
-
-                function project_resultHandler(extent:Extent):void
-                {
-                    map.extent = extent;
-                    applyCenter();
-                }
-
-                function project_faultHandler(fault:Fault):void
-                {
-                    applyCenter();
-                }
-            }
-
+			// This was the original code for the viewer but it was left out to facilitate the transition from thw WGA Chat to the Kansas Chat
+			// March 27, 2015. Gina Ross
+   //         private function map_loadHandler(event:MapEvent):void 
+   //         {
+   //            map.removeEventListener(MapEvent.LOAD, map_loadHandler);
+   //
+   //             if (m_initialExtent)
+   //             {
+   //                 project(m_initialExtent, new mx.rpc.Responder(project_resultHandler,
+   //                                                               project_faultHandler));
+   //             }
+   //             else
+   //             {
+   //                applyCenter();
+   //            }
+   //
+   //             function project_resultHandler(extent:Extent):void
+   //             {
+   //                 map.extent = extent;
+   //                 applyCenter();
+   //             }
+   //
+   //            function project_faultHandler(fault:Fault):void
+   //            {
+   //                applyCenter();
+   //            }
+   //        }
+   //		
+			// Begening of new code for maploadhandler
+			// to facilitate the transition from the WGA Chat to the Kansas Chat
+			// March 27, 2015 Gina Ross.
+			private function map_loadHandler(event:MapEvent):void
+			{
+				map.removeEventListener(MapEvent.LOAD, map_loadHandler);
+				// Get query string parameters for "z" and "ll", convert them to the necessary
+				// format, and attempt to set some map parameters to them.
+				var queryParams:Object = getQueryParams();
+				if (queryParams.z && queryParams.ll)
+				{
+					var level:Number = parseInt(queryParams.z);
+					var latLng:String = queryParams.ll;
+					var centerPoint:MapPoint = createMapPoint(latLng.split("%2C").reverse().concat([4326])); // "%2C" replaces "," allowing the proper passing of the coordinates to the url. Gina Ross
+					if (centerPoint)
+					{
+						project(centerPoint, new mx.rpc.Responder(projectPoint_resultHandler, project_faultHandler));
+						function projectPoint_resultHandler(center:MapPoint):void
+						{
+							map.centerAt(center);
+							if (level >= 0)
+							{
+								map.level = level;
+							}
+						}
+						return;
+					}
+				}
+				if (m_initialExtent)
+				{
+					project(m_initialExtent, new mx.rpc.Responder(project_resultHandler, project_faultHandler));
+				}
+				else
+				{
+					applyCenter();
+				}
+				function project_resultHandler(extent:Extent):void
+				{
+					map.extent = extent;
+					applyCenter();
+				}
+				function project_faultHandler(fault:Fault):void
+				{
+					applyCenter();
+				}
+			}
+			
+			private function getQueryParams():Object
+			{
+				var params:Object = new Object();
+				try
+				{
+					var queryString:String = ExternalInterface.call("window.location.search.substring", 1);
+					if(queryString)
+					{
+						var allParams:Array = queryString.split('&');
+						for(var i:int = 0; i < allParams.length; i++)
+						{
+							var index:int = -1;
+							var keyValuePair:String = allParams[i];
+							if((index = keyValuePair.indexOf("=")) > 0)
+							{
+								var paramKey:String = keyValuePair.substring(0,index);
+								var paramValue:String = keyValuePair.substring(index+1);
+								params[paramKey] = paramValue;
+							}
+						}
+					}
+				}
+				catch(e:Error)
+				{
+					trace("Some error occured. ExternalInterface doesn't work in Standalone player.");
+				}
+				return params;
+			} 
+// end of new code for mapload handler
+			
             private function project(geometry:Geometry, responder:IResponder):void
             {
                 var canApplyDirectlyToMap:Boolean = !geometry.spatialReference

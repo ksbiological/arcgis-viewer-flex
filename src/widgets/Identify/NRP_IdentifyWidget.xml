@@ -1,0 +1,582 @@
+<?xml version="1.0" ?>
+<!-- encoding="UTF-8" -->
+<configuration>
+<identifylayeroption>visible</identifylayeroption>
+<identifytolerance>10</identifytolerance>
+<defaultzoomscale>5000</defaultzoomscale>
+<keepidentifyactive>true</keepidentifyactive>
+<returngeometryforzoom>true</returngeometryforzoom>
+<enablelineselect>false</enablelineselect>
+<enableextentselect>true</enableextentselect>
+<enablepolyselect>false</enablepolyselect>
+<enablecircleselect>false</enablecircleselect>
+<enableellipseselect>false</enableellipseselect>
+<enablemouseovergraphicsinfo>false</enablemouseovergraphicsinfo>
+<enablemouseoverrecordinfo>true</enablemouseoverrecordinfo>
+<enablegraphicclickinfo>true</enablegraphicclickinfo>
+<usemaptime>false</usemaptime>
+<infoautoclosemilliseconds>2000</infoautoclosemilliseconds><!-- 2 seconds -->
+<autoactivatedtool>mappoint</autoactivatedtool><!-- possible values are extent or polygon or mappoint or polyline or nothing -->
+<excludebasemaps>false</excludebasemaps>
+<disablepopuplinks>false</disablepopuplinks>
+<disablelayerdropdown>false</disablelayerdropdown>
+<disablealllayerschoice>false</disablealllayerschoice>
+<replacenullswithemptystring>true</replacenullswithemptystring>
+<labels>
+<zoom2message>Click to Zoom to Point</zoom2message>
+<identifylabel>Identify</identifylabel>
+<resultslabel>Results</resultslabel>
+<descriptionlabel>Use the identify tool to identify features on the map:</descriptionlabel>
+<pointlabel>Identify by Point</pointlabel>
+<linelabel>Identify by Polyline</linelabel>
+<rectlabel>Identify by Rectangle</rectlabel>
+<polylabel>Identify by Polygon</polylabel>
+<circlelabel>Identify by Circle</circlelabel>
+<ellipselabel>Identify by Ellipse</ellipselabel>
+<clearlabel>Clear</clearlabel>
+<loadinglabel>Loading...</loadinglabel>
+<removeresultmessage>Remove Result</removeresultmessage>
+<idfrom>Identify From</idfrom>
+<noresultsfoundlabel>No Results Found</noresultsfoundlabel>
+<resultsfoundlabel>Results Found</resultsfoundlabel>
+<alllayers>All Layers</alllayers>
+<layersremaining>layers remaining:</layersremaining>
+<copylabel>Copy results to clipboard</copylabel>
+</labels>
+<layers onlythese="false">
+<layer>
+<useproxy>false</useproxy>
+<name>Counties</name>
+<id>2</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/KansasLegalBoundariesWhiteLinesNRP/MapServer</url>
+<fields>
+<field name="CNTY_NAME" alias="County" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Public Land Survey System</name>
+<id>3</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/KansasLegalBoundariesWhiteLinesNRP/MapServer</url>
+<fields>
+<field name="MERIDIAN" alias="Meridian" />
+<field name="TOWNSHIP_D" alias="Township Direction" />
+<field name="TOWNSHIP" alias="Township Line" />
+<field name="RANGE_DIR" alias="Range Direction" />
+<field name="RANGE" alias="Range Line" />
+<field name="SECTION" alias="Section" />
+<field name="LEGAL" alias="Legal Description" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Tallgrass Heartland</name>
+<id>0</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/KansasLegalBoundariesWhiteLinesNRP/MapServer</url>
+<fields>
+<field name="acres" alias="Acres" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<useproxy>false</useproxy>
+<name>Terrestrial Species of Concern</name>
+<id>0</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/TerrestrialHabitat/MapServer</url>
+<fields>
+<field name="SCIENTIFIC" alias="Scientific Name" />
+<field name="COMMON_NAM" alias="Common Name" />
+<field name="type" alias="Type" />
+<field name="SGCNrank"  alias="Species of Greater Conservation Need Rank" />
+<field name="FedStatus" alias="Federal Status" />
+<field name="StateStat" alias="State Status" />
+</fields>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Protected Areas</name>
+<id>1</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/TerrestrialHabitat/MapServer</url>
+<fields>
+<field name="AREA_NAME" alias="Area Name" />
+<field name="MANAGER" alias="Manager" />
+<field name="OWNER" alias="Owner" />
+<field name="AREA_SQ_M" alias="Square Meters" />
+<field name="ACRES" alias="Acres" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>LEPC Focal Area and Connectivity Zones</name>
+<id>3</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/TerrestrialHabitat/MapServer</url>
+<fields>
+<field name="FACZ_ID" alias="FACZ Management ID" />
+<field name="FACZ_class" alias="Management Zone" />
+<field name="Eco_Div" alias="Eco Division" />
+<field name="SUM_acres" alias="Acres" />
+<field name="cell_cnt" alias="Cell Count" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Whooping Crane Corridor</name>
+<id>4</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/TerrestrialHabitat/MapServer</url>
+<fields>
+<field name="buff_miles" alias="Buffer Distance Miles" />
+<field name="Count" alias="Observations" />
+<field name="prct" alias="Percent of Observations" />
+<field name="Label" alias="Percentile Range" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Existing Vertical Structures</name>
+<id>0</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/EnergyResources/MapServer</url>
+<fields>
+<field name="ID" alias="ID" />
+<field name="structure" alias="Structure" />
+<field name="ft_AGL" alias="Feet Above Ground" />
+<field name="DD_Lat" alias="Latitude" />
+<field name="DD_Long" alias="Longitude" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Proposed Wind Structures</name>
+<id>1</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/EnergyResources/MapServer</url>
+<fields>
+<field name="STUDY__ASN" alias="Study ASN" />
+<field name="STATUS" alias="Status" />
+<field name="DETERMINAT" alias="Determination" />
+<field name="ENTERED_DA" alias="Date Entered" />
+<field name="RECEIVED_D" alias="Date Received" />
+<field name="COMPLETION" alias="Completion Date" />
+<field name="EXPIRATION" alias="Expiration Date" />
+<field name="LATITUDE" alias="Latitude" />
+<field name="LONGITUDE" alias="Longitude" />
+<field name="HORIZONTAL" alias="Horizontal Datum" />
+<field name="SURVEY_ACC" alias="Survey ACC" />
+<field name="MARKING_LI" alias="Marking Lights" />
+<field name="PROPOSAL_D" alias="Proposal Details" />
+<field name="LOCATION_D" alias="Location Details" />
+<field name="WORK_SCHED" alias="Work Schedule" />
+<field name="WORK_SCH_1" alias="Work Schedule" />
+<field name="DATE_BUILT" alias="Date Built" />
+<field name="STRUCTURE_3" alias="Structure Type" />
+<field name="ELEVATION" alias="Elevation" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Kansas Power Plant</name>
+<id>2</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/EnergyResources/MapServer</url>
+<fields>
+<field name="Fuel_Type" alias="Fuel Type" />
+<field name="MW" alias="Megawatts" />
+<field name="Plant_Name" alias="Plant Name" />
+<field name="Owner" alias="Owner" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Electric Transmission Lines</name>
+<id>3</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/EnergyResources/MapServer</url>
+<fields>
+<field name="COMPANY_id" alias="Company ID" />
+<field name="UniqueID" alias="Unique ID" />
+<field name="VOLTAGE" alias="Voltage" />
+<field name="Status" alias="Status" />
+<field name="Docket" alias="Docket" />
+<field name="mi" alias="Miles" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Aquatic Species of Concern</name>
+<id>0</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/AquaticHabitat/MapServer</url>
+<fields>
+<field name="SCIENTIFIC" alias="Scientific name" />
+<field name="COMMON_NAM" alias="Common name" />
+<field name="type" alias="Type" />
+<field name="SGCNrank" alias="SGCN rank" />
+<field name="FedStatus" alias="Federal status" />
+<field name="StateStat" alias="State status" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Fisheries Condition</name>
+<id>1</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/AquaticHabitat/MapServer</url>
+<fields>
+<field name="TYPE" alias="Type" />
+<field name="CLASS" alias="Class" />
+<field name="SWIMSID" alias="SWIMS ID" />
+<field name="STRAHLER" alias="Strahler's order" />
+<field name="EVALUATION" alias="Evaluation" />
+<field name="DEFINITION" alias="Definition" />
+<field name="STREAM" alias="Stream" />
+<field name="BASIN" alias="Basin" />
+<field name="COUNTY" alias="County" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Invasive Fish</name>
+<id>3</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/AquaticHabitat/MapServer</url>
+<fields>
+<field name="name" alias="Name" />
+<field name="zeb_mussel" alias="Zebra mussel" />
+<field name="wht_perch" alias="White perch" />
+<field name="asian_carp" alias="Asian carp" />
+<field name="water_type" alias="Water type" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Watershed risk NFHAP</name>
+<id>6</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/AquaticHabitat/MapServer</url>
+<fields>
+<field name="NFHAP_SCOR" alias="NFHAP score" />
+<field name="NFHAP_sour" alias="NFHAP source" />
+<field name="NFHAP_UNIT" alias="NFHAP unit" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Bathymetry Depth</name>
+<id>0</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/LakesAndReservoirs/MapServer</url>
+<fields>
+<field name="CONTOUR" alias="Depth in feet" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Kansas Water Sampling Grid</name>
+<id>2</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/LakesAndReservoirs/MapServer</url>
+<fields>
+<field name="grid_ID" alias="Grid ID" />
+<field name="X-center" alias="X-UTM 14" />
+<field name="Y_center" alias="Y-UTM 14" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Lakes and Reservoirs</name>
+<id>5</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/LakesAndReservoirs/MapServer</url>
+<fields>
+<field name="county" alias="County" />
+<field name="name" alias="Lake name" />
+<field name="SWRegister" alias="KDHE's register" />
+<field name="lake_type" alias="Lake type" />
+<field name="elevation" alias="Elevation" />
+<field name="ElevDate" alias="Elevation date" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>NHD Waterbodies</name>
+<id>6</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/LakesAndReservoirs/MapServer</url>
+<fields>
+<field name="GNIS_Name" alias="GNIS Name" />
+<field name="GNIS_ID" alias="GNIS ID" />
+<field name="AreaSqKm" alias="Square Kilometers" />
+<field name="Elevation" alias="Elevation" />
+<field name="ReachCode" alias="Reach Code" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>LEPC Estimated Occupied Range</name>
+<id>2</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/FishAndGame/MapServer</url>
+<fields>
+<field name="Acres" alias="Acres" />
+<field name="Hectares" alias="Hectares" />
+<field name="Perimeter" alias="Perimeter" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>GPC Estimated Occupied Range</name>
+<id>3</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/FishAndGame/MapServer</url>
+<fields>
+<field name="GTR_RANG_1" alias="GPC Range" />
+<field name="PCHIK_HABI" alias="GPC Habitat" />
+<field name="Acres" alias="Acres" />
+<field name="Hectares" alias="Hectares" />
+<field name="AREA" alias="Square Meters" />
+<field name="PERIMETER" alias="Perimeter Meters" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>GPC Flinthills Habitat Priorities</name>
+<id>4</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/FishAndGame/MapServer</url>
+<fields>
+<field name="Priority" alias="Priority Level" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Trout Locations</name>
+<id>6</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/FishAndGame/MapServer</url>
+<fields>
+<field name="LATITUDE" alias="Latitude" />
+<field name="LONGITUDE" alias="Longitude" />
+<field name="LOCATION" alias="Location" />
+<field name="STOCKED_06" alias="Stocked 2006" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Playa Lakes</name>
+<id>0</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/WetlandAndRiparian/MapServer</url>
+<fields>
+<field name="Source" alias="Source" />
+<field name="Status" alias="Status Rocky Mountain Bird Observatory" />
+<field name="NWI_Type" alias="NWI Type" />
+<field name="NWI_Cover" alias="NWI Cover" />
+<field name="NWI_Modify" alias="NWI Modify" />
+<field name="SSURGOpoly" alias="SSURGO Polygon" />
+<field name="SSURGOsoil" alias="SSURGO Soil" />
+<field name="DRG_poly" alias="DRG polygon" />
+<field name="RoadImpact" alias="Road Impact" />
+<field name="Priority_W" alias="Development Assessment Priority" />
+<field name="Acres" alias="Acres" />
+<field name="Hectares" alias="Hectares" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Wetlands</name>
+<id>2</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/WetlandAndRiparian/MapServer</url>
+<fields>
+<field name="playa_acre" alias="Playa Acres" />
+<field name="NWI_acres" alias="NWI Acres" />
+<field name="PlAc_VHR" alias="Playa Acres Very High Risk" />
+<field name="PlAc_HR" alias="Playa Acres High Risk" />
+<field name="PlAc_MR" alias="Playa Acres Moderate Risk" />
+<field name="PlAc_LR" alias="Playa Acres Lower Risk" />
+<field name="PlyHx_R" alias="Playa Risk Rank" />
+<field name="PlyaCmplx" alias="Playa Clusters" />
+<field name="obs_wetlnd" alias="Reported Wetland" />
+<field name="strahler" alias="Strahler's order" />
+<field name="pctUrbCrop" alias="Percent Urban Crop" />
+<field name="Wetlands1" alias="Wetlands Rank" />
+<field name="Riparian1" alias="Riparian Rank" />
+<field name="WetRip1" alias="Wetland and Riparian Rank" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Riparian Corridors</name>
+<id>3</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/WetlandAndRiparian/MapServer</url>
+<fields>
+<field name="playa_acre" alias="Playa Acres" />
+<field name="NWI_acres" alias="NWI Acres" />
+<field name="PlAc_VHR" alias="Playa Acres Very High Risk" />
+<field name="PlAc_HR" alias="Playa Acres High Risk" />
+<field name="PlAc_MR" alias="Playa Acres Moderate Risk" />
+<field name="PlAc_LR" alias="Playa Acres Lower Risk" />
+<field name="PlyHx_R" alias="Playa Risk Rank" />
+<field name="PlyaCmplx" alias="Playa Clusters" />
+<field name="obs_wetlnd" alias="Reported Wetland" />
+<field name="strahler" alias="Strahler's order" />
+<field name="pctUrbCrop" alias="Percent Urban Crop" />
+<field name="Wetlands1" alias="Wetlands Rank" />
+<field name="Riparian1" alias="Riparian Rank" />
+<field name="WetRip1" alias="Wetland and Riparian Rank" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>WGA - Intact Landscapes</name>
+<id>0</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/WgaChat/MapServer</url>
+<fields>
+<field name="Hex_ID" alias="Hex ID" />
+<field name="Intact_LS" alias="Intact Landscape Rank" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>WGA - Natural Vegetation Areas</name>
+<id>1</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/WgaChat/MapServer</url>
+<fields>
+<field name="Hex_ID" alias="Hex ID" />
+<field name="Nat_Veg" alias="Natural Vegetation Rank" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>WGA - Terrestrial Species of Concern</name>
+<id>2</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/WgaChat/MapServer</url>
+<fields>
+<field name="Hex_ID" alias="Hex ID" />
+<field name="Ter_SOC" alias="Terrestrial Species of Concern Rank" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>WGA - Aquatic Species of Concern</name>
+<id>3</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/WgaChat/MapServer</url>
+<fields>
+<field name="Hex_ID" alias="Hex ID" />
+<field name="Aq_SOC" alias="Aquatic Species of Concern Rank" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>WGA - Wetland and Riparian</name>
+<id>4</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/WgaChat/MapServer</url>
+<fields>
+<field name="Hex_ID" alias="Hex ID" />
+<field name="Wet_Rip" alias="Wetland and Riparian Rank" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Federal Lakes Watersheds</name>
+<id>0</id>
+<url>http://kars.ku.edu/arcgis/rest/services/WaterResources/FederalLakesWatersheds/MapServer</url>
+<fields>
+<field name="LWatershed" alias="Lake Watershed" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>State Lakes Watersheds</name>
+<id>0</id>
+<url>http://kars.ku.edu/arcgis/rest/services/WaterResources/StateLakesWatersheds/MapServer</url>
+<fields>
+<field name="LWatershed" alias="Lake Watershed" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>WGA - Crucial Habitat</name>
+<id>5</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/WgaChat/MapServer</url>
+<fields>
+<field name="Hex_ID" alias="Hex ID" />
+<field name="CH_Rank" alias="Crucial Habitat Rank" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<excludelayer url="http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/WgaChat/MapServer" id="6"/>
+<excludelayer name="Kansas Hydrologic Units (HUC)" />
+<excludelayer name="Kansas Streams, Waterways Order" />
+<excludelayer name="Kansas Land Cover Patterns" />
+<excludelayer url="http://services.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer" id="0"/>
+<excludelayer url="http://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Reference_Overlay/MapServer" id="0"/>
+<excludelayer url="http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer"/>
+<excludelayer url="http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer"/>
+</layers>
+
+<symbols>
+<simplefillsymbol color="0x448ccb" alpha="0.4"
+style="solid">
+<outline color="0x448ccb" alpha="0.8" width="2" />
+</simplefillsymbol>
+<simplemarkersymbol style="circle" size="12"
+color="0x448ccb" alpha="0.8" xoffset="0" yoffset="0" angle="0">
+<outline style="solid" color="0xffffff" alpha="0.8"
+width="1" />
+</simplemarkersymbol>
+<picturemarkersymbol url="assets/images/i_info.png"
+height="30" width="30" xoffset="0" yoffset="0" />
+<simplelinesymbol color="0x448ccb" alpha="0.8"
+width="2" />
+</symbols>
+</configuration>

@@ -275,7 +275,7 @@
 
             private function initCopyright():void
             {
-                shouldShowCopyright = true;
+                shouldShowCopyright = false; // Gina turned off this option 10/29/2014
                 copyrightFI.label = configXML.labels.copyrightlabel[0] || hostBaseWidget.getDefaultString("printCopyrightLabel");
 
                 if (configXML.copyright[0])
@@ -290,7 +290,7 @@
 
             private function initAuthor():void
             {
-                shouldShowAuthor = true;
+                shouldShowAuthor = false; // Gina turned off this option 10/29/2014
                 authorFI.label = configXML.labels.authorlabel[0] || hostBaseWidget.getDefaultString("printAuthorLabel");
 
                 if (configXML.author[0])
