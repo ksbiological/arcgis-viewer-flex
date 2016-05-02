@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<configuration label="Aquatic Species Of Concern complete list">
+    <layer>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/AquaticHabitat/MapServer/0</layer>
+    <label></label>
+    <titlefield></titlefield>
+    <orderbyfields>SCIENTIFIC ASC</orderbyfields>
+    <orderbyfields>COMMON_NAM ASC</orderbyfields>
+    <fields all="false">
+        <field name="SCIENTIFIC" alias="Scientific name" />
+        <field name="COMMON_NAM" alias="Common name" />
+    </fields>
+    <filterfield></filterfield>
+    <linkfield></linkfield>
+    <refreshrate></refreshrate>
+    <zoomscale>20000</zoomscale>
+    <symbols>
+    <simplefillsymbol color="0x9999FF">
+    	<outline color="0x9999FF">
+    	</outline>
+    </simplefillsymbol>
+    </symbols>
+    <query>1=1</query>
+</configuration>
+
+<!--
+    See Query widget tag reference at
+    http://links.esri.com/querywidget
+-->

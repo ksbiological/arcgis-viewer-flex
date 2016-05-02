@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+<configuration>
+    <title>{Name}</title>
+    
+    <fields>
+        <field name="Name"/>
+        <field name="BathyMap"/>
+    </fields>
+    <description></description>
+            <medias>
+                 <media 
+                 	   title="Bathymetry Map"
+                 	   field="Name" 
+                 	   type="image"
+                       imagesource="http://kars.ku.edu/media/uploads/maps/kansaslakes/Big_Hill_Lake_full_bath_map.jpg"/>
+            </medias>
+            <showattachments></showattachments>       
+</configuration>
+
+<!--
+    Pop-up configuration file for:
+    http://sampleserver3.arcgisonline.com/ArcGIS/rest/services/Hurricanes/NOAA_Tracks_1851_2007/MapServer/0
+
+    See pop-up documentation at
+    http://links.esri.com/flexviewer/popups
+-->

@@ -102,7 +102,7 @@
 <id>0</id>
 <url>http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2LEPCSurveyAreas/MapServer</url>
 <fields>
-<field name="Obs_year" alias="Observation year" />
+<field name="Year" alias="Observation year" />
 </fields>
 <zoomscale>15000</zoomscale>
 <forcescale>true</forcescale>
@@ -112,7 +112,8 @@
 <id>1</id>
 <url>http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2LEPCSurveyAreas/MapServer</url>
 <fields>
-<field name="year" alias="Year" />
+<field name="Status" alias="Status" />
+<field name="Year" alias="Year" />
 </fields>
 <links/>
 <zoomscale>15000</zoomscale>
@@ -139,11 +140,20 @@
 <field name="FACZ_ID" alias="FACZ Management ID" />
 <field name="FACZ_class" alias="Management Zone" />
 <field name="SUM_acres" alias="Acres Impacted" />
+<field name="pct_impact" alias="Percent Impacted" />
 <field name="Eco_Div" alias="Eco Division" />
 </fields>
 <links/>
 <zoomscale>15000</zoomscale>
 <forcescale>true</forcescale>
+</layer>
+<layer>
+<name>LPC Habitat Regions</name>
+<id>0</id>
+<url>http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2LPCHabitatRegions/MapServer</url>
+<fields>
+<field name="Eco_div" alias="Habitat Regions" />
+</fields>
 </layer>
 <layer>
 <name>LEPC Crucial Habitat</name>

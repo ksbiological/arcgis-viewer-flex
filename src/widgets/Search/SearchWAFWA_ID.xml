@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<configuration label="RWP Impacts and Conservation">
+    <layers>
+        <layer>
+            <name>Impact Points</name>
+            <url>http://kars.ku.edu/arcgis/rest/services/Secure/RWPImpacts/MapServer/3</url>
+            <expression>WAFWA_ID like '[value]'</expression>
+            <textsearchlabel>Search on WAFWA_ID</textsearchlabel>
+            <titlefield>WAFWA_ID</titlefield>
+            <linkfield></linkfield>
+            <fields all="false">
+                <field name="WAFWA_ID"/>
+            </fields>
+        </layer>
+        <layer>
+            <name>Conservation Sites</name>
+            <url>http://kars.ku.edu/arcgis/rest/services/Secure/RWPImpacts/MapServer/7</url>
+            <expression>WAFWA_Site_ID like '[value]'</expression>
+            <textsearchlabel>Search on WAFWA_Site_ID</textsearchlabel>
+            <titlefield>WAFWA_Site_ID</titlefield>
+            <linkfield></linkfield>
+            <fields all="false">
+                <field name="WAFWA_Site_ID"/>
+            </fields>
+        </layer>
+    </layers>
+    <zoomscale>10000</zoomscale>
+</configuration>
+
+<!--
+    See Search widget tag reference at
+    http://links.esri.com/searchwidget
+-->

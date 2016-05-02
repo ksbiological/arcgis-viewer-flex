@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0"?>
 <configuration label="Calculate buffer">
     <description> Click point icon and digitize a point on map for each
 desired analysis location. When finished, press Submit.
@@ -6,19 +6,18 @@ Results may take some time to appear. To view results,
 open the Attribute Table widget in the top right widget list.
 
 Distance to buffer features (in meters).
-667 Wind turbines, Vertical structures equal to 
-	or greater than 150 feet tall,
-200 Oil/gas well pads, small compressor stations, 
-	small electrical (all equal to or less than 5 acres)
-133 Tank batteries, houses and other structures
+500 Primary roads
+400 Transmission lines (greater than or equal to 69kV)
+67 Secondary roads
+10 Private roads, distribution lines (less than 69kV)
 </description>
-    <taskurl>http://kars.ku.edu/arcgis/rest/services/Geoprocessing/PointImpactEstimatorV20160429/GPServer/PointImpactEstimator_v20160429</taskurl>
-    <helpurl>http://kars.ku.edu/arcgis/rest/directories/arcgisoutput/Geoprocessing/PointImpactEstimatorV20160429_GPServer/Geoprocessing_PointImpactEstimatorV20160429/PointImpactEstimatorV20160425.htm</helpurl>
+    <taskurl>http://kars.ku.edu/arcgis/rest/services/Geoprocessing/LineImpactEstimatorV20160429/GPServer/LineImpactEstimator_v20160429</taskurl>
+    <helpurl>http://kars.ku.edu/arcgis/rest/directories/arcgisoutput/Geoprocessing/LineImpactEstimatorV20160429_GPServer/Geoprocessing_LineImpactEstimatorV20160429/PointImpactEstimatorV201604252.htm</helpurl>
     <shareresults>true</shareresults>
     <inputparams>
         <param name="Input_Impact_Feature"
-               geometrytype="point"
-               label="Assessment point"
+               geometrytype="polyline"
+               label="Assessment line"
                required="true"
                type="featurerecordset"
                visible="true">
@@ -55,7 +54,7 @@ Distance to buffer features (in meters).
         </param>
         <param name="Output_Project_Impact_Estimation"
                geometrytype="polygon"
-               label="Point Project impact estimation"
+               label="Line Project impact estimation"
                required="true"
                type="featurerecordset"
                visible="true">
@@ -97,5 +96,5 @@ Distance to buffer features (in meters).
             </renderer>
           </param>
     </outputparams>
-    <layerorder>Input_Points,Input_Buffer_Distance,Output_Project_Impact_Estimation,Output_Evaluation_Units_Estimation,Output_Buffered_Infrastructure,Output_Project_Survey_Region</layerorder>
+    <layerorder>Input_Impact_Feature,Input_Buffer_Distance,Output_Project_Impact_Estimation,Output_Evaluation_Units_Estimation,Output_Buffered_Infrastructure,Output_Project_Survey_Region</layerorder>
 </configuration>
