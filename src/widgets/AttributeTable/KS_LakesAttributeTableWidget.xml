@@ -7,9 +7,10 @@
 <excludelayer>Major Watersheds of Kansas</excludelayer>
 <excludelayer>Average Annual Precipitation</excludelayer>
 <excludelayer>Ogallala Aquifer</excludelayer>
+<excludelayer>Probable Playas Lakes</excludelayer>
 <excludelayer>Federal Lakes Watersheds</excludelayer>
 <excludelayer>State Lakes Watersheds</excludelayer>
-<excludelayer>STORET Monitoring Locations</excludelayer>
+<excludelayer>EPA-STORET Monitoring Locations</excludelayer>
 </configuration>
 
 <!--

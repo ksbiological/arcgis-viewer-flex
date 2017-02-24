@@ -1,0 +1,45 @@
+<?xml version="1.0" ?>
+<configuration label="Aquatic Species of Concern">
+<zoomscale>100000</zoomscale>
+    <layers>
+        <layer>
+            <name>Scientific Name</name>
+            <url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/AquaticHabitat/MapServer/0</url> 
+            <expression>SCIENTIFIC like '[value]'</expression>
+            <textsearchlabel>Please enter name as it appears in the list, names are case sensitive.</textsearchlabel>
+            <titlefield></titlefield>
+            <linkfield></linkfield>
+            <symbol>
+            	<simplefillsymbol color="0x0033FF"/>
+            </symbol>
+            <fields all="false">
+                <field name="SCIENTIFIC" alias="Scientific name"/>
+                <field name="COMMON_NAM" alias="Common name" />
+            </fields>
+            <orderbyfields>SCIENTIFIC ASC</orderbyfields>
+        </layer>
+       <layer>
+            <name>Common Name</name>
+            <url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/AquaticHabitat/MapServer/0</url>
+            <expression>COMMON_NAM like '[value]'</expression>
+            <textsearchlabel>Please enter name as it appears in the list, names are case sensitive.</textsearchlabel>
+            <titlefield></titlefield>
+            <linkfield></linkfield>
+            <symbol>
+            	<simplefillsymbol color="0x990066"/>
+            </symbol>
+        
+            <fields all="false">
+              <field name="COMMON_NAM" alias="Common name"/>
+                <field name="SCIENTIFIC" alias="Scientific name"/>
+            </fields>
+            <orderbyfields>SCIENTIFIC ASC</orderbyfields>
+          </layer>
+    </layers>
+  
+</configuration>
+
+<!--
+    See Search widget tag reference at
+    http://links.esri.com/searchwidget
+-->

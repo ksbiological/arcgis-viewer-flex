@@ -12,8 +12,11 @@ Distance to buffer features (in meters).
 	small electrical (all equal to or less than 5 acres)
 133 Tank batteries, houses and other structures
 </description>
-    <taskurl>http://kars.ku.edu/arcgis/rest/services/Geoprocessing/PointImpactEstimatorV20160429/GPServer/PointImpactEstimator_v20160429</taskurl>
-    <helpurl>http://kars.ku.edu/arcgis/rest/directories/arcgisoutput/Geoprocessing/PointImpactEstimatorV20160429_GPServer/Geoprocessing_PointImpactEstimatorV20160429/PointImpactEstimatorV20160425.htm</helpurl>
+	
+	<taskurl>http://kbs-eagle.kbs.ku.edu:6080/arcgis/rest/services/SGP_CHAT/PointImpactEstimator/GPServer/SGP_CHAT_Webstie_PointEstimator</taskurl>
+	<helpurl>http://kbs-eagle.kbs.ku.edu:6080/arcgis/rest/directories/arcgisoutput/SGP_CHAT/PointImpactEstimator_GPServer/SGP_CHAT_PointImpactEstimator/PointImpactEstimator.htm</helpurl>
+   <!-- <taskurl>http://kars.ku.edu/arcgis/rest/services/Geoprocessing/PointImpactEstimatorV20160809/GPServer/PointImpactEstimator_v20160809</taskurl>
+    <helpurl>http://kars.ku.edu/arcgis/rest/directories/arcgisoutput/Geoprocessing/PointImpactEstimatorV20160809_GPServer/Geoprocessing_PointImpactEstimatorV20160809/PointImpactEstimator.htm</helpurl> -->
     <shareresults>true</shareresults>
     <inputparams>
         <param name="Input_Impact_Feature"
@@ -97,5 +100,5 @@ Distance to buffer features (in meters).
             </renderer>
           </param>
     </outputparams>
-    <layerorder>Input_Points,Input_Buffer_Distance,Output_Project_Impact_Estimation,Output_Evaluation_Units_Estimation,Output_Buffered_Infrastructure,Output_Project_Survey_Region</layerorder>
+    <layerorder>Input_Points,Input_Run_Type,Input_Buffer_Distance,Output_Project_Impact_Estimation,Output_Evaluation_Units_Estimation,Output_Buffered_Infrastructure,Output_Project_Survey_Region</layerorder>
 </configuration>

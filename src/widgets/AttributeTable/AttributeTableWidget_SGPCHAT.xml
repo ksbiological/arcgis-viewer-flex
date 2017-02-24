@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<configuration> 
+<excludelayer>Base Layers</excludelayer>
+<excludelayer>LEPC Estimated Occupied Range</excludelayer>
+<excludelayer>LEPC Survey Areas</excludelayer>
+<excludelayer>Focal Areas and Connectivity Zones</excludelayer>
+<excludelayer>Infrastructures Impacts Buffers</excludelayer>
+<excludelayer>LPC Habitat Regions</excludelayer>
+<excludelayer>LPC Crucial Habitat</excludelayer>
+<excludelayer>Modified Cropland Classifications</excludelayer>
+<excludelayer>Estimated Mitigation Cost</excludelayer>
+<excludelayer>Percent Potential Habitat within 1 Mile</excludelayer>
+<excludelayer>Percent Conifer/Mesquite canopy</excludelayer>
+<excludelayer>Ecological Site Descriptions</excludelayer>
+<excludelayer>NLCD 2011 Landcover</excludelayer>
+<excludelayer></excludelayer>
+<excludelayer></excludelayer>
+
+</configuration>
+
+<!--
+    See Attribute Table widget documentation at
+    http://links.esri.com/attributetablewidget
+-->

@@ -1,8 +1,8 @@
-﻿<?xml version="1.0"?>
+<?xml version="1.0"?>
 <configuration label="Calculate buffer">
-    <description> Click point icon and digitize a point on map for each
-desired analysis location. When finished, press Submit.
-Results may take some time to appear. To view results,
+    <description> Click line icon and digitize 
+the beginning of the line, double-click to complete.
+When finished, press Submit. To view results,
 open the Attribute Table widget in the top right widget list.
 
 Distance to buffer features (in meters).
@@ -11,13 +11,15 @@ Distance to buffer features (in meters).
 67 Secondary roads
 10 Private roads, distribution lines (less than 69kV)
 </description>
-    <taskurl>http://kars.ku.edu/arcgis/rest/services/Geoprocessing/LineImpactEstimatorV20160429/GPServer/LineImpactEstimator_v20160429</taskurl>
-    <helpurl>http://kars.ku.edu/arcgis/rest/directories/arcgisoutput/Geoprocessing/LineImpactEstimatorV20160429_GPServer/Geoprocessing_LineImpactEstimatorV20160429/PointImpactEstimatorV201604252.htm</helpurl>
+	<taskurl>http://kbs-eagle.kbs.ku.edu:6080/arcgis/rest/services/SGP_CHAT/PointImpactEstimator/GPServer/SGP_CHAT_Webstie_PointEstimator</taskurl>
+	<helpurl>http://kbs-eagle.kbs.ku.edu:6080/arcgis/rest/directories/arcgisoutput/SGP_CHAT/PointImpactEstimator_GPServer/SGP_CHAT_PointImpactEstimator/PointImpactEstimator.htm</helpurl>
+   <!-- <taskurl>http://kars.ku.edu/arcgis/rest/services/Geoprocessing/LineImpactEstimatorV20160809/GPServer/LineImpactEstimator_v20160809</taskurl>
+    <helpurl>http://kars.ku.edu/arcgis/rest/directories/arcgisoutput/Geoprocessing/LineImpactEstimatorV20160809_GPServer/Geoprocessing_LineImpactEstimatorV20160809/LineImpactEstimator.htm</helpurl>   --> 
     <shareresults>true</shareresults>
     <inputparams>
         <param name="Input_Impact_Feature"
                geometrytype="polyline"
-               label="Assessment line"
+               label="Assessment point"
                required="true"
                type="featurerecordset"
                visible="true">
@@ -36,6 +38,12 @@ Distance to buffer features (in meters).
         	   required="true"
         	   visible="true">
         </param>
+      <!--   <param name="Input_Run_Type"
+       		  label="Run type"
+              type="string"
+              required="true"
+              visible="true"> 
+        </param> -->
     </inputparams>
     <outputparams>
     	<param name="Output_Evaluation_Units_Estimation"
@@ -54,7 +62,7 @@ Distance to buffer features (in meters).
         </param>
         <param name="Output_Project_Impact_Estimation"
                geometrytype="polygon"
-               label="Line Project impact estimation"
+               label="Point Project impact estimation"
                required="true"
                type="featurerecordset"
                visible="true">
@@ -96,5 +104,5 @@ Distance to buffer features (in meters).
             </renderer>
           </param>
     </outputparams>
-    <layerorder>Input_Impact_Feature,Input_Buffer_Distance,Output_Project_Impact_Estimation,Output_Evaluation_Units_Estimation,Output_Buffered_Infrastructure,Output_Project_Survey_Region</layerorder>
+    <layerorder>Input_Points,Input_Run_Type,Input_Buffer_Distance,Output_Project_Impact_Estimation,Output_Evaluation_Units_Estimation,Output_Buffered_Infrastructure,Output_Project_Survey_Region</layerorder>
 </configuration>

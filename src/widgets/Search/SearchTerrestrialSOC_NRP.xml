@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+<configuration label="Terrestrial Species of Concern">
+	<zoomscale>10000</zoomscale>
+    <layers>
+        <layer>
+            <name>Scientific Name</name>
+            <url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/TerrestrialHabitat/MapServer/0</url>
+            <expression>SCIENTIFIC like '[value]'</expression>
+            <textsearchlabel>Please enter name as it appears in the list, names are case sensitive.</textsearchlabel>
+            <titlefield></titlefield>
+            <linkfield></linkfield>
+            <symbol>
+            	<simplefillsymbol color="0xFF6600" />
+            </symbol>
+            <fields all="false">
+                <field name="SCIENTIFIC" alias="Scientific Name" />
+                <field name="COMMON_NAM" alias="Common Name" />
+            </fields>
+            <orderbyfields>SCIENTIFIC ASC</orderbyfields>
+        </layer>
+       <layer>
+            <name>Common Name</name>
+            <url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/TerrestrialHabitat/MapServer/0</url>
+            <expression>COMMON_NAM like '[value]'</expression>
+            <textsearchlabel>Please enter name as it appears in the list, names are case sensitive.
+            
+If the name contains an apostrophe use double apostrophe ''
+Example: Henslow''s Sparrow </textsearchlabel>
+            <titlefield></titlefield>
+            <linkfield></linkfield>
+            <symbol>
+            	<simplefillsymbol color="0x990066" />
+            </symbol>
+        
+            <fields all="false">
+                  <field name="COMMON_NAM" alias="Common Name" /> 
+                <field name="SCIENTIFIC" alias="Scientific Name" />
+            </fields>
+            <orderbyfields>SCIENTIFIC ASC</orderbyfields>
+          </layer> 
+    </layers>
+  
+</configuration>
+
+<!--
+    See Search widget tag reference at
+    http://links.esri.com/searchwidget
+-->

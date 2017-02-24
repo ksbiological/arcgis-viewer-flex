@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<!--
+////////////////////////////////////////////////////////////////////////////////
+//
+// CONFIGURATION:
+// aioSelectionMethod can be "extent" or "draw."
+// dataExtractionService is the url to the GP service.
+//
+////////////////////////////////////////////////////////////////////////////////
+-->
+<configuration label="Extract incident data">
+    <dataextractionservice>http://kars.ku.edu/arcgis/rest/services/Geoprocessing/NEONUKFS_ExtractDataTask/GPServer/Extract%20Data%20Task</dataextractionservice>
+    <aioselectionmethod>draw</aioselectionmethod>
+</configuration>
+
+<!--
+    See Data Extract widget tag reference at
+    http://links.esri.com/dataextractwidget
+-->

@@ -171,7 +171,7 @@
 <id>0</id>
 <url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/EnergyResources/MapServer</url>
 <fields>
-<field name="Type" alias="Structure" />
+<field name="Obstacle_Type" alias="Structure" />
 <field name="AGL_Height" alias="Feet Above Ground" />
 <field name="Lat" alias="Latitude" />
 <field name="Long" alias="Longitude" />
@@ -476,6 +476,28 @@
 <field name="Wetlands1" alias="Wetlands Rank" />
 <field name="Riparian1" alias="Riparian Rank" />
 <field name="WetRip1" alias="Wetland and Riparian Rank" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Aquatic Ecological Focus Areas</name>
+<id>0</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/AquaticEcologicalFocusAreas/MapServer</url>
+<fields>
+<field name="AquaticEFA" alias="Ecologic Focul Area" />
+</fields>
+<links/>
+<zoomscale>15000</zoomscale>
+<forcescale>true</forcescale>
+</layer>
+<layer>
+<name>Terrestrial Ecological Focus Areas</name>
+<id>0</id>
+<url>http://kars.ku.edu/arcgis/rest/services/KansasNaturalResourcePlanner/TerrestrialEcologicalFocusAreas/MapServer</url>
+<fields>
+<field name="EFA_Name" alias="Ecologic Focul Area" />
 </fields>
 <links/>
 <zoomscale>15000</zoomscale>

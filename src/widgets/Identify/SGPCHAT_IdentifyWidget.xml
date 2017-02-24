@@ -120,19 +120,6 @@
 <forcescale>true</forcescale>
 </layer>
 <layer>
-<name>LEPC Non Survey Areas</name>
-<id>2</id>
-<url>http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2LEPCSurveyAreas/MapServer</url>
-<fields>
-<field name="survey" alias="Non Survey Areas" />
-<field name="SUM_acres" alias="Acres" />
-<field name="SUM_sq_mil" alias="Square miles" />
-</fields>
-<links/>
-<zoomscale>15000</zoomscale>
-<forcescale>true</forcescale>
-</layer>
-<layer>
 <name>LEPC Focal Areas and Connectivity Zones</name>
 <id>0</id>
 <url>http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2FACZ/MapServer</url>
@@ -152,7 +139,7 @@
 <id>0</id>
 <url>http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2LPCHabitatRegions/MapServer</url>
 <fields>
-<field name="Eco_div" alias="Habitat Regions" />
+<field name="Ecoregions" alias="Habitat Regions" />
 </fields>
 </layer>
 <layer>
@@ -181,6 +168,7 @@
 <zoomscale>15000</zoomscale>
 <forcescale>true</forcescale>
 </layer>
+<excludelayer url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2EcologicalSiteDescriptions/MapServer"/>
 <excludelayer url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2InfrastructuresImpacts/MapServer"/>
 <excludelayer url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2ModifiedCrop/MapServer" id="0"/>
 <excludelayer url="http://kars.ku.edu/arcgis/rest/services/Sgpchat2013/SouthernGreatPlainsCrucialHabitatAssessmentTool2NLCD2006Landcover/MapServer" id="0"/>
